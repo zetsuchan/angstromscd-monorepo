@@ -4,7 +4,7 @@ import { useChat } from '../../context/ChatContext';
 import { Workspace } from '../../types';
 
 const Header: React.FC = () => {
-  const { currentWorkspace, setCurrentWorkspace } = useChat();
+  const { currentWorkspace, setCurrentWorkspace, workspaces } = useChat();
   const [isWorkspaceDropdownOpen, setIsWorkspaceDropdownOpen] = useState(false);
   
   const handleWorkspaceChange = (workspace: Workspace) => {
@@ -32,7 +32,7 @@ const Header: React.FC = () => {
           {isWorkspaceDropdownOpen && (
             <div className="absolute top-full left-0 mt-1 bg-white shadow-lg rounded-md border border-gray-200 w-48 z-10">
               <ul>
-                {useChat().workspaces.map((workspace) => (
+                {workspaces.map((workspace) => (
                   <li key={workspace.id}>
                     <button
                       className={`w-full text-left px-4 py-2 hover:bg-gray-100 ${
