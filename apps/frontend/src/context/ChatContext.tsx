@@ -13,6 +13,7 @@ interface ChatContextType {
   threads: Thread[];
   currentThread: Thread | null;
   currentWorkspace: Workspace;
+  workspaces: Workspace[];
   alerts: Alert[];
   statusInfo: typeof statusIndicator;
   newLiterature: string;
@@ -32,6 +33,7 @@ const ChatContext = createContext<ChatContextType | undefined>(undefined);
 export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [threads, setThreads] = useState<Thread[]>(mockThreads);
   const [currentWorkspace, setWorkspace] = useState<Workspace>(workspaces[0]);
+  const [workspaceList] = useState<Workspace[]>(workspaces);
   const [alerts, setAlerts] = useState<Alert[]>(recentAlerts);
   const [chatMode, setChatMode] = useState<ChatMode>('Research');
   const [messageTone, setMessageTone] = useState<MessageTone>('Default');
@@ -108,6 +110,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         threads,
         currentThread,
         currentWorkspace,
+        workspaces: workspaceList,
         alerts,
         statusInfo: statusIndicator,
         newLiterature: latestLiterature,
