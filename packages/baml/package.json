@@ -1,0 +1,19 @@
+{
+  "name": "angstromscd-baml",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "@types/bun": "latest",
+    "@types/node": "^22.15.21"
+  },
+  "peerDependencies": {
+    "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "@boundaryml/baml": "^0.89.0",
+    "@hono/node-server": "^1.14.3",
+    "hono": "^4.7.10"
+  }
+}
