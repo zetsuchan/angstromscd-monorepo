@@ -40,7 +40,7 @@ client<llm> LocalOllama {
   options {
     base_url "http://localhost:11434/v1"
     model "llama3.2"
-    api_key "ollama"
+    api_key env.OLLAMA_API_KEY
   }
 }
 
