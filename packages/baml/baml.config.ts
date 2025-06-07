@@ -1,5 +1,3 @@
-import { defineConfig } from "@boundaryml/baml";
-
-export default defineConfig({
+export default {
   schemaDir: "baml_src",
-});
+};

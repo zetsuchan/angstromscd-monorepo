@@ -5,6 +5,9 @@ import {
   runAnthropicChat,
   testOpenAIConnection,
   testAnthropicConnection,
+  testOllamaConnection,
+  generateInsight,
+  type InsightRequest,
 } from "./services/baml-service";
 import { success, failure } from "./utils/response";
 
@@ -22,6 +25,11 @@ app.get("/health/anthropic", async (c) => {
   return c.json(success({ anthropic: ok }));
 });
 
+app.get("/health/ollama", async (c) => {
+  const ok = await testOllamaConnection();
+  return c.json(success({ ollama: ok }));
+});
+
 app.post("/chat/openai", async (c) => {
   try {
     const { message } = await c.req.json();
@@ -37,6 +45,16 @@ app.post("/chat/anthropic", async (c) => {
     const { message } = await c.req.json();
     const reply = await runAnthropicChat(message);
     return c.json(success({ reply }));
+  } catch (err) {
+    return c.json(failure((err as Error).message), 500);
+  }
+});
+
+app.post("/generate-insight", async (c) => {
+  try {
+    const request = await c.req.json() as InsightRequest;
+    const insight = await generateInsight(request);
+    return c.json(success({ insight }));
   } catch (err) {
     return c.json(failure((err as Error).message), 500);
   }
