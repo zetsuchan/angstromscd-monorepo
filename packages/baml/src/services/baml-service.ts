@@ -142,6 +142,9 @@ export type InsightRequest = {
 
 export async function generateInsight(request: InsightRequest): Promise<string> {
   try {
+    if (!b || typeof b !== "object") {
+      throw new Error("BAML client is not properly initialized");
+    }
     switch (request.type) {
       case "medical-analysis":
         return await b.MedicalAnalysis(
