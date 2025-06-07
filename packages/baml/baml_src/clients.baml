@@ -35,6 +35,15 @@ client<llm> CustomHaiku {
   }
 }
 
+client<llm> LocalOllama {
+  provider openai
+  options {
+    base_url "http://localhost:11434/v1"
+    model "llama3.2"
+    api_key "ollama"
+  }
+}
+
 // https://docs.boundaryml.com/docs/snippets/clients/round-robin
 client<llm> CustomFast {
   provider round-robin
