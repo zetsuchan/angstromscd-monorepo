@@ -139,6 +139,146 @@ export interface ResearchSynthesisRequest {
 	research_question: string;
 }
 
+import { b } from "../../baml_client";
+import { fetchWithRetry } from "../utils/retry";
+
+export async function testOpenAIConnection(): Promise<boolean> {
+	const apiKey = process.env.OPENAI_API_KEY;
+	if (!apiKey) return false;
+
+	try {
+		const res = await fetchWithRetry("https://api.openai.com/v1/models", {
+			headers: { Authorization: `Bearer ${apiKey}` },
+		});
+		return res.ok;
+	} catch (err) {
+		console.error("[BAML] OpenAI connection test failed");
+		return false;
+	}
+}
+
+export async function testAnthropicConnection(): Promise<boolean> {
+	const apiKey = process.env.ANTHROPIC_API_KEY;
+	if (!apiKey) return false;
+
+	try {
+		const res = await fetchWithRetry("https://api.anthropic.com/v1/models", {
+			headers: {
+				"x-api-key": apiKey,
+				"anthropic-version": "2023-06-01",
+			},
+		});
+		return res.ok;
+	} catch (err) {
+		console.error("[BAML] Anthropic connection test failed");
+		return false;
+	}
+}
+
+export async function runOpenAIChat(message: string): Promise<string> {
+	const apiKey = process.env.OPENAI_API_KEY;
+	if (!apiKey) throw new Error("Missing OPENAI_API_KEY");
+
+	try {
+		const res = await fetchWithRetry(
+			"https://api.openai.com/v1/chat/completions",
+			{
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${apiKey}`,
+				},
+				body: JSON.stringify({
+					model: "gpt-4o",
+					messages: [{ role: "user", content: message }],
+				}),
+			},
+		);
+
+		const data = (await res.json()) as {
+			choices: Array<{ message: { content: string } }>;
+		};
+		return data.choices?.[0]?.message?.content ?? "";
+	} catch (err) {
+		console.error("[BAML] OpenAI chat request failed");
+		throw err;
+	}
+}
+
+export async function runAnthropicChat(message: string): Promise<string> {
+	const apiKey = process.env.ANTHROPIC_API_KEY;
+	if (!apiKey) throw new Error("Missing ANTHROPIC_API_KEY");
+
+	try {
+		const res = await fetchWithRetry("https://api.anthropic.com/v1/messages", {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+				"x-api-key": apiKey,
+				"anthropic-version": "2023-06-01",
+			},
+			body: JSON.stringify({
+				model: "claude-3-haiku-20240307",
+				max_tokens: 256,
+				messages: [{ role: "user", content: message }],
+			}),
+		});
+
+		const data = (await res.json()) as {
+			content?: Array<{ text: string }>;
+		};
+		return data.content?.[0]?.text ?? "";
+	} catch (err) {
+		console.error("[BAML] Anthropic chat request failed");
+		throw err;
+	}
+}
+
+export async function testOllamaConnection(): Promise<boolean> {
+	try {
+		const res = await fetchWithRetry("http://localhost:11434/api/tags");
+		return res.ok;
+	} catch (err) {
+		console.error("[BAML] Ollama connection test failed");
+		return false;
+	}
+}
+
+export interface MedicalAnalysisRequest {
+	patient_data: string;
+	symptoms: string;
+	medical_history: string;
+}
+
+export interface LiteratureSearchRequest {
+	research_query: string;
+	medical_domain: string;
+	time_period: string;
+}
+
+export interface RiskModelingRequest {
+	patient_profile: string;
+	risk_factors: string[];
+	outcome_target: string;
+}
+
+export interface PopulationRiskRequest {
+	population_data: string;
+	demographic_factors: string;
+	environmental_factors: string;
+}
+
+export interface ClinicalDecisionRequest {
+	clinical_scenario: string;
+	patient_data: string;
+	treatment_options: string[];
+}
+
+export interface ResearchSynthesisRequest {
+	papers: string[];
+	research_question: string;
+}
+
 export type InsightRequest =
 	| {
 			type: "medical-analysis";
@@ -221,4 +361,5 @@ export async function generateInsight(
 			`Failed to generate insight: ${error instanceof Error ? error.message : String(error)}`,
 		);
 	}
+} main
 }
