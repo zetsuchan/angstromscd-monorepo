@@ -6,6 +6,7 @@
     "apps/*",
     "packages/*"
   ],
+  "license": "MIT",
   "scripts": {
     "dev": "bun run dev:services",
     "dev:services": "concurrently -n \"infra,api,baml,vector,frontend\" -c \"blue,green,yellow,magenta,cyan\" \"bun run dev:infra\" \"bun run dev:api\" \"bun run dev:baml\" \"bun run dev:vector\" \"bun run dev:frontend\"",
