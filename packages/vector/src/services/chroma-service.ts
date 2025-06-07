@@ -5,12 +5,22 @@ export class VectorService {
   private embedder: OpenAIEmbeddingFunction
 
   constructor() {
+    const chromaUrl = process.env.CHROMA_URL
+    if (!chromaUrl) {
+      throw new Error("CHROMA_URL environment variable is not defined")
+    }
+
+    const openAiKey = process.env.OPENAI_API_KEY
+    if (!openAiKey) {
+      throw new Error("OPENAI_API_KEY environment variable is not defined")
+    }
+
     this.client = new ChromaClient({
-      path: process.env.CHROMA_URL || "http://localhost:8000"
+      path: chromaUrl
     })
-    
+
     this.embedder = new OpenAIEmbeddingFunction({
-      openai_api_key: process.env.OPENAI_API_KEY || ""
+      openai_api_key: openAiKey
     })
   }
 
