@@ -1,5 +1,6 @@
 // Import BAML client
 import { b } from "../../baml_client";
+import { fetchWithRetry } from "../utils/retry";
 
 /**
  * Checks if a valid connection to the OpenAI API can be established using the configured API key.
@@ -11,11 +12,7 @@ export async function testOpenAIConnection(): Promise<boolean> {
 	if (!apiKey) return false;
 
 	try {
-		const res = await fetch("https://api.openai.com/v1/models", {
-			headers: { Authorization: `Bearer ${apiKey}` },
-		});
-		return res.ok;
-	} catch {
+ main
 		return false;
 	}
 }
@@ -30,14 +27,14 @@ export async function testAnthropicConnection(): Promise<boolean> {
 	if (!apiKey) return false;
 
 	try {
-		const res = await fetch("https://api.anthropic.com/v1/models", {
+ main
 			headers: {
 				"x-api-key": apiKey,
 				"anthropic-version": "2023-06-01",
 			},
 		});
 		return res.ok;
-	} catch {
+ main
 		return false;
 	}
 }
@@ -54,22 +51,7 @@ export async function runOpenAIChat(message: string): Promise<string> {
 	const apiKey = process.env.OPENAI_API_KEY;
 	if (!apiKey) throw new Error("Missing OPENAI_API_KEY");
 
-	const res = await fetch("https://api.openai.com/v1/chat/completions", {
-		method: "POST",
-		headers: {
-			"Content-Type": "application/json",
-			Authorization: `Bearer ${apiKey}`,
-		},
-		body: JSON.stringify({
-			model: "gpt-4o",
-			messages: [{ role: "user", content: message }],
-		}),
-	});
-
-	const data = (await res.json()) as {
-		choices?: Array<{ message?: { content?: string } }>;
-	};
-	return data.choices?.[0]?.message?.content ?? "";
+ main
 }
 
 /**
@@ -83,122 +65,7 @@ export async function runOpenAIChat(message: string): Promise<string> {
 export async function runAnthropicChat(message: string): Promise<string> {
 	const apiKey = process.env.ANTHROPIC_API_KEY;
 	if (!apiKey) throw new Error("Missing ANTHROPIC_API_KEY");
-
-	const res = await fetch("https://api.anthropic.com/v1/messages", {
-		method: "POST",
-		headers: {
-			"Content-Type": "application/json",
-			"x-api-key": apiKey,
-			"anthropic-version": "2023-06-01",
-		},
-		body: JSON.stringify({
-			model: "claude-3-haiku-20240307",
-			max_tokens: 256,
-			messages: [{ role: "user", content: message }],
-		}),
-	});
-
-	const data = (await res.json()) as {
-		content?: Array<{ text?: string }>;
-	};
-	return data.content?.[0]?.text ?? "";
-}
-
-/**
- * Checks connectivity to the Ollama API by attempting to fetch available model tags.
- *
- * @returns `true` if the Ollama API is reachable and responds successfully; otherwise, `false`.
- */
-export async function testOllamaConnection(): Promise<boolean> {
-	const baseUrl = process.env.OLLAMA_BASE_URL || "http://localhost:11434";
-
-	try {
-		const res = await fetch(`${baseUrl}/api/tags`);
-		return res.ok;
-	} catch {
-		return false;
-	}
-}
-
-/**
- * Sends a chat message to an Ollama model and returns the generated response.
- *
- * @param message - The user message to send to the model.
- * @param model - The Ollama model to use. Defaults to "llama3.2:3b".
- * @returns The content of the model's response, or an empty string if unavailable.
- *
- * @throws {Error} If the Ollama API response is not successful.
- */
-export async function runOllamaChat(
-	message: string,
-	model = "llama3.2:3b",
-): Promise<string> {
-	const baseUrl = process.env.OLLAMA_BASE_URL || "http://localhost:11434";
-
-	const res = await fetch(`${baseUrl}/api/chat`, {
-		method: "POST",
-		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify({
-			model,
-			messages: [{ role: "user", content: message }],
-			stream: false,
-		}),
-	});
-
-	if (!res.ok) {
-		throw new Error(`Ollama error: ${res.statusText}`);
-	}
-
-	const data = (await res.json()) as {
-		message?: { content?: string };
-	};
-	return data.message?.content ?? "";
-}
-
-/**
- * Checks connectivity to the Apple Foundation Bridge service.
- *
- * @returns `true` if the service health endpoint responds successfully; otherwise, `false`.
- */
-export async function testAppleFoundationConnection(): Promise<boolean> {
-	const bridgeUrl = process.env.APPLE_BRIDGE_URL || "http://localhost:3004";
-
-	try {
-		const res = await fetch(`${bridgeUrl}/health`);
-		return res.ok;
-	} catch {
-		return false;
-	}
-}
-
-/**
- * Sends a chat message to the Apple Foundation Bridge API and returns the model's response.
- *
- * @param message - The user's input message to send to the Apple Foundation model.
- * @returns The content of the model's response message, or an empty string if unavailable.
- *
- * @throws {Error} If the Apple Foundation Bridge API responds with a non-OK status.
- */
-export async function runAppleFoundationChat(message: string): Promise<string> {
-	const bridgeUrl = process.env.APPLE_BRIDGE_URL || "http://localhost:3004";
-
-	const res = await fetch(`${bridgeUrl}/v1/chat/completions`, {
-		method: "POST",
-		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify({
-			model: "apple-foundation-3b",
-			messages: [{ role: "user", content: message }],
-		}),
-	});
-
-	if (!res.ok) {
-		throw new Error(`Apple Foundation Bridge error: ${res.statusText}`);
-	}
-
-	const data = (await res.json()) as {
-		choices?: Array<{ message?: { content?: string } }>;
-	};
-	return data.choices?.[0]?.message?.content ?? "";
+ main
 }
 
 export interface MedicalAnalysisRequest {
@@ -318,14 +185,12 @@ export async function generateInsight(
 					request.data.research_question,
 				);
 
-			default: {
-				const unknownType = request as { type: string };
-				throw new Error(`Unknown insight type: ${unknownType.type}`);
-			}
+ main
 		}
 	} catch (error) {
 		throw new Error(
 			`Failed to generate insight: ${error instanceof Error ? error.message : String(error)}`,
 		);
 	}
+ main
 }
