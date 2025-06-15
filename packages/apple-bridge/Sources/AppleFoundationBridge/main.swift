@@ -35,6 +35,12 @@ struct ChatCompletionResponse: Content {
 // Mock Apple Foundation Model service
 // Replace with actual FoundationModels implementation when available
 class AppleFoundationModelService {
+    /// Processes a chat completion request using the Apple Foundation Model service.
+    ///
+    /// Currently returns a mock response simulating an assistant powered by an on-device ~3B parameter model with medical research adapters.
+    ///
+    /// - Parameter request: The chat completion request containing model details, messages, and optional generation parameters.
+    /// - Returns: The assistant's reply as a string.
     func processChat(request: ChatCompletionRequest) async throws -> String {
         // Mock implementation - replace with actual Foundation Models API when available
         // Based on Apple's documentation, the ~3B parameter on-device model
@@ -56,6 +62,11 @@ class AppleFoundationModelService {
     }
 }
 
+/// Registers HTTP routes for the Apple Foundation Models Bridge service.
+///
+/// Sets up the root endpoint, a health check endpoint, and a chat completion endpoint for handling chat requests and returning model-generated responses.
+///
+/// - Throws: An error if route registration fails.
 func routes(_ app: Application) throws {
     let modelService = AppleFoundationModelService()
     
@@ -90,6 +101,9 @@ func routes(_ app: Application) throws {
 
 @main
 struct AppleFoundationBridge {
+    /// Starts the Apple Foundation Models Bridge server with configured routes and middleware.
+    ///
+    /// Sets up the Vapor application environment, logging, CORS middleware, and HTTP server on port 3004, then runs the server asynchronously. Shuts down the application on exit.
     static func main() async throws {
         var env = try Environment.detect()
         try LoggingSystem.bootstrap(from: &env)
