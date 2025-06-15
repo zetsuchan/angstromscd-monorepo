@@ -119,6 +119,22 @@ This application specifically handles:
 - **Features**: Adapter-based fine-tuning, ~0.6ms per prompt token latency
 - **Privacy**: All processing on-device, no cloud dependency
 
+## Testing
+
+Currently, the codebase does not have a comprehensive test suite. When implementing tests:
+- Check package.json for available test scripts before creating new ones
+- Consider the medical domain requirements when writing test cases
+- Ensure PHI (Protected Health Information) is properly mocked in tests
+
+## API Endpoints
+
+Key API routes are defined in `apps/api/src/index.ts`:
+- `/api/health` - Health check endpoint
+- `/api/chat` - Main chat interface for medical queries
+- `/api/literature` - Medical literature search
+- `/api/patients` - Patient data management (requires authentication)
+- `/api/voe` - VOE risk assessment endpoints
+
 ## Environment Setup
 
 **Required Environment Variables**:
@@ -145,3 +161,47 @@ This application specifically handles:
 - ChromaDB: 8000
 - Ollama: 11434
 - PostgreSQL: 5432
+
+## Common Development Patterns
+
+### Adding New AI Models
+To add a new AI model provider:
+1. Update `packages/baml/baml_src/clients.baml` with the new client configuration
+2. Add the model to `packages/baml/src/services/model-service.ts`
+3. Update frontend model selector in `apps/frontend/src/components/ModelSelector.tsx`
+
+### Database Migrations
+When modifying the database schema:
+1. Update SQL scripts in `infra/scripts/`
+2. Run `./scripts/setup-database.sh` to apply changes
+3. Update TypeScript types in `apps/api/src/types/`
+
+### BAML Prompt Engineering
+BAML files in `packages/baml/baml_src/` define structured AI prompts:
+- `medical_researcher.baml` - Medical research assistant prompts
+- `clients.baml` - AI model client configurations
+- Use `bun run baml:generate` after modifying BAML files
+
+### Frontend State Updates
+When adding new features that require state:
+1. Update context in `apps/frontend/src/context/ChatContext.tsx`
+2. Add corresponding types in `apps/frontend/src/types/`
+3. Update mock data in `apps/frontend/src/data/mockData.ts` for development
+
+## Debugging Tips
+
+### Service Connection Issues
+- Check all services are running: `bun run dev`
+- Verify Docker containers: `docker ps`
+- Check service logs: `docker logs infra-postgres-1` or `docker logs infra-chromadb-1`
+- Ensure environment variables are set in `.env` files
+
+### CORS Issues
+- API CORS configuration is in `apps/api/src/index.ts`
+- Frontend proxy configuration is in `apps/frontend/vite.config.ts`
+
+### AI Model Errors
+- Check API keys in environment variables
+- Verify Ollama is running: `curl http://localhost:11434/api/tags`
+- Check Apple Bridge: `curl http://localhost:3004/health`
+- Review BAML service logs for detailed error messages
