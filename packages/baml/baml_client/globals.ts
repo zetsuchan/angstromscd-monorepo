@@ -25,6 +25,15 @@ export const DO_NOT_USE_DIRECTLY_UNLESS_YOU_KNOW_WHAT_YOURE_DOING_CTX =
 		DO_NOT_USE_DIRECTLY_UNLESS_YOU_KNOW_WHAT_YOURE_DOING_RUNTIME,
 	);
 
+/**
+ * Resets the BAML runtime environment variables if no active BAML contexts exist.
+ *
+ * Filters out environment variables with `undefined` values before resetting. Throws an error if there are active BAML contexts, preventing the reset.
+ *
+ * @param envVars - Environment variables to set for the BAML runtime.
+ *
+ * @throws {Error} If there are active BAML contexts when attempting to reset environment variables.
+ */
 export function resetBamlEnvVars(envVars: Record<string, string | undefined>) {
 	if (DO_NOT_USE_DIRECTLY_UNLESS_YOU_KNOW_WHAT_YOURE_DOING_CTX.allowResets()) {
 		const envVarsToReset = Object.fromEntries(
