@@ -1,3 +1,3 @@
 export default {
-  schemaDir: "baml_src",
+	schemaDir: "baml_src",
 };

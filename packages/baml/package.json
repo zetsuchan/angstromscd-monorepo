@@ -3,6 +3,7 @@
 	"module": "index.ts",
 	"type": "module",
 	"private": true,
+ main
 	"devDependencies": {
 		"@biomejs/biome": "^1.9.4",
 		"@types/bun": "latest",
@@ -15,8 +16,6 @@
 		"@boundaryml/baml": "^0.89.0",
 		"@hono/node-server": "^1.14.3",
 		"hono": "^4.7.10"
-	},
-	"scripts": {
-		"build": "bun build src/index.ts --target=bun --outdir dist"
+ main
 	}
 }
