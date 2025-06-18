@@ -40,7 +40,54 @@ client<llm> LocalOllama {
   options {
     base_url "http://localhost:11434/v1"
     model "llama3.2"
-    api_key "ollama"
+    api_key env.OLLAMA_API_KEY
+  }
+}
+
+// Ollama Local Models
+client<llm> OllamaQwen05B {
+  provider openai
+  options {
+    model "qwen2.5:0.5b"
+    base_url env.OLLAMA_BASE_URL
+    api_key "unused"
+  }
+}
+
+client<llm> OllamaLlama32B {
+  provider openai
+  options {
+    model "llama3.3:70b-instruct-q4_K_M"
+    base_url env.OLLAMA_BASE_URL
+    api_key "unused"
+  }
+}
+
+client<llm> OllamaLlama70B {
+  provider openai
+  options {
+    model "llama3.3:70b-instruct-q4_K_M"
+    base_url env.OLLAMA_BASE_URL
+    api_key "unused"
+  }
+}
+
+client<llm> OllamaMixtral {
+  provider openai
+  options {
+    model "mixtral:8x7b"
+    base_url env.OLLAMA_BASE_URL
+    api_key "unused"
+  }
+}
+
+// Apple Foundation Models (via Swift bridge)
+client<llm> AppleFoundation3B {
+  provider openai
+  options {
+    model "apple-foundation-3b"
+    api_key "local"
+    base_url env.APPLE_BRIDGE_URL
   }
 }
 
