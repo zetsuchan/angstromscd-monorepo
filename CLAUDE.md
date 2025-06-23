@@ -55,7 +55,7 @@ bun run lint:fix      # Fix linting issues
 ### Local AI Services
 - **Ollama**: Install from https://ollama.com, runs on port 11434
   - Pull models: `ollama pull qwen2.5:0.5b`, `ollama pull llama3.2:3b`, `ollama pull mixtral:8x7b`
-- **Apple Foundation Bridge**: `cd packages/apple-bridge && swift run` (port 3004, requires macOS 15+)
+- **Apple Foundation Bridge**: `cd packages/apple-bridge && swift run` (port 3004, requires macOS 26+)
 
 ### Infrastructure Setup
 ```bash
@@ -117,7 +117,7 @@ This application specifically handles:
 - **Large**: Llama 3.3 (70B quantized), Mixtral 8x7B
 - **Specialized**: CodeLlama (70B) for code generation
 
-### Apple Foundation Models (macOS 15+)
+### Apple Foundation Models (macOS 26+)
 - **On-Device**: ~3B parameter model with 3.7 bits-per-weight quantization
 - **Features**: Adapter-based fine-tuning, ~0.6ms per prompt token latency
 - **Privacy**: All processing on-device, no cloud dependency
@@ -154,7 +154,7 @@ Key API routes are defined in `apps/api/src/index.ts`:
 - Docker (for PostgreSQL and ChromaDB)
 - Bun runtime installed
 - Ollama (optional, for local models)
-- Swift 6.1+ and macOS 15+ (optional, for Apple models)
+- Swift 6.1+ and macOS 26+ (optional, for Apple models)
 
 **Port Configuration**:
 - Frontend: Vite dev server (typically 5173)
