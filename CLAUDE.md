@@ -77,10 +77,13 @@ docker-compose up -d
 - Tables: `scd_patients`, `voe_episodes`, `literature_citations`
 - Access via Supabase client in `apps/api/src/lib/db.ts`
 
-**ChromaDB** (Vector Database):
+**Vector Databases** (Multiple Provider Support):
+- **ChromaDB**: Default provider, runs on port 8000
+- **Qdrant**: Alternative provider, runs on port 6333
+- **PostgreSQL + pgvector**: Uses existing PostgreSQL with vector extension
 - Collections: `medical_papers`, `user_documents`, `clinical_datasets`, `conversation_context`
 - Used for semantic search of medical literature
-- Service runs on port 8000
+- Provider selection via `VECTOR_PROVIDER` environment variable
 
 ## Medical Domain Context
 

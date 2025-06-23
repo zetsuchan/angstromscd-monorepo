@@ -1,9 +1,12 @@
 import { Hono } from "hono"
 import { serve } from "@hono/node-server"
-import { VectorService } from "./services/chroma-service"
+import { VectorService } from "./services/vector-service"
 
 const app = new Hono()
 const vectorService = new VectorService()
+
+// Initialize vector service on startup
+await vectorService.initialize()
 
 app.get('/', (c) => {
   return c.json({ message: 'AngstromSCD Vector Service' })
