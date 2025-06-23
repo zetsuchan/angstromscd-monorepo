@@ -52,11 +52,14 @@ export class VectorProviderFactory {
 				};
 
 			case "pgvector":
+				if (!process.env.DATABASE_URL) {
+					throw new Error(
+						"DATABASE_URL environment variable is required for pgvector provider",
+					);
+				}
 				return {
 					...baseConfig,
-					connectionUrl:
-						process.env.DATABASE_URL ||
-						"postgresql://postgres:password@localhost:5432/angstromscd",
+					connectionUrl: process.env.DATABASE_URL,
 				};
 
 			default:

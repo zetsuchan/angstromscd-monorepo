@@ -180,7 +180,9 @@ struct Citation: Identifiable, Equatable, Codable {
             parts.append(authors.joined(separator: ", "))
         }
         
-        parts.append("(\(year ?? 0))")
+        if let year = year {
+            parts.append("(\(year))")
+        }
         parts.append(title)
         
         if let journal = journal {

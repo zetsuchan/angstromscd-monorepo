@@ -10,6 +10,7 @@ actor AppleFoundationService {
     
     private var sessions: [UUID: LanguageModelSession] = [:]
     private let systemModel = SystemLanguageModel()
+    private let dateFormatter = ISO8601DateFormatter()
     
     enum ServiceError: LocalizedError {
         case modelNotAvailable(String)
@@ -124,7 +125,9 @@ actor AppleFoundationService {
         
         do {
             for try await chunk in session.stream(prompt: prompt, options: options) {
-                onChunk(chunk.content)
+                await MainActor.run {
+                    onChunk(chunk.content)
+                }
             }
         } catch {
             throw ServiceError.responseGenerationFailed(error.localizedDescription)
@@ -216,7 +219,7 @@ actor AppleFoundationService {
             metadata: [
                 "domain": "medical_research",
                 "specialty": "sickle_cell_disease",
-                "timestamp": ISO8601DateFormatter().string(from: Date())
+                "timestamp": dateFormatter.string(from: Date())
             ]
         )
     }

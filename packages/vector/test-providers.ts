@@ -40,7 +40,7 @@ async function testProvider(config: VectorProviderConfig) {
 			query: "hydroxyurea treatment benefits",
 			nResults: 2,
 		});
-		console.log("✅ Query results:", results.documents[0].slice(0, 2));
+		console.log("✅ Query results:", results.documents?.[0]?.slice(0, 2) ?? []);
 
 		// List collections
 		const collections = await provider.listCollections();

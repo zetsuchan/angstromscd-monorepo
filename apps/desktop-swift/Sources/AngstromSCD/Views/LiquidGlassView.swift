@@ -33,12 +33,12 @@ struct MaterialBackgroundView: View {
             GeometryReader { geometry in
                 Canvas { context, size in
                     for _ in 0..<500 {
-                        let x = Double.random(in: 0...size.width)
-                        let y = Double.random(in: 0...size.height)
+                        let x = Double.random(in: 0...Double(size.width))
+                        let y = Double.random(in: 0...Double(size.height))
                         let opacity = Double.random(in: 0.02...0.05)
                         
                         context.fill(
-                            Path(ellipseIn: CGRect(x: x, y: y, width: 1, height: 1)),
+                            Path(ellipseIn: CGRect(x: CGFloat(x), y: CGFloat(y), width: 1, height: 1)),
                             with: .color(.white.opacity(opacity))
                         )
                     }

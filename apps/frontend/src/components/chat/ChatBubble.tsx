@@ -51,6 +51,7 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({ message }) => {
 							{message.citations.map((citation) => (
 								<div key={citation.id} className="text-sm">
 									<button
+										type="button"
 										className={`flex items-center ${
 											message.sender === "user"
 												? "text-blue-200"
@@ -78,8 +79,13 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({ message }) => {
 											<p className="mb-2">"{citation.snippet}"</p>
 											<div className="flex justify-between items-center text-xs">
 												<span>{citation.source}</span>
-												<a
-													href="#"
+												<button
+													type="button"
+													onClick={(e) => {
+														e.preventDefault();
+														// TODO: Implement source view
+														console.log("View source:", citation.source);
+													}}
 													className={`flex items-center ${
 														message.sender === "user"
 															? "text-blue-200"
@@ -88,7 +94,7 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({ message }) => {
 												>
 													<span className="mr-1">View Source</span>
 													<ExternalLink size={12} />
-												</a>
+												</button>
 											</div>
 										</div>
 									)}

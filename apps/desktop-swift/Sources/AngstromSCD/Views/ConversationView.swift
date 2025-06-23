@@ -235,6 +235,7 @@ struct MessageActionsView: View {
 
 struct LoadingMessageView: View {
     @State private var dots = ""
+    @State private var timer: Timer?
     
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
@@ -265,11 +266,15 @@ struct LoadingMessageView: View {
         .onAppear {
             animateDots()
         }
+        .onDisappear {
+            timer?.invalidate()
+            timer = nil
+        }
     }
     
     private func animateDots() {
-        withAnimation(.easeInOut(duration: 0.5).repeatForever()) {
-            Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { _ in
+        timer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { _ in
+            withAnimation(.easeInOut(duration: 0.3)) {
                 dots = dots.count < 3 ? dots + "." : ""
             }
         }

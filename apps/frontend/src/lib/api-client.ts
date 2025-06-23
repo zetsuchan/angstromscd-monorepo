@@ -48,6 +48,21 @@ async function fetchApi<T>(
 			},
 		});
 
+		// Handle 204 No Content response
+		if (response.status === 204) {
+			return {} as T;
+		}
+
+		// Check if response has JSON content
+		const contentType = response.headers.get("content-type");
+		if (!contentType || !contentType.includes("application/json")) {
+			throw new ApiClientError(
+				"Response is not JSON",
+				"INVALID_CONTENT_TYPE",
+				response.status,
+			);
+		}
+
 		const data = (await response.json()) as ApiResponse<T>;
 
 		if (!response.ok || isApiErrorResponse(data)) {
@@ -208,7 +223,7 @@ export const apiClient = {
 		const searchParams = new URLSearchParams();
 		if (params?.threadId) searchParams.set("thread_id", params.threadId);
 		if (params?.limit) searchParams.set("limit", params.limit.toString());
-		if (params?.offset) searchParams.set("offset", params.offset.toString());
+		if (params?.offset !== undefined) searchParams.set("offset", params.offset.toString());
 
 		const query = searchParams.toString();
 		return fetchApiAuth(`/api/messages${query ? `?${query}` : ""}`);

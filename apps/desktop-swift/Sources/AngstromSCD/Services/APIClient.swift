@@ -235,6 +235,8 @@ final class APIClient: ObservableObject {
             }
         ]
         
+        var accumulatedContent = ""
+        
         session.streamRequest(
             endpoint,
             method: .post,
@@ -246,6 +248,7 @@ final class APIClient: ObservableObject {
             case .stream(let result):
                 switch result {
                 case .success(let chunk):
+                    accumulatedContent += chunk
                     onChunk(chunk)
                 case .failure(let error):
                     onComplete(.failure(APIError.networkError(error)))
@@ -256,7 +259,7 @@ final class APIClient: ObservableObject {
                     let message = Message(
                         id: UUID(),
                         role: .assistant,
-                        content: "", // Content was streamed
+                        content: accumulatedContent,
                         timestamp: Date(),
                         model: model
                     )
