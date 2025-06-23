@@ -154,15 +154,17 @@ struct CitationDetailCard: View {
             
             // Identifiers
             HStack(spacing: 12) {
-                if let pmid = citation.pmid {
-                    Link(destination: URL(string: "https://pubmed.ncbi.nlm.nih.gov/\(pmid)")!) {
+                if let pmid = citation.pmid,
+                   let url = URL(string: "https://pubmed.ncbi.nlm.nih.gov/\(pmid)") {
+                    Link(destination: url) {
                         Label("PMID: \(pmid)", systemImage: "link")
                             .font(.caption)
                     }
                 }
                 
-                if let doi = citation.doi {
-                    Link(destination: URL(string: "https://doi.org/\(doi)")!) {
+                if let doi = citation.doi,
+                   let url = URL(string: "https://doi.org/\(doi)") {
+                    Link(destination: url) {
                         Label("DOI", systemImage: "link")
                             .font(.caption)
                     }

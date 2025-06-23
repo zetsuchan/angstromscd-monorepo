@@ -63,26 +63,27 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
 	};
 
 	const addMessage = (content: string, sender: "user" | "ai") => {
-		if (!currentThread) return;
+		setThreads((prevThreads) => {
+			const activeThread = prevThreads.find((thread) => thread.isActive);
+			if (!activeThread) return prevThreads;
 
-		const newMessage: Message = {
-			id: Date.now().toString(),
-			content,
-			sender,
-			timestamp: new Date(),
-		};
+			const newMessage: Message = {
+				id: Date.now().toString(),
+				content,
+				sender,
+				timestamp: new Date(),
+			};
 
-		setThreads((prevThreads) =>
-			prevThreads.map((thread) => {
-				if (thread.id === currentThread.id) {
+			return prevThreads.map((thread) => {
+				if (thread.id === activeThread.id) {
 					return {
 						...thread,
 						messages: [...thread.messages, newMessage],
 					};
 				}
 				return thread;
-			}),
-		);
+			});
+		});
 	};
 
 	const createThread = (name: string) => {

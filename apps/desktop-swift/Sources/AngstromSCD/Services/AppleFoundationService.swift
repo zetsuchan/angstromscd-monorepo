@@ -124,7 +124,9 @@ actor AppleFoundationService {
         
         do {
             for try await chunk in session.stream(prompt: prompt, options: options) {
-                onChunk(chunk.content)
+                await MainActor.run {
+                    onChunk(chunk.content)
+                }
             }
         } catch {
             throw ServiceError.responseGenerationFailed(error.localizedDescription)
