@@ -54,10 +54,7 @@ func routes(_ app: Application) throws {
             ] : nil
         )
     }
-    
-    // Chat completion endpoint (OpenAI-compatible)
-    app.post("v1", "chat", "completions") { req async throws -> Response in
-        let request = try req.content.decode(ChatCompletionRequest.self)
+ main
         
         // Handle streaming requests
         if request.stream == true {
@@ -119,11 +116,7 @@ func routes(_ app: Application) throws {
     }
 }
 
-// MARK: - Chunk Collector
-
-@available(macOS 26.0, *)
-actor ChunkCollector {
-    private var chunks: [String] = []
+ main
     
     func append(_ chunk: String) {
         chunks.append(chunk)
@@ -242,7 +235,7 @@ func handleStreamingRequest<T>(
 
 @main
 struct AppleFoundationBridge {
-    static func main() throws {
+ main
         var env = try Environment.detect()
         try LoggingSystem.bootstrap(from: &env)
         
