@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --liquid-glass-blur: 20px;
+    --liquid-glass-saturation: 1.8;
+  }
+  
+  body {
+    @apply bg-transparent overflow-hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  * {
+    user-select: none;
+    -webkit-user-drag: none;
+  }
+  
+  input, textarea {
+    user-select: text;
+  }
+}
