@@ -1,6 +1,5 @@
 import type {
 	ApiResponse,
-	AuthRequest,
 	DbMessage,
 	DbUser,
 } from "@angstromscd/shared-types";
@@ -94,14 +93,15 @@ router.post("/auth/signup", async (c) => {
 			throw new AuthenticationError("Failed to create user");
 		}
 
-		// Create user profile in our database
-		const dbUser: Partial<DbUser> = {
-			id: data.user.id,
-			email: data.user.email!,
-			role: "viewer",
-			created_at: new Date().toISOString(),
-			updated_at: new Date().toISOString(),
-		};
+		// TODO: Create user profile in our database
+		// const dbUser: Partial<DbUser> = {
+		// 	id: data.user.id,
+		// 	email: data.user.email!,
+		// 	role: "viewer",
+		// 	created_at: new Date().toISOString(),
+		// 	updated_at: new Date().toISOString(),
+		// };
+		// await supabase.from("users").insert(dbUser);
 
 		const response = createApiResponse({
 			user: {
@@ -221,12 +221,19 @@ router.get("/api/messages", async (c) => {
 	try {
 		// Parse query parameters
 		const threadId = c.req.query("thread_id");
-		const limit = Number.parseInt(c.req.query("limit") || "50");
-		const offset = Number.parseInt(c.req.query("offset") || "0");
+		const limitStr = c.req.query("limit") || "50";
+		const offsetStr = c.req.query("offset") || "0";
+		
+		const limit = Number.parseInt(limitStr);
+		const offset = Number.parseInt(offsetStr);
 
 		// Validate parameters
-		if (limit < 1 || limit > 100) {
-			throw new ValidationError("Limit must be between 1 and 100");
+		if (Number.isNaN(limit) || limit < 1 || limit > 100) {
+			throw new ValidationError("Limit must be a number between 1 and 100");
+		}
+		
+		if (Number.isNaN(offset) || offset < 0) {
+			throw new ValidationError("Offset must be a non-negative number");
 		}
 
 		let query = supabase.from("messages").select("*", { count: "exact" });
