@@ -5,7 +5,15 @@ struct SidebarView: View {
     let store: StoreOf<AppReducer>
     
     var body: some View {
-        WithViewStore(self.store, observe: { $0 }) { viewStore in
+        WithViewStore(self.store, observe: { state in
+            // Only observe properties needed for sidebar
+            (
+                conversations: state.conversations,
+                selectedConversationId: state.selectedConversationId,
+                searchQuery: state.searchQuery,
+                isLoadingConversations: state.isLoadingConversations
+            )
+        }) { viewStore in
             List(selection: viewStore.binding(
                 get: \.selectedConversationId,
                 send: AppReducer.Action.selectConversation

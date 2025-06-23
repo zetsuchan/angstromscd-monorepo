@@ -5,7 +5,14 @@ struct ContentView: View {
     let store: StoreOf<AppReducer>
     
     var body: some View {
-        WithViewStore(self.store, observe: { $0 }) { viewStore in
+        WithViewStore(self.store, observe: { state in
+            // Only observe the specific properties this view needs
+            (
+                selectedConversation: state.selectedConversation,
+                isOnboarding: state.isOnboarding,
+                windowSettings: state.windowSettings
+            )
+        }) { viewStore in
             NavigationSplitView(
                 columnVisibility: .constant(.all),
                 sidebar: {
