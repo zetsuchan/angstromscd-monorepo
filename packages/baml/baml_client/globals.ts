@@ -18,21 +18,18 @@ $ pnpm add @boundaryml/baml
 import { BamlCtxManager, BamlRuntime } from '@boundaryml/baml'
 import { getBamlFiles } from "./inlinedbaml";
 
+// Create a copy of process.env to avoid mutations
+const env = { ...process.env };
+
 export const DO_NOT_USE_DIRECTLY_UNLESS_YOU_KNOW_WHAT_YOURE_DOING_RUNTIME =
-	BamlRuntime.fromFiles("baml_src", getBamlFiles(), process.env);
+	BamlRuntime.fromFiles("baml_src", getBamlFiles(), env);
 export const DO_NOT_USE_DIRECTLY_UNLESS_YOU_KNOW_WHAT_YOURE_DOING_CTX =
 	new BamlCtxManager(
 		DO_NOT_USE_DIRECTLY_UNLESS_YOU_KNOW_WHAT_YOURE_DOING_RUNTIME,
 	);
 
 /**
- * Resets the BAML runtime environment variables if no active BAML contexts exist.
- *
- * Filters out environment variables with `undefined` values before resetting. Throws an error if there are active BAML contexts, preventing the reset.
- *
- * @param envVars - Environment variables to set for the BAML runtime.
- *
- * @throws {Error} If there are active BAML contexts when attempting to reset environment variables.
+ * @deprecated resetBamlEnvVars is deprecated and is safe to remove, since environment variables are now lazily loaded on each function call
  */
 export function resetBamlEnvVars(envVars: Record<string, string | undefined>) {
 	if (DO_NOT_USE_DIRECTLY_UNLESS_YOU_KNOW_WHAT_YOURE_DOING_CTX.allowResets()) {
@@ -52,34 +49,4 @@ export function resetBamlEnvVars(envVars: Record<string, string | undefined>) {
 			"BamlError: Cannot reset BAML environment variables while there are active BAML contexts.",
 		);
 	}
-}
-
-const patchedLoad =
-	(originalFn: any) =>
-	(...args: any[]) => {
-		const result = originalFn(...args);
-		try {
-			// Dont fail if env vars fail to reset
-			resetBamlEnvVars(process.env);
-		} catch (e) {
-			console.error(e);
-		}
-		return result;
-	};
-
-try {
-	const dotenv = require("dotenv");
-	// Monkeypatch load function to call resetBamlEnvVars after execution
-
-	// Apply the patch
-	dotenv.config = patchedLoad(dotenv.config);
-	dotenv.configDotenv = patchedLoad(dotenv.configDotenv);
-	dotenv.populate = patchedLoad(dotenv.populate);
-} catch (error) {
-	// dotenv is not installed, so we do nothing
-}
-
-// also patch process.loadEnvFile
-if (process.loadEnvFile) {
-	process.loadEnvFile = patchedLoad(process.loadEnvFile);
 }

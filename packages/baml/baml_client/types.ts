@@ -38,29 +38,35 @@ export interface Check {
 	status: "succeeded" | "failed";
 }
 
-/**
- * Determines whether all validation checks have succeeded.
- *
- * @param checks - A record of validation checks keyed by name.
- * @returns `true` if every check has a status of `"succeeded"`; otherwise, `false`.
- */
 export function all_succeeded<CheckName extends string>(
 	checks: Record<CheckName, Check>,
 ): boolean {
 	return get_checks(checks).every((check) => check.status === "succeeded");
 }
 
-/**
- * Converts a record of validation checks into an array of {@link Check} objects.
- *
- * @param checks - A record mapping check names to {@link Check} objects.
- * @returns An array containing all {@link Check} objects from the input record.
- */
 export function get_checks<CheckName extends string>(
 	checks: Record<CheckName, Check>,
 ): Check[] {
 	return Object.values(checks);
 }
+export interface Citation {
+	title: string;
+	authors: string[];
+	journal: string;
+	year: number;
+	pmid?: string | null;
+	doi?: string | null;
+	relevance_score: number;
+}
+
+export interface MedicalInsight {
+	summary: string;
+	key_findings: string[];
+	citations: Citation[];
+	recommendations: string[];
+	confidence_level: string;
+}
+
 export interface Resume {
 	name: string;
 	email: string;

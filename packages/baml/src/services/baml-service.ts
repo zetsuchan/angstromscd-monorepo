@@ -1,5 +1,6 @@
 // Import BAML client
 import { b } from "../../baml_client";
+import type { MedicalInsight } from "../../baml_client/types";
 import { fetchWithRetry } from "../utils/retry";
 
 /**
@@ -53,7 +54,7 @@ export async function testAnthropicConnection(): Promise<boolean> {
  */
 export async function testOllamaConnection(): Promise<boolean> {
 	const baseUrl = process.env.OLLAMA_BASE_URL || "http://localhost:11434";
-	
+
 	try {
 		const res = await fetchWithRetry(`${baseUrl}/api/tags`);
 		return res.ok;
@@ -69,7 +70,7 @@ export async function testOllamaConnection(): Promise<boolean> {
  */
 export async function testAppleBridgeConnection(): Promise<boolean> {
 	const bridgeUrl = process.env.APPLE_BRIDGE_URL || "http://localhost:3004";
-	
+
 	try {
 		const res = await fetchWithRetry(`${bridgeUrl}/health`);
 		return res.ok;
@@ -83,9 +84,9 @@ export async function testAppleBridgeConnection(): Promise<boolean> {
  */
 export async function getMedicalResearchAssistance(
 	query: string,
-	modelProvider: string = "openai",
-	modelName: string = "gpt-4o-mini"
-): Promise<any> {
+	modelProvider = "openai",
+	modelName = "gpt-4o-mini",
+): Promise<MedicalInsight> {
 	// Call the BAML function
 	return await b.MedicalResearcher(query, {
 		clientName: `${modelProvider}_${modelName}`,
@@ -98,20 +99,26 @@ export async function getMedicalResearchAssistance(
 export async function generateConversationalResponse(
 	query: string,
 	conversationHistory: Array<{ role: string; content: string }>,
-	modelProvider: string = "openai",
-	modelName: string = "gpt-4o-mini"
+	modelProvider = "openai",
+	modelName = "gpt-4o-mini",
 ): Promise<string> {
 	// Format conversation history for context
 	const context = conversationHistory
-		.map(msg => `${msg.role}: ${msg.content}`)
+		.map((msg) => `${msg.role}: ${msg.content}`)
 		.join("\n");
-	
+
 	const fullQuery = context ? `${context}\nUser: ${query}` : query;
-	
+
 	// Use BAML to generate response
-	const response = await getMedicalResearchAssistance(fullQuery, modelProvider, modelName);
-	
-	return response.content || "I couldn't generate a response. Please try again.";
+	const response = await getMedicalResearchAssistance(
+		fullQuery,
+		modelProvider,
+		modelName,
+	);
+
+	return (
+		response.content || "I couldn't generate a response. Please try again."
+	);
 }
 
 // Legacy chat functions for compatibility
@@ -120,10 +127,18 @@ export async function runOpenAIChat(message: string): Promise<string> {
 }
 
 export async function runAnthropicChat(message: string): Promise<string> {
-	return generateConversationalResponse(message, [], "anthropic", "claude-3-haiku");
+	return generateConversationalResponse(
+		message,
+		[],
+		"anthropic",
+		"claude-3-haiku",
+	);
 }
 
-export async function runOllamaChat(message: string, model: string = "qwen2.5:0.5b"): Promise<string> {
+export async function runOllamaChat(
+	message: string,
+	model = "qwen2.5:0.5b",
+): Promise<string> {
 	return generateConversationalResponse(message, [], "ollama", model);
 }
 
@@ -133,12 +148,14 @@ export async function runAppleFoundationChat(message: string): Promise<string> {
 
 // Types
 export interface InsightRequest {
-	data: any;
+	data: Record<string, unknown>;
 	context?: string;
 }
 
-export async function generateInsight(request: InsightRequest): Promise<string> {
-	const query = `Generate insights for the following data: ${JSON.stringify(request.data)}${request.context ? ` Context: ${request.context}` : ''}`;
+export async function generateInsight(
+	request: InsightRequest,
+): Promise<string> {
+	const query = `Generate insights for the following data: ${JSON.stringify(request.data)}${request.context ? ` Context: ${request.context}` : ""}`;
 	const response = await getMedicalResearchAssistance(query);
 	return response.content || "Unable to generate insights.";
 }

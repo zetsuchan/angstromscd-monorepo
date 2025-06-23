@@ -30,7 +30,7 @@ import type {
 	RecursivePartialNull as MovedRecursivePartialNull,
 } from "./types";
 import type * as types from "./types";
-import type { Resume } from "./types";
+import type { Citation, MedicalInsight, Resume } from "./types";
 
 /**
  * @deprecated Use RecursivePartialNull from 'baml_client/types' instead.
@@ -45,6 +45,7 @@ type BamlCallOptions = {
 	tb?: TypeBuilder;
 	clientRegistry?: ClientRegistry;
 	collector?: Collector | Collector[];
+	env?: Record<string, string | undefined>;
 };
 
 export class BamlSyncClient {
@@ -108,6 +109,9 @@ export class BamlSyncClient {
 					? options.collector
 					: [options.collector]
 				: [];
+			const env = options.env
+				? { ...process.env, ...options.env }
+				: { ...process.env };
 			const raw = this.runtime.callFunctionSync(
 				"AnthropicCompletion",
 				{
@@ -117,6 +121,7 @@ export class BamlSyncClient {
 				options.tb?.__tb(),
 				options.clientRegistry,
 				collector,
+				env,
 			);
 			return raw.parsed(false) as string;
 		} catch (error: any) {
@@ -137,6 +142,9 @@ export class BamlSyncClient {
 					? options.collector
 					: [options.collector]
 				: [];
+			const env = options.env
+				? { ...process.env, ...options.env }
+				: { ...process.env };
 			const raw = this.runtime.callFunctionSync(
 				"ClinicalDecisionSupport",
 				{
@@ -148,6 +156,7 @@ export class BamlSyncClient {
 				options.tb?.__tb(),
 				options.clientRegistry,
 				collector,
+				env,
 			);
 			return raw.parsed(false) as string;
 		} catch (error: any) {
@@ -163,6 +172,9 @@ export class BamlSyncClient {
 					? options.collector
 					: [options.collector]
 				: [];
+			const env = options.env
+				? { ...process.env, ...options.env }
+				: { ...process.env };
 			const raw = this.runtime.callFunctionSync(
 				"ExtractResume",
 				{
@@ -172,6 +184,7 @@ export class BamlSyncClient {
 				options.tb?.__tb(),
 				options.clientRegistry,
 				collector,
+				env,
 			);
 			return raw.parsed(false) as Resume;
 		} catch (error: any) {
@@ -192,6 +205,9 @@ export class BamlSyncClient {
 					? options.collector
 					: [options.collector]
 				: [];
+			const env = options.env
+				? { ...process.env, ...options.env }
+				: { ...process.env };
 			const raw = this.runtime.callFunctionSync(
 				"LiteratureSearch",
 				{
@@ -203,6 +219,7 @@ export class BamlSyncClient {
 				options.tb?.__tb(),
 				options.clientRegistry,
 				collector,
+				env,
 			);
 			return raw.parsed(false) as string;
 		} catch (error: any) {
@@ -223,6 +240,9 @@ export class BamlSyncClient {
 					? options.collector
 					: [options.collector]
 				: [];
+			const env = options.env
+				? { ...process.env, ...options.env }
+				: { ...process.env };
 			const raw = this.runtime.callFunctionSync(
 				"MedicalAnalysis",
 				{
@@ -234,8 +254,40 @@ export class BamlSyncClient {
 				options.tb?.__tb(),
 				options.clientRegistry,
 				collector,
+				env,
 			);
 			return raw.parsed(false) as string;
+		} catch (error: any) {
+			throw toBamlError(error);
+		}
+	}
+
+	MedicalResearcher(
+		query: string,
+		__baml_options__?: BamlCallOptions,
+	): MedicalInsight {
+		try {
+			const options = { ...this.bamlOptions, ...(__baml_options__ || {}) };
+			const collector = options.collector
+				? Array.isArray(options.collector)
+					? options.collector
+					: [options.collector]
+				: [];
+			const env = options.env
+				? { ...process.env, ...options.env }
+				: { ...process.env };
+			const raw = this.runtime.callFunctionSync(
+				"MedicalResearcher",
+				{
+					query: query,
+				},
+				this.ctxManager.cloneContext(),
+				options.tb?.__tb(),
+				options.clientRegistry,
+				collector,
+				env,
+			);
+			return raw.parsed(false) as MedicalInsight;
 		} catch (error: any) {
 			throw toBamlError(error);
 		}
@@ -254,6 +306,9 @@ export class BamlSyncClient {
 					? options.collector
 					: [options.collector]
 				: [];
+			const env = options.env
+				? { ...process.env, ...options.env }
+				: { ...process.env };
 			const raw = this.runtime.callFunctionSync(
 				"PopulationRiskAnalysis",
 				{
@@ -265,6 +320,7 @@ export class BamlSyncClient {
 				options.tb?.__tb(),
 				options.clientRegistry,
 				collector,
+				env,
 			);
 			return raw.parsed(false) as string;
 		} catch (error: any) {
@@ -284,6 +340,9 @@ export class BamlSyncClient {
 					? options.collector
 					: [options.collector]
 				: [];
+			const env = options.env
+				? { ...process.env, ...options.env }
+				: { ...process.env };
 			const raw = this.runtime.callFunctionSync(
 				"ResearchSynthesis",
 				{
@@ -294,6 +353,7 @@ export class BamlSyncClient {
 				options.tb?.__tb(),
 				options.clientRegistry,
 				collector,
+				env,
 			);
 			return raw.parsed(false) as string;
 		} catch (error: any) {
@@ -314,6 +374,9 @@ export class BamlSyncClient {
 					? options.collector
 					: [options.collector]
 				: [];
+			const env = options.env
+				? { ...process.env, ...options.env }
+				: { ...process.env };
 			const raw = this.runtime.callFunctionSync(
 				"RiskModeling",
 				{
@@ -325,6 +388,7 @@ export class BamlSyncClient {
 				options.tb?.__tb(),
 				options.clientRegistry,
 				collector,
+				env,
 			);
 			return raw.parsed(false) as string;
 		} catch (error: any) {
@@ -340,6 +404,9 @@ export class BamlSyncClient {
 					? options.collector
 					: [options.collector]
 				: [];
+			const env = options.env
+				? { ...process.env, ...options.env }
+				: { ...process.env };
 			const raw = this.runtime.callFunctionSync(
 				"SimpleCompletion",
 				{
@@ -349,6 +416,7 @@ export class BamlSyncClient {
 				options.tb?.__tb(),
 				options.clientRegistry,
 				collector,
+				env,
 			);
 			return raw.parsed(false) as string;
 		} catch (error: any) {

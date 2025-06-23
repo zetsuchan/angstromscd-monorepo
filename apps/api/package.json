@@ -12,6 +12,7 @@
 		"typescript": "^5.8.3"
 	},
 	"dependencies": {
+		"@angstromscd/shared-types": "workspace:*",
 		"@hono/node-server": "^1.14.3",
 		"@supabase/supabase-js": "^2.49.8",
 		"cors": "^2.8.5",
