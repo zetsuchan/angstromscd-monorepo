@@ -4,7 +4,8 @@
   "type": "module",
   "private": true,
   "scripts": {
- main
+    "dev": "bun run --hot src/index.ts",
+    "build": "bun build src/index.ts --outdir dist --target node"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
