@@ -28,14 +28,52 @@ import { DO_NOT_USE_DIRECTLY_UNLESS_YOU_KNOW_WHAT_YOURE_DOING_RUNTIME } from "./
 export default class TypeBuilder {
 	private tb: _TypeBuilder;
 
+	Citation: ClassViewer<
+		"Citation",
+		| "title"
+		| "authors"
+		| "journal"
+		| "year"
+		| "pmid"
+		| "doi"
+		| "relevance_score"
+	>;
+
+	MedicalInsight: ClassViewer<
+		"MedicalInsight",
+		| "summary"
+		| "key_findings"
+		| "citations"
+		| "recommendations"
+		| "confidence_level"
+	>;
+
 	Resume: ClassViewer<"Resume", "name" | "email" | "experience" | "skills">;
 
 	constructor() {
 		this.tb = new _TypeBuilder({
-			classes: new Set(["Resume"]),
+			classes: new Set(["Citation", "MedicalInsight", "Resume"]),
 			enums: new Set([]),
 			runtime: DO_NOT_USE_DIRECTLY_UNLESS_YOU_KNOW_WHAT_YOURE_DOING_RUNTIME,
 		});
+
+		this.Citation = this.tb.classViewer("Citation", [
+			"title",
+			"authors",
+			"journal",
+			"year",
+			"pmid",
+			"doi",
+			"relevance_score",
+		]);
+
+		this.MedicalInsight = this.tb.classViewer("MedicalInsight", [
+			"summary",
+			"key_findings",
+			"citations",
+			"recommendations",
+			"confidence_level",
+		]);
 
 		this.Resume = this.tb.classViewer("Resume", [
 			"name",

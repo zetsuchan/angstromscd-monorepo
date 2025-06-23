@@ -20,11 +20,12 @@ import { type HTTPRequest, toBamlError } from "@boundaryml/baml";
 import type TypeBuilder from "./type_builder";
 import type { Check, Checked } from "./types";
 import type * as types from "./types";
-import type { Resume } from "./types";
+import type { Citation, MedicalInsight, Resume } from "./types";
 
 type BamlCallOptions = {
 	tb?: TypeBuilder;
 	clientRegistry?: ClientRegistry;
+	env?: Record<string, string | undefined>;
 };
 
 export class HttpRequest {
@@ -38,6 +39,9 @@ export class HttpRequest {
 		__baml_options__?: BamlCallOptions,
 	): HTTPRequest {
 		try {
+			const env = __baml_options__?.env
+				? { ...process.env, ...__baml_options__.env }
+				: { ...process.env };
 			return this.runtime.buildRequestSync(
 				"AnthropicCompletion",
 				{
@@ -47,6 +51,7 @@ export class HttpRequest {
 				__baml_options__?.tb?.__tb(),
 				__baml_options__?.clientRegistry,
 				false,
+				env,
 			);
 		} catch (error) {
 			throw toBamlError(error);
@@ -60,6 +65,9 @@ export class HttpRequest {
 		__baml_options__?: BamlCallOptions,
 	): HTTPRequest {
 		try {
+			const env = __baml_options__?.env
+				? { ...process.env, ...__baml_options__.env }
+				: { ...process.env };
 			return this.runtime.buildRequestSync(
 				"ClinicalDecisionSupport",
 				{
@@ -71,6 +79,7 @@ export class HttpRequest {
 				__baml_options__?.tb?.__tb(),
 				__baml_options__?.clientRegistry,
 				false,
+				env,
 			);
 		} catch (error) {
 			throw toBamlError(error);
@@ -82,6 +91,9 @@ export class HttpRequest {
 		__baml_options__?: BamlCallOptions,
 	): HTTPRequest {
 		try {
+			const env = __baml_options__?.env
+				? { ...process.env, ...__baml_options__.env }
+				: { ...process.env };
 			return this.runtime.buildRequestSync(
 				"ExtractResume",
 				{
@@ -91,6 +103,7 @@ export class HttpRequest {
 				__baml_options__?.tb?.__tb(),
 				__baml_options__?.clientRegistry,
 				false,
+				env,
 			);
 		} catch (error) {
 			throw toBamlError(error);
@@ -104,6 +117,9 @@ export class HttpRequest {
 		__baml_options__?: BamlCallOptions,
 	): HTTPRequest {
 		try {
+			const env = __baml_options__?.env
+				? { ...process.env, ...__baml_options__.env }
+				: { ...process.env };
 			return this.runtime.buildRequestSync(
 				"LiteratureSearch",
 				{
@@ -115,6 +131,7 @@ export class HttpRequest {
 				__baml_options__?.tb?.__tb(),
 				__baml_options__?.clientRegistry,
 				false,
+				env,
 			);
 		} catch (error) {
 			throw toBamlError(error);
@@ -128,6 +145,9 @@ export class HttpRequest {
 		__baml_options__?: BamlCallOptions,
 	): HTTPRequest {
 		try {
+			const env = __baml_options__?.env
+				? { ...process.env, ...__baml_options__.env }
+				: { ...process.env };
 			return this.runtime.buildRequestSync(
 				"MedicalAnalysis",
 				{
@@ -139,6 +159,31 @@ export class HttpRequest {
 				__baml_options__?.tb?.__tb(),
 				__baml_options__?.clientRegistry,
 				false,
+				env,
+			);
+		} catch (error) {
+			throw toBamlError(error);
+		}
+	}
+
+	MedicalResearcher(
+		query: string,
+		__baml_options__?: BamlCallOptions,
+	): HTTPRequest {
+		try {
+			const env = __baml_options__?.env
+				? { ...process.env, ...__baml_options__.env }
+				: { ...process.env };
+			return this.runtime.buildRequestSync(
+				"MedicalResearcher",
+				{
+					query: query,
+				},
+				this.ctxManager.cloneContext(),
+				__baml_options__?.tb?.__tb(),
+				__baml_options__?.clientRegistry,
+				false,
+				env,
 			);
 		} catch (error) {
 			throw toBamlError(error);
@@ -152,6 +197,9 @@ export class HttpRequest {
 		__baml_options__?: BamlCallOptions,
 	): HTTPRequest {
 		try {
+			const env = __baml_options__?.env
+				? { ...process.env, ...__baml_options__.env }
+				: { ...process.env };
 			return this.runtime.buildRequestSync(
 				"PopulationRiskAnalysis",
 				{
@@ -163,6 +211,7 @@ export class HttpRequest {
 				__baml_options__?.tb?.__tb(),
 				__baml_options__?.clientRegistry,
 				false,
+				env,
 			);
 		} catch (error) {
 			throw toBamlError(error);
@@ -175,6 +224,9 @@ export class HttpRequest {
 		__baml_options__?: BamlCallOptions,
 	): HTTPRequest {
 		try {
+			const env = __baml_options__?.env
+				? { ...process.env, ...__baml_options__.env }
+				: { ...process.env };
 			return this.runtime.buildRequestSync(
 				"ResearchSynthesis",
 				{
@@ -185,6 +237,7 @@ export class HttpRequest {
 				__baml_options__?.tb?.__tb(),
 				__baml_options__?.clientRegistry,
 				false,
+				env,
 			);
 		} catch (error) {
 			throw toBamlError(error);
@@ -198,6 +251,9 @@ export class HttpRequest {
 		__baml_options__?: BamlCallOptions,
 	): HTTPRequest {
 		try {
+			const env = __baml_options__?.env
+				? { ...process.env, ...__baml_options__.env }
+				: { ...process.env };
 			return this.runtime.buildRequestSync(
 				"RiskModeling",
 				{
@@ -209,6 +265,7 @@ export class HttpRequest {
 				__baml_options__?.tb?.__tb(),
 				__baml_options__?.clientRegistry,
 				false,
+				env,
 			);
 		} catch (error) {
 			throw toBamlError(error);
@@ -220,6 +277,9 @@ export class HttpRequest {
 		__baml_options__?: BamlCallOptions,
 	): HTTPRequest {
 		try {
+			const env = __baml_options__?.env
+				? { ...process.env, ...__baml_options__.env }
+				: { ...process.env };
 			return this.runtime.buildRequestSync(
 				"SimpleCompletion",
 				{
@@ -229,6 +289,7 @@ export class HttpRequest {
 				__baml_options__?.tb?.__tb(),
 				__baml_options__?.clientRegistry,
 				false,
+				env,
 			);
 		} catch (error) {
 			throw toBamlError(error);
@@ -247,6 +308,9 @@ export class HttpStreamRequest {
 		__baml_options__?: BamlCallOptions,
 	): HTTPRequest {
 		try {
+			const env = __baml_options__?.env
+				? { ...process.env, ...__baml_options__.env }
+				: { ...process.env };
 			return this.runtime.buildRequestSync(
 				"AnthropicCompletion",
 				{
@@ -256,6 +320,7 @@ export class HttpStreamRequest {
 				__baml_options__?.tb?.__tb(),
 				__baml_options__?.clientRegistry,
 				true,
+				env,
 			);
 		} catch (error) {
 			throw toBamlError(error);
@@ -269,6 +334,9 @@ export class HttpStreamRequest {
 		__baml_options__?: BamlCallOptions,
 	): HTTPRequest {
 		try {
+			const env = __baml_options__?.env
+				? { ...process.env, ...__baml_options__.env }
+				: { ...process.env };
 			return this.runtime.buildRequestSync(
 				"ClinicalDecisionSupport",
 				{
@@ -280,6 +348,7 @@ export class HttpStreamRequest {
 				__baml_options__?.tb?.__tb(),
 				__baml_options__?.clientRegistry,
 				true,
+				env,
 			);
 		} catch (error) {
 			throw toBamlError(error);
@@ -291,6 +360,9 @@ export class HttpStreamRequest {
 		__baml_options__?: BamlCallOptions,
 	): HTTPRequest {
 		try {
+			const env = __baml_options__?.env
+				? { ...process.env, ...__baml_options__.env }
+				: { ...process.env };
 			return this.runtime.buildRequestSync(
 				"ExtractResume",
 				{
@@ -300,6 +372,7 @@ export class HttpStreamRequest {
 				__baml_options__?.tb?.__tb(),
 				__baml_options__?.clientRegistry,
 				true,
+				env,
 			);
 		} catch (error) {
 			throw toBamlError(error);
@@ -313,6 +386,9 @@ export class HttpStreamRequest {
 		__baml_options__?: BamlCallOptions,
 	): HTTPRequest {
 		try {
+			const env = __baml_options__?.env
+				? { ...process.env, ...__baml_options__.env }
+				: { ...process.env };
 			return this.runtime.buildRequestSync(
 				"LiteratureSearch",
 				{
@@ -324,6 +400,7 @@ export class HttpStreamRequest {
 				__baml_options__?.tb?.__tb(),
 				__baml_options__?.clientRegistry,
 				true,
+				env,
 			);
 		} catch (error) {
 			throw toBamlError(error);
@@ -337,6 +414,9 @@ export class HttpStreamRequest {
 		__baml_options__?: BamlCallOptions,
 	): HTTPRequest {
 		try {
+			const env = __baml_options__?.env
+				? { ...process.env, ...__baml_options__.env }
+				: { ...process.env };
 			return this.runtime.buildRequestSync(
 				"MedicalAnalysis",
 				{
@@ -348,6 +428,31 @@ export class HttpStreamRequest {
 				__baml_options__?.tb?.__tb(),
 				__baml_options__?.clientRegistry,
 				true,
+				env,
+			);
+		} catch (error) {
+			throw toBamlError(error);
+		}
+	}
+
+	MedicalResearcher(
+		query: string,
+		__baml_options__?: BamlCallOptions,
+	): HTTPRequest {
+		try {
+			const env = __baml_options__?.env
+				? { ...process.env, ...__baml_options__.env }
+				: { ...process.env };
+			return this.runtime.buildRequestSync(
+				"MedicalResearcher",
+				{
+					query: query,
+				},
+				this.ctxManager.cloneContext(),
+				__baml_options__?.tb?.__tb(),
+				__baml_options__?.clientRegistry,
+				true,
+				env,
 			);
 		} catch (error) {
 			throw toBamlError(error);
@@ -361,6 +466,9 @@ export class HttpStreamRequest {
 		__baml_options__?: BamlCallOptions,
 	): HTTPRequest {
 		try {
+			const env = __baml_options__?.env
+				? { ...process.env, ...__baml_options__.env }
+				: { ...process.env };
 			return this.runtime.buildRequestSync(
 				"PopulationRiskAnalysis",
 				{
@@ -372,6 +480,7 @@ export class HttpStreamRequest {
 				__baml_options__?.tb?.__tb(),
 				__baml_options__?.clientRegistry,
 				true,
+				env,
 			);
 		} catch (error) {
 			throw toBamlError(error);
@@ -384,6 +493,9 @@ export class HttpStreamRequest {
 		__baml_options__?: BamlCallOptions,
 	): HTTPRequest {
 		try {
+			const env = __baml_options__?.env
+				? { ...process.env, ...__baml_options__.env }
+				: { ...process.env };
 			return this.runtime.buildRequestSync(
 				"ResearchSynthesis",
 				{
@@ -394,6 +506,7 @@ export class HttpStreamRequest {
 				__baml_options__?.tb?.__tb(),
 				__baml_options__?.clientRegistry,
 				true,
+				env,
 			);
 		} catch (error) {
 			throw toBamlError(error);
@@ -407,6 +520,9 @@ export class HttpStreamRequest {
 		__baml_options__?: BamlCallOptions,
 	): HTTPRequest {
 		try {
+			const env = __baml_options__?.env
+				? { ...process.env, ...__baml_options__.env }
+				: { ...process.env };
 			return this.runtime.buildRequestSync(
 				"RiskModeling",
 				{
@@ -418,6 +534,7 @@ export class HttpStreamRequest {
 				__baml_options__?.tb?.__tb(),
 				__baml_options__?.clientRegistry,
 				true,
+				env,
 			);
 		} catch (error) {
 			throw toBamlError(error);
@@ -429,6 +546,9 @@ export class HttpStreamRequest {
 		__baml_options__?: BamlCallOptions,
 	): HTTPRequest {
 		try {
+			const env = __baml_options__?.env
+				? { ...process.env, ...__baml_options__.env }
+				: { ...process.env };
 			return this.runtime.buildRequestSync(
 				"SimpleCompletion",
 				{
@@ -438,6 +558,7 @@ export class HttpStreamRequest {
 				__baml_options__?.tb?.__tb(),
 				__baml_options__?.clientRegistry,
 				true,
+				env,
 			);
 		} catch (error) {
 			throw toBamlError(error);

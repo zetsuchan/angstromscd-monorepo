@@ -9,7 +9,7 @@ import {
 	runOllamaChat,
 	runOpenAIChat,
 	testAnthropicConnection,
-	testAppleFoundationConnection,
+	testAppleBridgeConnection,
 	testOllamaConnection,
 	testOpenAIConnection,
 } from "./services/baml-service";
@@ -74,7 +74,7 @@ app.post("/generate-insight", async (c) => {
 });
 
 app.get("/health/apple", async (c) => {
-	const ok = await testAppleFoundationConnection();
+	const ok = await testAppleBridgeConnection();
 	return c.json(success({ apple: ok }));
 });
 

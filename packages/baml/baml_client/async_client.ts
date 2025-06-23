@@ -31,7 +31,7 @@ import type {
 	RecursivePartialNull as MovedRecursivePartialNull,
 } from "./types";
 import type * as types from "./types";
-import type { Resume } from "./types";
+import type { Citation, MedicalInsight, Resume } from "./types";
 
 /**
  * @deprecated Use RecursivePartialNull from 'baml_client/types' instead.
@@ -42,6 +42,7 @@ type BamlCallOptions = {
 	tb?: TypeBuilder;
 	clientRegistry?: ClientRegistry;
 	collector?: Collector | Collector[];
+	env?: Record<string, string | undefined>;
 };
 
 export class BamlAsyncClient {
@@ -104,6 +105,9 @@ export class BamlAsyncClient {
 					? options.collector
 					: [options.collector]
 				: [];
+			const env = options.env
+				? { ...process.env, ...options.env }
+				: { ...process.env };
 			const raw = await this.runtime.callFunction(
 				"AnthropicCompletion",
 				{
@@ -113,6 +117,7 @@ export class BamlAsyncClient {
 				options.tb?.__tb(),
 				options.clientRegistry,
 				collector,
+				env,
 			);
 			return raw.parsed(false) as string;
 		} catch (error) {
@@ -133,6 +138,9 @@ export class BamlAsyncClient {
 					? options.collector
 					: [options.collector]
 				: [];
+			const env = options.env
+				? { ...process.env, ...options.env }
+				: { ...process.env };
 			const raw = await this.runtime.callFunction(
 				"ClinicalDecisionSupport",
 				{
@@ -144,6 +152,7 @@ export class BamlAsyncClient {
 				options.tb?.__tb(),
 				options.clientRegistry,
 				collector,
+				env,
 			);
 			return raw.parsed(false) as string;
 		} catch (error) {
@@ -162,6 +171,9 @@ export class BamlAsyncClient {
 					? options.collector
 					: [options.collector]
 				: [];
+			const env = options.env
+				? { ...process.env, ...options.env }
+				: { ...process.env };
 			const raw = await this.runtime.callFunction(
 				"ExtractResume",
 				{
@@ -171,6 +183,7 @@ export class BamlAsyncClient {
 				options.tb?.__tb(),
 				options.clientRegistry,
 				collector,
+				env,
 			);
 			return raw.parsed(false) as Resume;
 		} catch (error) {
@@ -191,6 +204,9 @@ export class BamlAsyncClient {
 					? options.collector
 					: [options.collector]
 				: [];
+			const env = options.env
+				? { ...process.env, ...options.env }
+				: { ...process.env };
 			const raw = await this.runtime.callFunction(
 				"LiteratureSearch",
 				{
@@ -202,6 +218,7 @@ export class BamlAsyncClient {
 				options.tb?.__tb(),
 				options.clientRegistry,
 				collector,
+				env,
 			);
 			return raw.parsed(false) as string;
 		} catch (error) {
@@ -222,6 +239,9 @@ export class BamlAsyncClient {
 					? options.collector
 					: [options.collector]
 				: [];
+			const env = options.env
+				? { ...process.env, ...options.env }
+				: { ...process.env };
 			const raw = await this.runtime.callFunction(
 				"MedicalAnalysis",
 				{
@@ -233,8 +253,40 @@ export class BamlAsyncClient {
 				options.tb?.__tb(),
 				options.clientRegistry,
 				collector,
+				env,
 			);
 			return raw.parsed(false) as string;
+		} catch (error) {
+			throw toBamlError(error);
+		}
+	}
+
+	async MedicalResearcher(
+		query: string,
+		__baml_options__?: BamlCallOptions,
+	): Promise<MedicalInsight> {
+		try {
+			const options = { ...this.bamlOptions, ...(__baml_options__ || {}) };
+			const collector = options.collector
+				? Array.isArray(options.collector)
+					? options.collector
+					: [options.collector]
+				: [];
+			const env = options.env
+				? { ...process.env, ...options.env }
+				: { ...process.env };
+			const raw = await this.runtime.callFunction(
+				"MedicalResearcher",
+				{
+					query: query,
+				},
+				this.ctxManager.cloneContext(),
+				options.tb?.__tb(),
+				options.clientRegistry,
+				collector,
+				env,
+			);
+			return raw.parsed(false) as MedicalInsight;
 		} catch (error) {
 			throw toBamlError(error);
 		}
@@ -253,6 +305,9 @@ export class BamlAsyncClient {
 					? options.collector
 					: [options.collector]
 				: [];
+			const env = options.env
+				? { ...process.env, ...options.env }
+				: { ...process.env };
 			const raw = await this.runtime.callFunction(
 				"PopulationRiskAnalysis",
 				{
@@ -264,6 +319,7 @@ export class BamlAsyncClient {
 				options.tb?.__tb(),
 				options.clientRegistry,
 				collector,
+				env,
 			);
 			return raw.parsed(false) as string;
 		} catch (error) {
@@ -283,6 +339,9 @@ export class BamlAsyncClient {
 					? options.collector
 					: [options.collector]
 				: [];
+			const env = options.env
+				? { ...process.env, ...options.env }
+				: { ...process.env };
 			const raw = await this.runtime.callFunction(
 				"ResearchSynthesis",
 				{
@@ -293,6 +352,7 @@ export class BamlAsyncClient {
 				options.tb?.__tb(),
 				options.clientRegistry,
 				collector,
+				env,
 			);
 			return raw.parsed(false) as string;
 		} catch (error) {
@@ -313,6 +373,9 @@ export class BamlAsyncClient {
 					? options.collector
 					: [options.collector]
 				: [];
+			const env = options.env
+				? { ...process.env, ...options.env }
+				: { ...process.env };
 			const raw = await this.runtime.callFunction(
 				"RiskModeling",
 				{
@@ -324,6 +387,7 @@ export class BamlAsyncClient {
 				options.tb?.__tb(),
 				options.clientRegistry,
 				collector,
+				env,
 			);
 			return raw.parsed(false) as string;
 		} catch (error) {
@@ -342,6 +406,9 @@ export class BamlAsyncClient {
 					? options.collector
 					: [options.collector]
 				: [];
+			const env = options.env
+				? { ...process.env, ...options.env }
+				: { ...process.env };
 			const raw = await this.runtime.callFunction(
 				"SimpleCompletion",
 				{
@@ -351,6 +418,7 @@ export class BamlAsyncClient {
 				options.tb?.__tb(),
 				options.clientRegistry,
 				collector,
+				env,
 			);
 			return raw.parsed(false) as string;
 		} catch (error) {
@@ -371,7 +439,7 @@ class BamlStreamClient {
 	) {
 		this.runtime = runtime;
 		this.ctxManager = ctxManager;
-		this.bamlOptions = bamlOptions || {};
+		this.bamlOptions = bamlOptions || { env: { ...process.env } };
 	}
 
 	AnthropicCompletion(
@@ -380,6 +448,7 @@ class BamlStreamClient {
 			tb?: TypeBuilder;
 			clientRegistry?: ClientRegistry;
 			collector?: Collector | Collector[];
+			env?: Record<string, string | undefined>;
 		},
 	): BamlStream<string, string> {
 		try {
@@ -389,6 +458,9 @@ class BamlStreamClient {
 					? options.collector
 					: [options.collector]
 				: [];
+			const env = options.env
+				? { ...process.env, ...options.env }
+				: { ...process.env };
 			const raw = this.runtime.streamFunction(
 				"AnthropicCompletion",
 				{
@@ -399,6 +471,7 @@ class BamlStreamClient {
 				options.tb?.__tb(),
 				options.clientRegistry,
 				collector,
+				env,
 			);
 			return new BamlStream<string, string>(
 				raw,
@@ -419,6 +492,7 @@ class BamlStreamClient {
 			tb?: TypeBuilder;
 			clientRegistry?: ClientRegistry;
 			collector?: Collector | Collector[];
+			env?: Record<string, string | undefined>;
 		},
 	): BamlStream<string, string> {
 		try {
@@ -428,6 +502,9 @@ class BamlStreamClient {
 					? options.collector
 					: [options.collector]
 				: [];
+			const env = options.env
+				? { ...process.env, ...options.env }
+				: { ...process.env };
 			const raw = this.runtime.streamFunction(
 				"ClinicalDecisionSupport",
 				{
@@ -440,6 +517,7 @@ class BamlStreamClient {
 				options.tb?.__tb(),
 				options.clientRegistry,
 				collector,
+				env,
 			);
 			return new BamlStream<string, string>(
 				raw,
@@ -458,6 +536,7 @@ class BamlStreamClient {
 			tb?: TypeBuilder;
 			clientRegistry?: ClientRegistry;
 			collector?: Collector | Collector[];
+			env?: Record<string, string | undefined>;
 		},
 	): BamlStream<partial_types.Resume, Resume> {
 		try {
@@ -467,6 +546,9 @@ class BamlStreamClient {
 					? options.collector
 					: [options.collector]
 				: [];
+			const env = options.env
+				? { ...process.env, ...options.env }
+				: { ...process.env };
 			const raw = this.runtime.streamFunction(
 				"ExtractResume",
 				{
@@ -477,6 +559,7 @@ class BamlStreamClient {
 				options.tb?.__tb(),
 				options.clientRegistry,
 				collector,
+				env,
 			);
 			return new BamlStream<partial_types.Resume, Resume>(
 				raw,
@@ -497,6 +580,7 @@ class BamlStreamClient {
 			tb?: TypeBuilder;
 			clientRegistry?: ClientRegistry;
 			collector?: Collector | Collector[];
+			env?: Record<string, string | undefined>;
 		},
 	): BamlStream<string, string> {
 		try {
@@ -506,6 +590,9 @@ class BamlStreamClient {
 					? options.collector
 					: [options.collector]
 				: [];
+			const env = options.env
+				? { ...process.env, ...options.env }
+				: { ...process.env };
 			const raw = this.runtime.streamFunction(
 				"LiteratureSearch",
 				{
@@ -518,6 +605,7 @@ class BamlStreamClient {
 				options.tb?.__tb(),
 				options.clientRegistry,
 				collector,
+				env,
 			);
 			return new BamlStream<string, string>(
 				raw,
@@ -538,6 +626,7 @@ class BamlStreamClient {
 			tb?: TypeBuilder;
 			clientRegistry?: ClientRegistry;
 			collector?: Collector | Collector[];
+			env?: Record<string, string | undefined>;
 		},
 	): BamlStream<string, string> {
 		try {
@@ -547,6 +636,9 @@ class BamlStreamClient {
 					? options.collector
 					: [options.collector]
 				: [];
+			const env = options.env
+				? { ...process.env, ...options.env }
+				: { ...process.env };
 			const raw = this.runtime.streamFunction(
 				"MedicalAnalysis",
 				{
@@ -559,11 +651,54 @@ class BamlStreamClient {
 				options.tb?.__tb(),
 				options.clientRegistry,
 				collector,
+				env,
 			);
 			return new BamlStream<string, string>(
 				raw,
 				(a): string => a,
 				(a): string => a,
+				this.ctxManager.cloneContext(),
+			);
+		} catch (error) {
+			throw toBamlError(error);
+		}
+	}
+
+	MedicalResearcher(
+		query: string,
+		__baml_options__?: {
+			tb?: TypeBuilder;
+			clientRegistry?: ClientRegistry;
+			collector?: Collector | Collector[];
+			env?: Record<string, string | undefined>;
+		},
+	): BamlStream<partial_types.MedicalInsight, MedicalInsight> {
+		try {
+			const options = { ...this.bamlOptions, ...(__baml_options__ || {}) };
+			const collector = options.collector
+				? Array.isArray(options.collector)
+					? options.collector
+					: [options.collector]
+				: [];
+			const env = options.env
+				? { ...process.env, ...options.env }
+				: { ...process.env };
+			const raw = this.runtime.streamFunction(
+				"MedicalResearcher",
+				{
+					query: query,
+				},
+				undefined,
+				this.ctxManager.cloneContext(),
+				options.tb?.__tb(),
+				options.clientRegistry,
+				collector,
+				env,
+			);
+			return new BamlStream<partial_types.MedicalInsight, MedicalInsight>(
+				raw,
+				(a): partial_types.MedicalInsight => a,
+				(a): MedicalInsight => a,
 				this.ctxManager.cloneContext(),
 			);
 		} catch (error) {
@@ -579,6 +714,7 @@ class BamlStreamClient {
 			tb?: TypeBuilder;
 			clientRegistry?: ClientRegistry;
 			collector?: Collector | Collector[];
+			env?: Record<string, string | undefined>;
 		},
 	): BamlStream<string, string> {
 		try {
@@ -588,6 +724,9 @@ class BamlStreamClient {
 					? options.collector
 					: [options.collector]
 				: [];
+			const env = options.env
+				? { ...process.env, ...options.env }
+				: { ...process.env };
 			const raw = this.runtime.streamFunction(
 				"PopulationRiskAnalysis",
 				{
@@ -600,6 +739,7 @@ class BamlStreamClient {
 				options.tb?.__tb(),
 				options.clientRegistry,
 				collector,
+				env,
 			);
 			return new BamlStream<string, string>(
 				raw,
@@ -619,6 +759,7 @@ class BamlStreamClient {
 			tb?: TypeBuilder;
 			clientRegistry?: ClientRegistry;
 			collector?: Collector | Collector[];
+			env?: Record<string, string | undefined>;
 		},
 	): BamlStream<string, string> {
 		try {
@@ -628,6 +769,9 @@ class BamlStreamClient {
 					? options.collector
 					: [options.collector]
 				: [];
+			const env = options.env
+				? { ...process.env, ...options.env }
+				: { ...process.env };
 			const raw = this.runtime.streamFunction(
 				"ResearchSynthesis",
 				{
@@ -639,6 +783,7 @@ class BamlStreamClient {
 				options.tb?.__tb(),
 				options.clientRegistry,
 				collector,
+				env,
 			);
 			return new BamlStream<string, string>(
 				raw,
@@ -659,6 +804,7 @@ class BamlStreamClient {
 			tb?: TypeBuilder;
 			clientRegistry?: ClientRegistry;
 			collector?: Collector | Collector[];
+			env?: Record<string, string | undefined>;
 		},
 	): BamlStream<string, string> {
 		try {
@@ -668,6 +814,9 @@ class BamlStreamClient {
 					? options.collector
 					: [options.collector]
 				: [];
+			const env = options.env
+				? { ...process.env, ...options.env }
+				: { ...process.env };
 			const raw = this.runtime.streamFunction(
 				"RiskModeling",
 				{
@@ -680,6 +829,7 @@ class BamlStreamClient {
 				options.tb?.__tb(),
 				options.clientRegistry,
 				collector,
+				env,
 			);
 			return new BamlStream<string, string>(
 				raw,
@@ -698,6 +848,7 @@ class BamlStreamClient {
 			tb?: TypeBuilder;
 			clientRegistry?: ClientRegistry;
 			collector?: Collector | Collector[];
+			env?: Record<string, string | undefined>;
 		},
 	): BamlStream<string, string> {
 		try {
@@ -707,6 +858,9 @@ class BamlStreamClient {
 					? options.collector
 					: [options.collector]
 				: [];
+			const env = options.env
+				? { ...process.env, ...options.env }
+				: { ...process.env };
 			const raw = this.runtime.streamFunction(
 				"SimpleCompletion",
 				{
@@ -717,6 +871,7 @@ class BamlStreamClient {
 				options.tb?.__tb(),
 				options.clientRegistry,
 				collector,
+				env,
 			);
 			return new BamlStream<string, string>(
 				raw,

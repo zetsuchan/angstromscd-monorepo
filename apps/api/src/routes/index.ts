@@ -1,95 +1,262 @@
-import { Hono } from "hono"
-import { z } from "zod"
-import { supabase } from "../lib/db"
+import type {
+	ApiResponse,
+	AuthRequest,
+	DbMessage,
+	DbUser,
+} from "@angstromscd/shared-types";
+import {
+	AuthenticationError,
+	DatabaseError,
+	ValidationError,
+	errorToApiError,
+	isAppError,
+} from "@angstromscd/shared-types";
+import { Hono } from "hono";
+import { z } from "zod";
+import { supabase } from "../lib/db";
 
-export const router = new Hono()
+export const router = new Hono();
+
+// Type-safe wrapper for API responses
+function createApiResponse<T>(data: T): ApiResponse<T> {
+	return {
+		success: true,
+		data,
+		meta: {
+			requestId: crypto.randomUUID(),
+			timestamp: new Date().toISOString(),
+			version: "1.0.0",
+		},
+	};
+}
+
+function createErrorResponse(error: unknown): ApiResponse<never> {
+	return {
+		success: false,
+		error: errorToApiError(error),
+		meta: {
+			requestId: crypto.randomUUID(),
+			timestamp: new Date().toISOString(),
+			version: "1.0.0",
+		},
+	};
+}
 
 // health endpoint
-router.get("/health", (c) => c.json({ status: "ok" }))
+router.get("/health", (c) => {
+	const response = createApiResponse({
+		status: "ok",
+		timestamp: new Date().toISOString(),
+	});
+	return c.json(response);
+});
 
 router.get("/health/db", async (c) => {
-const { error } = await supabase.from("messages").select("id").limit(1)
-if (error) {
-return c.json({ status: "error", error: error.message }, 500)
-}
-return c.json({ status: "ok" })
-})
+	try {
+		const { error } = await supabase.from("messages").select("id").limit(1);
+		if (error) {
+			throw new DatabaseError("health check", error);
+		}
+		return c.json(createApiResponse({ status: "ok", database: "connected" }));
+	} catch (error) {
+		const response = createErrorResponse(error);
+		const statusCode = isAppError(error) ? error.statusCode : 500;
+		return c.json(response, statusCode);
+	}
+});
+
+// Validation schemas
+const authSchema = z.object({
+	email: z.string().email("Invalid email format"),
+	password: z.string().min(8, "Password must be at least 8 characters"),
+});
 
 // user signup
 router.post("/auth/signup", async (c) => {
-const body = await c.req.json()
-const schema = z.object({ email: z.string().email(), password: z.string() })
-const parsed = schema.safeParse(body)
-if (!parsed.success) {
-return c.json({ error: parsed.error.message }, 400)
-}
+	try {
+		const body = (await c.req.json()) as unknown;
+		const parsed = authSchema.safeParse(body);
 
-const { data, error } = await supabase.auth.signUp({
-email: parsed.data.email,
-password: parsed.data.password,
-})
-if (error) {
-return c.json({ error: error.message }, 400)
-}
-return c.json({ user: data.user })
-})
+		if (!parsed.success) {
+			throw new ValidationError("Invalid signup data", parsed.error.flatten());
+		}
+
+		const { data, error } = await supabase.auth.signUp({
+			email: parsed.data.email,
+			password: parsed.data.password,
+		});
+
+		if (error) {
+			throw new AuthenticationError(error.message);
+		}
+
+		if (!data.user) {
+			throw new AuthenticationError("Failed to create user");
+		}
+
+		// Create user profile in our database
+		const dbUser: Partial<DbUser> = {
+			id: data.user.id,
+			email: data.user.email!,
+			role: "viewer",
+			created_at: new Date().toISOString(),
+			updated_at: new Date().toISOString(),
+		};
+
+		const response = createApiResponse({
+			user: {
+				id: data.user.id,
+				email: data.user.email!,
+				role: "viewer" as const,
+			},
+			session: data.session
+				? {
+						token: data.session.access_token,
+						expiresAt: new Date(data.session.expires_at! * 1000),
+						refreshToken: data.session.refresh_token,
+					}
+				: undefined,
+		});
+
+		return c.json(response);
+	} catch (error) {
+		const response = createErrorResponse(error);
+		const statusCode = isAppError(error) ? error.statusCode : 500;
+		return c.json(response, statusCode);
+	}
+});
 
 // user login
 router.post("/auth/login", async (c) => {
-const body = await c.req.json()
-const schema = z.object({ email: z.string().email(), password: z.string() })
-const parsed = schema.safeParse(body)
-if (!parsed.success) {
-return c.json({ error: parsed.error.message }, 400)
-}
+	try {
+		const body = (await c.req.json()) as unknown;
+		const parsed = authSchema.safeParse(body);
 
-const { data, error } = await supabase.auth.signInWithPassword({
-email: parsed.data.email,
-password: parsed.data.password,
-})
-if (error) {
-return c.json({ error: error.message }, 400)
-}
-return c.json({ session: data.session, user: data.user })
-})
+		if (!parsed.success) {
+			throw new ValidationError("Invalid login data", parsed.error.flatten());
+		}
+
+		const { data, error } = await supabase.auth.signInWithPassword({
+			email: parsed.data.email,
+			password: parsed.data.password,
+		});
+
+		if (error) {
+			throw new AuthenticationError("Invalid email or password");
+		}
+
+		if (!data.user || !data.session) {
+			throw new AuthenticationError("Login failed");
+		}
+
+		const response = createApiResponse({
+			user: {
+				id: data.user.id,
+				email: data.user.email!,
+				role: "viewer" as const, // Would fetch from DB in production
+			},
+			session: {
+				token: data.session.access_token,
+				expiresAt: new Date(data.session.expires_at! * 1000),
+				refreshToken: data.session.refresh_token,
+			},
+		});
+
+		return c.json(response);
+	} catch (error) {
+		const response = createErrorResponse(error);
+		const statusCode = isAppError(error) ? error.statusCode : 500;
+		return c.json(response, statusCode);
+	}
+});
+
+// Message schema
+const messageSchema = z.object({
+	content: z.string().min(1, "Message content cannot be empty"),
+	thread_id: z.string().uuid("Invalid thread ID").optional(),
+	user_id: z.string().uuid("Invalid user ID").optional(),
+});
 
 // create message
 router.post("/api/messages", async (c) => {
-const body = await c.req.json()
-const schema = z.object({
-content: z.string(),
-thread_id: z.string().optional(),
-user_id: z.string().optional(),
-})
-const parsed = schema.safeParse(body)
-if (!parsed.success) {
-return c.json({ error: parsed.error.message }, 400)
-}
+	try {
+		const body = (await c.req.json()) as unknown;
+		const parsed = messageSchema.safeParse(body);
 
-const { data, error } = await supabase
-.from("messages")
-.insert(parsed.data)
-.select()
-.single()
+		if (!parsed.success) {
+			throw new ValidationError("Invalid message data", parsed.error.flatten());
+		}
 
-if (error) {
-return c.json({ error: error.message }, 400)
-}
+		const messageData: Partial<DbMessage> = {
+			...parsed.data,
+			sender: "user",
+			created_at: new Date().toISOString(),
+		};
 
-return c.json({ message: data })
-})
+		const { data, error } = await supabase
+			.from("messages")
+			.insert(messageData)
+			.select()
+			.single();
+
+		if (error) {
+			throw new DatabaseError("create message", error);
+		}
+
+		if (!data) {
+			throw new DatabaseError("create message", "No data returned");
+		}
+
+		const response = createApiResponse({ message: data });
+		return c.json(response);
+	} catch (error) {
+		const response = createErrorResponse(error);
+		const statusCode = isAppError(error) ? error.statusCode : 500;
+		return c.json(response, statusCode);
+	}
+});
 
 // list messages
 router.get("/api/messages", async (c) => {
-const { data, error } = await supabase
-.from("messages")
-.select("*")
-.order("created_at")
+	try {
+		// Parse query parameters
+		const threadId = c.req.query("thread_id");
+		const limit = Number.parseInt(c.req.query("limit") || "50");
+		const offset = Number.parseInt(c.req.query("offset") || "0");
 
-if (error) {
-return c.json({ error: error.message }, 400)
-}
+		// Validate parameters
+		if (limit < 1 || limit > 100) {
+			throw new ValidationError("Limit must be between 1 and 100");
+		}
 
-return c.json({ messages: data })
-})
+		let query = supabase.from("messages").select("*", { count: "exact" });
 
+		if (threadId) {
+			query = query.eq("thread_id", threadId);
+		}
+
+		const { data, error, count } = await query
+			.order("created_at", { ascending: false })
+			.range(offset, offset + limit - 1);
+
+		if (error) {
+			throw new DatabaseError("list messages", error);
+		}
+
+		const response = createApiResponse({
+			messages: data || [],
+			pagination: {
+				total: count || 0,
+				limit,
+				offset,
+				hasMore: (count || 0) > offset + limit,
+			},
+		});
+
+		return c.json(response);
+	} catch (error) {
+		const response = createErrorResponse(error);
+		const statusCode = isAppError(error) ? error.statusCode : 500;
+		return c.json(response, statusCode);
+	}
+});

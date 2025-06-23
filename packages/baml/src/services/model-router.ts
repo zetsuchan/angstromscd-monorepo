@@ -5,7 +5,7 @@ import {
 	runOllamaChat,
 	runOpenAIChat,
 	testAnthropicConnection,
-	testAppleFoundationConnection,
+	testAppleBridgeConnection,
 	testOllamaConnection,
 	testOpenAIConnection,
 } from "./baml-service";
@@ -77,7 +77,7 @@ export async function checkAllProviders() {
 		testOpenAIConnection(),
 		testAnthropicConnection(),
 		testOllamaConnection(),
-		testAppleFoundationConnection(),
+		testAppleBridgeConnection(),
 	]);
 
 	return {
