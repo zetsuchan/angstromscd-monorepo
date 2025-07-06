@@ -11,9 +11,9 @@ function App() {
     <ChatProvider>
       <div className="flex flex-col h-screen overflow-hidden">
         <Header />
-        <div className="flex flex-1 overflow-hidden">
+        <div className="flex flex-1 overflow-hidden min-h-0">
           <Sidebar />
-          <div className="flex-1 flex flex-col">
+          <div className="flex-1 flex flex-col min-h-0">
             <ChatPane />
             <Composer />
           </div>

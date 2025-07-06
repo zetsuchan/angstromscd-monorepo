@@ -1,12 +1,44 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useChat } from '../../context/ChatContext';
 import ChatBubble from './ChatBubble';
-import { GitBranch } from 'lucide-react';
+import { GitBranch, ChevronDown } from 'lucide-react';
 
 const ChatPane: React.FC = () => {
   const { currentThread, createThread } = useChat();
   const [isCreatingBranch, setIsCreatingBranch] = useState(false);
   const [branchName, setBranchName] = useState('');
+  const [showScrollButton, setShowScrollButton] = useState(false);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const isNearBottom = () => {
+    if (!scrollContainerRef.current) return true;
+    const { scrollTop, scrollHeight, clientHeight } = scrollContainerRef.current;
+    return scrollHeight - scrollTop - clientHeight < 100; // Within 100px of bottom
+  };
+
+  useEffect(() => {
+    // Only auto-scroll if user is near the bottom or this is the first message
+    if (currentThread?.messages.length === 1 || isNearBottom()) {
+      scrollToBottom();
+    }
+  }, [currentThread?.messages]);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollButton(!isNearBottom());
+    };
+
+    const scrollContainer = scrollContainerRef.current;
+    if (scrollContainer) {
+      scrollContainer.addEventListener('scroll', handleScroll);
+      return () => scrollContainer.removeEventListener('scroll', handleScroll);
+    }
+  }, [currentThread]);
 
   const handleCreateBranch = () => {
     if (branchName.trim()) {
@@ -28,7 +60,7 @@ const ChatPane: React.FC = () => {
   }
 
   return (
-    <div className="flex-1 flex flex-col bg-gray-50 relative">
+    <div className="flex-1 flex flex-col bg-gray-50 relative min-h-0">
       <div className="flex items-center justify-between px-4 py-2 bg-white border-b border-gray-200">
         <h2 className="font-medium text-gray-800">{currentThread.name}</h2>
         <button
@@ -40,17 +72,31 @@ const ChatPane: React.FC = () => {
         </button>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4">
+      <div className="flex-1 overflow-y-auto p-4" ref={scrollContainerRef}>
         {currentThread.messages.length === 0 ? (
           <div className="flex items-center justify-center h-full text-gray-500">
             <p>This thread is empty. Start a conversation!</p>
           </div>
         ) : (
-          currentThread.messages.map((message) => (
-            <ChatBubble key={message.id} message={message} />
-          ))
+          <>
+            {currentThread.messages.map((message) => (
+              <ChatBubble key={message.id} message={message} />
+            ))}
+            <div ref={messagesEndRef} />
+          </>
         )}
       </div>
+
+      {/* Scroll to bottom button */}
+      {showScrollButton && currentThread.messages.length > 0 && (
+        <button
+          onClick={scrollToBottom}
+          className="absolute bottom-4 right-4 bg-blue-600 hover:bg-blue-700 text-white rounded-full p-2 shadow-lg transition-all duration-200 z-10"
+          title="Scroll to bottom"
+        >
+          <ChevronDown size={20} />
+        </button>
+      )}
 
       {isCreatingBranch && (
         <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-10">
