@@ -11,16 +11,7 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./scripts/init-pgvector.sql:/docker-entrypoint-initdb.d/init-pgvector.sql
-
-  chromadb:
-    image: ghcr.io/chroma-core/chroma:latest
-    ports:
-      - "8000:8000"
-    volumes:
-      - chroma_data:/chroma/chroma
-    environment:
-      - CHROMA_SERVER_CORS_ALLOW_ORIGINS=["*"]
+ main
 
   qdrant:
     image: qdrant/qdrant:latest
@@ -34,5 +25,4 @@ services:
 
 volumes:
   postgres_data:
-  chroma_data:
-  qdrant_data:
+ main

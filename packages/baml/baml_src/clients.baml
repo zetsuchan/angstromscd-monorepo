@@ -91,6 +91,16 @@ client<llm> AppleFoundation3B {
   }
 }
 
+// Medical-specific Ollama Models
+client<llm> OllamaMeditron7B {
+  provider openai
+  options {
+    model "meditron:7b"
+    base_url env.OLLAMA_BASE_URL
+    api_key "unused"
+  }
+}
+
 // https://docs.boundaryml.com/docs/snippets/clients/round-robin
 client<llm> CustomFast {
   provider round-robin

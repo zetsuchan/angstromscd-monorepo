@@ -1,0 +1,13 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./dist",
+    "module": "ESNext",
+    "rootDir": "../"
+  },
+  "include": [
+    "./**/*.ts",
+    "../apps/**/*.ts",
+    "../packages/**/*.ts"
+  ]
+}

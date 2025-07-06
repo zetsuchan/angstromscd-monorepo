@@ -17,35 +17,12 @@ import type {
 } from "../types";
 
 interface ChatContextType {
-	threads: Thread[];
-	currentThread: Thread | null;
-	currentWorkspace: Workspace;
-	workspaces: Workspace[];
-	alerts: Alert[];
-	statusInfo: typeof statusIndicator;
-	newLiterature: string;
-	chatMode: ChatMode;
-	messageTone: MessageTone;
-	setCurrentThread: (threadId: string) => void;
-	setCurrentWorkspace: (workspace: Workspace) => void;
-	addMessage: (content: string, sender: "user" | "ai") => void;
-	createThread: (name: string) => void;
-	setChatMode: (mode: ChatMode) => void;
-	setMessageTone: (tone: MessageTone) => void;
-	markAlertAsRead: (id: string) => void;
+ main
 }
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
 
-export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
-	children,
-}) => {
-	const [threads, setThreads] = useState<Thread[]>(mockThreads);
-	const [currentWorkspace, setWorkspace] = useState<Workspace>(workspaces[0]);
-	const [workspaceList] = useState<Workspace[]>(workspaces);
-	const [alerts, setAlerts] = useState<Alert[]>(recentAlerts);
-	const [chatMode, setChatMode] = useState<ChatMode>("Research");
-	const [messageTone, setMessageTone] = useState<MessageTone>("Default");
+ main
 
 	const currentThread = threads.find((thread) => thread.isActive) || null;
 
@@ -114,30 +91,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
 		);
 	};
 
-	return (
-		<ChatContext.Provider
-			value={{
-				threads,
-				currentThread,
-				currentWorkspace,
-				workspaces: workspaceList,
-				alerts,
-				statusInfo: statusIndicator,
-				newLiterature: latestLiterature,
-				chatMode,
-				messageTone,
-				setCurrentThread,
-				setCurrentWorkspace,
-				addMessage,
-				createThread,
-				setChatMode,
-				setMessageTone,
-				markAlertAsRead,
-			}}
-		>
-			{children}
-		</ChatContext.Provider>
-	);
+ main
 };
 
 export const useChat = () => {

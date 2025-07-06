@@ -15,13 +15,7 @@ export interface HealthCheckResponse {
 	[key: string]: boolean;
 }
 
-export interface BAMLConfig {
-	defaultModel: import("@angstromscd/shared-types").AllModelNames;
-	defaultProvider: import("@angstromscd/shared-types").ProviderName;
-	temperature: number;
-	maxTokens: number;
-	timeout: number;
-}
+ main
 
 export interface ModelHealth {
 	provider: import("@angstromscd/shared-types").ProviderName;

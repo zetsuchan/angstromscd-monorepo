@@ -1,18 +1,4 @@
-import type {
-	ApiResponse,
-	DbMessage,
-	DbUser,
-} from "@angstromscd/shared-types";
-import {
-	AuthenticationError,
-	DatabaseError,
-	ValidationError,
-	errorToApiError,
-	isAppError,
-} from "@angstromscd/shared-types";
-import { Hono } from "hono";
-import { z } from "zod";
-import { supabase } from "../lib/db";
+ main
 
 export const router = new Hono();
 
@@ -40,6 +26,9 @@ function createErrorResponse(error: unknown): ApiResponse<never> {
 		},
 	};
 }
+
+// Initialize enhanced chat service
+const chatService = new EnhancedChatService()
 
 // health endpoint
 router.get("/health", (c) => {
@@ -260,10 +249,4 @@ router.get("/api/messages", async (c) => {
 			},
 		});
 
-		return c.json(response);
-	} catch (error) {
-		const response = createErrorResponse(error);
-		const statusCode = isAppError(error) ? error.statusCode : 500;
-		return c.json(response, statusCode);
-	}
-});
+ main
