@@ -1,32 +1,31 @@
 {
-  "name": "angstromscd-monorepo",
-  "version": "1.0.0",
-  "type": "module",
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ],
-  "license": "MIT",
-  "scripts": {
-    "dev": "bun run dev:services",
-    "dev:services": "concurrently -n \"infra,api,baml,vector,frontend\" -c \"blue,green,yellow,magenta,cyan\" \"bun run dev:infra\" \"bun run dev:api\" \"bun run dev:baml\" \"bun run dev:vector\" \"bun run dev:frontend\"",
-    "dev:frontend": "cd apps/frontend && bun dev",
-    "dev:api": "cd apps/api && bun dev",
-    "dev:baml": "cd packages/baml && bun dev",
-    "dev:vector": "cd packages/vector && bun dev",
-    "dev:infra": "cd infra && docker-compose up -d && echo 'Databases started'",
-    "build": "bun run build:packages && bun run build:apps",
-    "build:packages": "cd packages/baml && bun run build && cd ../vector && bun run build",
-    "build:apps": "cd apps/api && bun run build && cd ../frontend && bun run build",
-    "lint": "biome check .",
-    "lint:fix": "biome check . --write",
-    "setup": "bun install && bun run setup:workspaces",
-    "setup:workspaces": "cd apps/frontend && bun install && cd ../api && bun install && cd ../../packages/baml && bun install && cd ../vector && bun install"
-  },
-  "devDependencies": {
-    "@biomejs/biome": "^1.9.4",
-    "@types/bun": "^1.2.15",
-    "concurrently": "^9.1.2",
-    "typescript": "^5.8.3"
-  }
+	"name": "angstromscd-monorepo",
+	"version": "1.0.0",
+	"type": "module",
+	"workspaces": ["apps/*", "packages/*"],
+	"license": "MIT",
+	"scripts": {
+		"dev": "bun run dev:services",
+		"dev:services": "concurrently -n \"infra,api,baml,vector,frontend\" -c \"blue,green,yellow,magenta,cyan\" \"bun run dev:infra\" \"bun run dev:api\" \"bun run dev:baml\" \"bun run dev:vector\" \"bun run dev:frontend\"",
+		"dev:frontend": "cd apps/frontend && bun dev",
+		"dev:api": "cd apps/api && bun dev",
+		"dev:baml": "cd packages/baml && bun dev",
+		"dev:vector": "cd packages/vector && bun dev",
+		"dev:desktop": "cd apps/desktop-swift && swift run",
+		"dev:infra": "cd infra && docker-compose up -d && echo 'Databases started'",
+		"build": "bun run build:packages && bun run build:apps",
+		"build:packages": "cd packages/baml && bun run build && cd ../vector && bun run build",
+		"build:apps": "cd apps/api && bun run build && cd ../frontend && bun run build",
+		"build:desktop": "cd apps/desktop-swift && swift build -c release",
+		"lint": "biome check .",
+		"lint:fix": "biome check . --write",
+		"setup": "bun install && bun run setup:workspaces",
+		"setup:workspaces": "cd apps/frontend && bun install && cd ../api && bun install && cd ../../packages/baml && bun install && cd ../vector && bun install"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^1.9.4",
+		"@types/bun": "^1.2.15",
+		"concurrently": "^9.1.2",
+		"typescript": "^5.8.3"
+	}
 }

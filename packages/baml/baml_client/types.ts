@@ -39,13 +39,26 @@ export interface Check {
     status: "succeeded" | "failed"
 }
 
-export function all_succeeded<CheckName extends string>(checks: Record<CheckName, Check>): boolean {
-    return get_checks(checks).every(check => check.status === "succeeded")
+main
+}
+export interface Citation {
+	title: string;
+	authors: string[];
+	journal: string;
+	year: number;
+	pmid?: string | null;
+	doi?: string | null;
+	relevance_score: number;
 }
 
-export function get_checks<CheckName extends string>(checks: Record<CheckName, Check>): Check[] {
-    return Object.values(checks)
+export interface MedicalInsight {
+	summary: string;
+	key_findings: string[];
+	citations: Citation[];
+	recommendations: string[];
+	confidence_level: string;
 }
+
 export interface Resume {
   name: string
   email: string
