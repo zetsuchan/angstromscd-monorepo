@@ -19,12 +19,14 @@ interface ChatContextType {
   newLiterature: string;
   chatMode: ChatMode;
   messageTone: MessageTone;
+  selectedModel: string;
   setCurrentThread: (threadId: string) => void;
   setCurrentWorkspace: (workspace: Workspace) => void;
   addMessage: (content: string, sender: 'user' | 'ai') => void;
   createThread: (name: string) => void;
   setChatMode: (mode: ChatMode) => void;
   setMessageTone: (tone: MessageTone) => void;
+  setSelectedModel: (model: string) => void;
   markAlertAsRead: (id: string) => void;
 }
 
@@ -37,6 +39,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [alerts, setAlerts] = useState<Alert[]>(recentAlerts);
   const [chatMode, setChatMode] = useState<ChatMode>('Research');
   const [messageTone, setMessageTone] = useState<MessageTone>('Default');
+  const [selectedModel, setSelectedModel] = useState<string>('meditron:7b');
 
   const currentThread = threads.find(thread => thread.isActive) || null;
 
@@ -116,12 +119,14 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         newLiterature: latestLiterature,
         chatMode,
         messageTone,
+        selectedModel,
         setCurrentThread,
         setCurrentWorkspace,
         addMessage,
         createThread,
         setChatMode,
         setMessageTone,
+        setSelectedModel,
         markAlertAsRead,
       }}
     >

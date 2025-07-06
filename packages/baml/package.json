@@ -8,7 +8,8 @@
     "start": "bun src/index.ts",
     "build": "bun build src/index.ts --outdir dist",
     "lint": "biome check src/",
-    "lint:fix": "biome check --apply src/"
+    "lint:fix": "biome check --apply src/",
+    "baml:generate": "baml-cli generate"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",

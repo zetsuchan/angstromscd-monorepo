@@ -12,15 +12,15 @@ AngstromSCD is a medical research application focused on **Sickle Cell Disease (
 - `apps/api/` - Backend API service using Hono.js
 - `apps/frontend/` - React frontend with Tailwind CSS
 - `packages/baml/` - AI/ML service using BoundaryML for medical research assistance
-- `packages/vector/` - Vector database service using ChromaDB for semantic search
+- `packages/vector/` - Vector database service using PostgreSQL with pg-vector for semantic search
 - `packages/apple-bridge/` - Swift service bridging Apple Foundation Models
-- `infra/` - Docker infrastructure with PostgreSQL and ChromaDB
+- `infra/` - Docker infrastructure with PostgreSQL (with pg-vector extension)
 
 **Key Technologies**:
 - **Runtime**: Bun (package manager and JavaScript runtime)
 - **Frontend**: React 18 + TypeScript + Vite + Tailwind CSS
 - **Backend**: Hono.js web framework
-- **Database**: Supabase (PostgreSQL) + ChromaDB (vector embeddings)
+- **Database**: Supabase (PostgreSQL) + pg-vector (vector embeddings)
 - **AI/ML**: BoundaryML (BAML) for structured AI prompts
 - **Code Quality**: Biome for linting and formatting
 
@@ -77,10 +77,10 @@ docker-compose up -d
 - Tables: `scd_patients`, `voe_episodes`, `literature_citations`
 - Access via Supabase client in `apps/api/src/lib/db.ts`
 
-**ChromaDB** (Vector Database):
+**PostgreSQL with pg-vector** (Vector Database):
 - Collections: `medical_papers`, `user_documents`, `clinical_datasets`, `conversation_context`
 - Used for semantic search of medical literature
-- Service runs on port 8000
+- Integrated with main PostgreSQL database on port 5432
 
 ## Medical Domain Context
 
@@ -158,7 +158,6 @@ Key API routes are defined in `apps/api/src/index.ts`:
 - API: 3001
 - BAML: 3002
 - Apple Bridge: 3004
-- ChromaDB: 8000
 - Ollama: 11434
 - PostgreSQL: 5432
 

@@ -8,23 +8,44 @@ import {
   ChevronDown 
 } from 'lucide-react';
 import { ChatMode, MessageTone } from '../../types';
+import ModelSelector from './ModelSelector';
 
 const Composer: React.FC = () => {
-  const { addMessage, chatMode, setChatMode, messageTone, setMessageTone } = useChat();
+  const { addMessage, chatMode, setChatMode, messageTone, setMessageTone, selectedModel, setSelectedModel } = useChat();
   const [input, setInput] = useState('');
   const [isModeDropdownOpen, setIsModeDropdownOpen] = useState(false);
   const [isToneDropdownOpen, setIsToneDropdownOpen] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (input.trim()) {
-      addMessage(input, 'user');
+      const userMessage = input;
+      addMessage(userMessage, 'user');
       setInput('');
       
-      // Mock AI response
-      setTimeout(() => {
-        addMessage('Thank you for your message. This is a simulated response as this is a demo interface.', 'ai');
-      }, 1000);
+      try {
+        // Call the API with the selected model
+        const response = await fetch('http://localhost:3001/api/chat', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            message: userMessage,
+            model: selectedModel,
+          }),
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to get response');
+        }
+        
+        const data = await response.json();
+        addMessage(data.reply, 'ai');
+      } catch (error) {
+        console.error('Chat error:', error);
+        addMessage('Sorry, I encountered an error. Please make sure the API server is running.', 'ai');
+      }
     }
   };
 
@@ -40,6 +61,12 @@ const Composer: React.FC = () => {
 
   return (
     <div className="border-t border-gray-200 bg-white p-4">
+      <div className="mb-3 flex items-center justify-between">
+        <ModelSelector selectedModel={selectedModel} onModelSelect={setSelectedModel} />
+        <div className="text-xs text-gray-500">
+          {selectedModel === 'meditron:7b' && 'Medical AI with PubMed integration'}
+        </div>
+      </div>
       <form onSubmit={handleSubmit} className="flex items-center">
         <div className="flex space-x-2 mr-3">
           <button

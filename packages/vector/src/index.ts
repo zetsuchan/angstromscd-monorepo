@@ -1,6 +1,6 @@
 import { Hono } from "hono"
 import { serve } from "@hono/node-server"
-import { VectorService } from "./services/chroma-service"
+import { VectorService } from "./services/pgvector-service"
 
 const app = new Hono()
 const vectorService = new VectorService()

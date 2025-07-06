@@ -20,7 +20,8 @@
   },
   "dependencies": {
     "@hono/node-server": "^1.14.3",
-    "chromadb": "^2.4.6",
-    "hono": "^4.7.10"
+    "hono": "^4.7.10",
+    "postgres": "^3.4.5",
+    "openai": "^4.84.0"
   }
 }

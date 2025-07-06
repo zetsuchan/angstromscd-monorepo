@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   postgres:
-    image: postgres:15
+    image: pgvector/pgvector:pg15
     environment:
       POSTGRES_DB: angstromscd
       POSTGRES_USER: postgres
@@ -11,16 +11,7 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-
-  chromadb:
-    image: ghcr.io/chroma-core/chroma:latest
-    ports:
-      - "8000:8000"
-    volumes:
-      - chroma_data:/chroma/chroma
-    environment:
-      - CHROMA_SERVER_CORS_ALLOW_ORIGINS=["*"]
+      - ./scripts/init-vector.sql:/docker-entrypoint-initdb.d/init-vector.sql
 
 volumes:
   postgres_data:
-  chroma_data:

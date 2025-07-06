@@ -42,6 +42,7 @@ export async function routeModelChat(request: ChatRequest): Promise<string> {
 			return runAnthropicChat(message);
 
 		case "ollama":
+			// Default to meditron for medical queries if no model specified
 			return runOllamaChat(message, model || "llama3.2:3b");
 
 		case "apple":

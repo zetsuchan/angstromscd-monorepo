@@ -33,6 +33,7 @@ export const ModelProviderMap = {
 	"llama3.3:70b-instruct-q4_K_M": "ollama",
 	"mixtral:8x7b": "ollama",
 	"codellama:70b": "ollama",
+	"meditron:7b": "ollama",
 
 	// Apple Foundation models
 	"apple-foundation-3b": "apple",
