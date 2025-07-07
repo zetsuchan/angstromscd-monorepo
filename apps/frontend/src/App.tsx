@@ -7,7 +7,21 @@ import Sidebar from "./components/layout/Sidebar";
 import { ChatProvider } from "./context/ChatContext";
 
 function App() {
- main
+	return (
+		<ChatProvider>
+			<div className="flex flex-col h-screen bg-gray-900">
+				<Header />
+				<div className="flex-1 flex overflow-hidden min-h-0">
+					<Sidebar />
+					<main className="flex-1 flex flex-col min-h-0">
+						<ChatPane />
+						<Composer />
+					</main>
+				</div>
+				<Footer />
+			</div>
+		</ChatProvider>
+	);
 }
 
 export default App;

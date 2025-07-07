@@ -19,7 +19,7 @@ const Sidebar: React.FC = () => {
 
 	if (isCollapsed) {
 		return (
-			<div className="w-12 bg-gray-100 border-r border-gray-200 flex flex-col items-center py-4">
+			<div className="w-12 bg-gray-100 border-r border-gray-200 flex flex-col items-center py-4 h-full">
 				<button
 					onClick={() => setIsCollapsed(false)}
 					className="p-1.5 text-gray-500 hover:text-gray-700 rounded-full hover:bg-gray-200 mb-6"

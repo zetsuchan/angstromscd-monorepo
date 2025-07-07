@@ -17,12 +17,41 @@ import type {
 } from "../types";
 
 interface ChatContextType {
- main
+	threads: Thread[];
+	currentThread: Thread | null;
+	currentWorkspace: Workspace;
+	workspaces: Workspace[];
+	alerts: Alert[];
+	statusInfo: typeof statusIndicator;
+	newLiterature: string;
+	chatMode: ChatMode;
+	messageTone: MessageTone;
+	selectedModel: string;
+	isLoading: boolean;
+	setCurrentThread: (threadId: string) => void;
+	setCurrentWorkspace: (workspace: Workspace) => void;
+	addMessage: (content: string, sender: "user" | "ai") => void;
+	createThread: (name: string) => void;
+	setChatMode: (mode: ChatMode) => void;
+	setMessageTone: (tone: MessageTone) => void;
+	setSelectedModel: (model: string) => void;
+	setIsLoading: (loading: boolean) => void;
+	markAlertAsRead: (id: string) => void;
 }
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
 
- main
+export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
+	children,
+}) => {
+	const [threads, setThreads] = useState<Thread[]>(mockThreads);
+	const [currentWorkspace, setWorkspace] = useState<Workspace>(workspaces[0]);
+	const [workspaceList] = useState<Workspace[]>(workspaces);
+	const [alerts, setAlerts] = useState<Alert[]>(recentAlerts);
+	const [chatMode, setChatMode] = useState<ChatMode>("Research");
+	const [messageTone, setMessageTone] = useState<MessageTone>("Default");
+	const [selectedModel, setSelectedModel] = useState<string>("meditron:7b");
+	const [isLoading, setIsLoading] = useState<boolean>(false);
 
 	const currentThread = threads.find((thread) => thread.isActive) || null;
 
@@ -40,27 +69,26 @@ const ChatContext = createContext<ChatContextType | undefined>(undefined);
 	};
 
 	const addMessage = (content: string, sender: "user" | "ai") => {
-		setThreads((prevThreads) => {
-			const activeThread = prevThreads.find((thread) => thread.isActive);
-			if (!activeThread) return prevThreads;
+		if (!currentThread) return;
 
-			const newMessage: Message = {
-				id: Date.now().toString(),
-				content,
-				sender,
-				timestamp: new Date(),
-			};
+		const newMessage: Message = {
+			id: Date.now().toString(),
+			content,
+			sender,
+			timestamp: new Date(),
+		};
 
-			return prevThreads.map((thread) => {
-				if (thread.id === activeThread.id) {
+		setThreads((prevThreads) =>
+			prevThreads.map((thread) => {
+				if (thread.id === currentThread.id) {
 					return {
 						...thread,
 						messages: [...thread.messages, newMessage],
 					};
 				}
 				return thread;
-			});
-		});
+			}),
+		);
 	};
 
 	const createThread = (name: string) => {
@@ -91,7 +119,34 @@ const ChatContext = createContext<ChatContextType | undefined>(undefined);
 		);
 	};
 
- main
+	return (
+		<ChatContext.Provider
+			value={{
+				threads,
+				currentThread,
+				currentWorkspace,
+				workspaces: workspaceList,
+				alerts,
+				statusInfo: statusIndicator,
+				newLiterature: latestLiterature,
+				chatMode,
+				messageTone,
+				selectedModel,
+				isLoading,
+				setCurrentThread,
+				setCurrentWorkspace,
+				addMessage,
+				createThread,
+				setChatMode,
+				setMessageTone,
+				setSelectedModel,
+				setIsLoading,
+				markAlertAsRead,
+			}}
+		>
+			{children}
+		</ChatContext.Provider>
+	);
 };
 
 export const useChat = () => {

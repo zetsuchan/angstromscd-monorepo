@@ -1,4 +1,19 @@
- main
+import { Hono } from "hono";
+import { z } from "zod";
+import { supabase } from "../lib/db";
+import { EnhancedChatService } from "../services/enhanced-chat-service";
+import { 
+  DatabaseError,
+  ValidationError,
+  AuthenticationError,
+  isAppError,
+  errorToApiError
+} from "@angstromscd/shared-types";
+import type { 
+  ApiResponse, 
+  DbMessage, 
+  DbUser
+} from "@angstromscd/shared-types";
 
 export const router = new Hono();
 
@@ -249,4 +264,63 @@ router.get("/api/messages", async (c) => {
 			},
 		});
 
- main
+		return c.json(response);
+	} catch (error) {
+		const response = createErrorResponse(error);
+		const statusCode = isAppError(error) ? error.statusCode : 500;
+		return c.json(response, statusCode);
+	}
+});
+
+// Chat endpoints
+const chatRequestSchema = z.object({
+	message: z.string().min(1, "Message cannot be empty"),
+	model: z.string().optional(),
+});
+
+// Main chat endpoint
+router.post("/api/chat", async (c) => {
+	try {
+		const body = (await c.req.json()) as unknown;
+		const parsed = chatRequestSchema.safeParse(body);
+
+		if (!parsed.success) {
+			throw new ValidationError("Invalid chat request", parsed.error.flatten());
+		}
+
+		const { message, model } = parsed.data;
+		const result = await chatService.processMessage(message, model);
+
+		const response = createApiResponse({
+			reply: result.reply,
+			citations: result.citations,
+			pubmedArticles: result.pubmedArticles,
+			model: result.model,
+		});
+
+		return c.json(response);
+	} catch (error) {
+		const response = createErrorResponse(error);
+		const statusCode = isAppError(error) ? error.statusCode : 500;
+		return c.json(response, statusCode);
+	}
+});
+
+// Chat health check
+router.get("/api/chat/health", async (c) => {
+	try {
+		const isConnected = await chatService.testConnection();
+		
+		const response = createApiResponse({
+			status: isConnected ? "connected" : "disconnected",
+			meditronAvailable: isConnected,
+			timestamp: new Date().toISOString(),
+		});
+
+		return c.json(response);
+	} catch (error) {
+		const response = createErrorResponse(error);
+		const statusCode = isAppError(error) ? error.statusCode : 500;
+		return c.json(response, statusCode);
+	}
+});
