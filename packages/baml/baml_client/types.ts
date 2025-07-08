@@ -47,6 +47,21 @@ export function all_succeeded<CheckName extends string>(checks: Record<CheckName
 export function get_checks<CheckName extends string>(checks: Record<CheckName, Check>): Check[] {
     return Object.values(checks)
 }
+export enum ToolType {
+  E2B_CODE_INTERPRETER = "E2B_CODE_INTERPRETER",
+  PUBMED_SEARCH = "PUBMED_SEARCH",
+  PERPLEXITY_SEARCH = "PERPLEXITY_SEARCH",
+  EXA_SEARCH = "EXA_SEARCH",
+}
+
+export interface ChatResponseWithTools {
+  message: string
+  requires_tools: boolean
+  tool_calls: ToolCall[]
+  citations: Citation[]
+  
+}
+
 export interface Citation {
   title: string
   authors: string[]
@@ -55,6 +70,14 @@ export interface Citation {
   pmid?: string | null
   doi?: string | null
   relevance_score: number
+  
+}
+
+export interface E2BCodeRequest {
+  code: string
+  description: string
+  packages: string[]
+  expected_output: string
   
 }
 
@@ -72,5 +95,19 @@ export interface Resume {
   email: string
   experience: string[]
   skills: string[]
+  
+}
+
+export interface Tool {
+  type: ToolType
+  name: string
+  description: string
+  
+}
+
+export interface ToolCall {
+  tool: ToolType
+  arguments: string
+  reasoning: string
   
 }

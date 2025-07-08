@@ -42,7 +42,16 @@ const Composer: React.FC = () => {
 				const data = await response.json();
 				
 				if (data.success) {
-					addMessage(data.data.reply, "ai");
+					addMessage(data.data.reply, "ai", {
+						visualizations: data.data.visualizations,
+						executionCode: data.data.executionCode,
+						citations: data.data.citations ? data.data.pubmedArticles?.map((article: any, index: number) => ({
+							id: article.pmid || `cite-${index}`,
+							reference: `${index + 1}`,
+							snippet: article.title,
+							source: `${article.journal} (${article.publicationDate})`
+						})) : undefined
+					});
 				} else {
 					addMessage("Sorry, I encountered an error processing your request.", "ai");
 				}

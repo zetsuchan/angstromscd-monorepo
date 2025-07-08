@@ -46,6 +46,33 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({ message }) => {
 				<div>
 					<p className="whitespace-pre-wrap">{message.content}</p>
 
+					{message.visualizations && message.visualizations.length > 0 && (
+						<div className="mt-4 space-y-3">
+							{message.visualizations.map((viz, index) => (
+								<div key={index} className="rounded-lg overflow-hidden border border-gray-200">
+									{viz.format === 'png' ? (
+										<img 
+											src={`data:image/png;base64,${viz.data}`}
+											alt={`Visualization ${index + 1}`}
+											className="w-full h-auto"
+										/>
+									) : viz.format === 'svg' ? (
+										<div 
+											dangerouslySetInnerHTML={{ __html: atob(viz.data) }}
+											className="w-full"
+										/>
+									) : (
+										<iframe
+											srcDoc={atob(viz.data)}
+											className="w-full h-96 border-0"
+											title={`Visualization ${index + 1}`}
+										/>
+									)}
+								</div>
+							))}
+						</div>
+					)}
+
 					{message.citations && message.citations.length > 0 && (
 						<div className="mt-3 space-y-2">
 							{message.citations.map((citation) => (

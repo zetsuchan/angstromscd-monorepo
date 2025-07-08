@@ -25,27 +25,45 @@ import { DO_NOT_USE_DIRECTLY_UNLESS_YOU_KNOW_WHAT_YOURE_DOING_RUNTIME } from "./
 export default class TypeBuilder {
     private tb: _TypeBuilder;
     
+    ChatResponseWithTools: ClassViewer<'ChatResponseWithTools', "message" | "requires_tools" | "tool_calls" | "citations">;
+    
     Citation: ClassViewer<'Citation', "title" | "authors" | "journal" | "year" | "pmid" | "doi" | "relevance_score">;
+    
+    E2BCodeRequest: ClassViewer<'E2BCodeRequest', "code" | "description" | "packages" | "expected_output">;
     
     MedicalInsight: ClassViewer<'MedicalInsight', "summary" | "key_findings" | "citations" | "recommendations" | "confidence_level">;
     
     Resume: ClassViewer<'Resume', "name" | "email" | "experience" | "skills">;
     
+    Tool: ClassViewer<'Tool', "type" | "name" | "description">;
+    
+    ToolCall: ClassViewer<'ToolCall', "tool" | "arguments" | "reasoning">;
+    
+    
+    ToolType: EnumViewer<'ToolType', "E2B_CODE_INTERPRETER" | "PUBMED_SEARCH" | "PERPLEXITY_SEARCH" | "EXA_SEARCH">;
     
 
     constructor() {
         this.tb = new _TypeBuilder({
           classes: new Set([
-            "Citation","MedicalInsight","Resume",
+            "ChatResponseWithTools","Citation","E2BCodeRequest","MedicalInsight","Resume","Tool","ToolCall",
           ]),
           enums: new Set([
-            
+            "ToolType",
           ]),
           runtime: DO_NOT_USE_DIRECTLY_UNLESS_YOU_KNOW_WHAT_YOURE_DOING_RUNTIME
         });
         
+        this.ChatResponseWithTools = this.tb.classViewer("ChatResponseWithTools", [
+          "message","requires_tools","tool_calls","citations",
+        ]);
+        
         this.Citation = this.tb.classViewer("Citation", [
           "title","authors","journal","year","pmid","doi","relevance_score",
+        ]);
+        
+        this.E2BCodeRequest = this.tb.classViewer("E2BCodeRequest", [
+          "code","description","packages","expected_output",
         ]);
         
         this.MedicalInsight = this.tb.classViewer("MedicalInsight", [
@@ -56,6 +74,18 @@ export default class TypeBuilder {
           "name","email","experience","skills",
         ]);
         
+        this.Tool = this.tb.classViewer("Tool", [
+          "type","name","description",
+        ]);
+        
+        this.ToolCall = this.tb.classViewer("ToolCall", [
+          "tool","arguments","reasoning",
+        ]);
+        
+        
+        this.ToolType = this.tb.enumViewer("ToolType", [
+          "E2B_CODE_INTERPRETER","PUBMED_SEARCH","PERPLEXITY_SEARCH","EXA_SEARCH",
+        ]);
         
     }
 

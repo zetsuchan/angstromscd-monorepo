@@ -8,6 +8,9 @@ export default defineConfig({
 		exclude: ["lucide-react"],
 	},
 	server: {
+		host: true, // This allows Vite to be accessible from external network
+		port: 5173,
+		strictPort: true, // Fail if port is already in use
 		proxy: {
 			'/api': {
 				target: 'http://localhost:3001',

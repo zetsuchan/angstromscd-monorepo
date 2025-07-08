@@ -49,7 +49,7 @@ client<llm> OllamaQwen05B {
   provider openai
   options {
     model "qwen2.5:0.5b"
-    base_url env.OLLAMA_BASE_URL
+    base_url "http://localhost:11434/v1"
     api_key "unused"
   }
 }

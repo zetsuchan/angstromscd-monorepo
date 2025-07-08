@@ -58,7 +58,7 @@ app.get("/collections", async (c) => {
 const port = 3003;
 console.log(`Vector service running on port ${port}`);
 
-serve({
-	fetch: app.fetch,
+export default {
 	port,
-});
+	fetch: app.fetch,
+};

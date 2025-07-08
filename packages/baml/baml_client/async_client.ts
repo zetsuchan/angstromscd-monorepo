@@ -23,7 +23,7 @@ import { toBamlError, BamlStream, type HTTPRequest } from "@boundaryml/baml"
 import type { Checked, Check, RecursivePartialNull as MovedRecursivePartialNull } from "./types"
 import type { partial_types } from "./partial_types"
 import type * as types from "./types"
-import type {Citation, MedicalInsight, Resume} from "./types"
+import type {ChatResponseWithTools, Citation, E2BCodeRequest, MedicalInsight, Resume, Tool, ToolCall, ToolType} from "./types"
 import type TypeBuilder from "./type_builder"
 import { AsyncHttpRequest, AsyncHttpStreamRequest } from "./async_request"
 import { LlmResponseParser, LlmStreamParser } from "./parser"
@@ -143,6 +143,62 @@ export class BamlAsyncClient {
     }
   }
   
+  async DetermineToolUsage(
+      query: string,context?: string | null,
+      __baml_options__?: BamlCallOptions
+  ): Promise<types.ChatResponseWithTools> {
+    try {
+      const options = { ...this.bamlOptions, ...(__baml_options__ || {}) }
+      const collector = options.collector ? (Array.isArray(options.collector) ? options.collector : [options.collector]) : [];
+      const rawEnv = __baml_options__?.env ? { ...process.env, ...__baml_options__.env } : { ...process.env };
+      const env: Record<string, string> = Object.fromEntries(
+        Object.entries(rawEnv).filter(([_, value]) => value !== undefined) as [string, string][]
+      );
+      const raw = await this.runtime.callFunction(
+        "DetermineToolUsage",
+        {
+          "query": query,"context": context?? null
+        },
+        this.ctxManager.cloneContext(),
+        options.tb?.__tb(),
+        options.clientRegistry,
+        collector,
+        env,
+      )
+      return raw.parsed(false) as types.ChatResponseWithTools
+    } catch (error) {
+      throw toBamlError(error);
+    }
+  }
+  
+  async DetermineToolUsageOllama(
+      query: string,context?: string | null,
+      __baml_options__?: BamlCallOptions
+  ): Promise<types.ChatResponseWithTools> {
+    try {
+      const options = { ...this.bamlOptions, ...(__baml_options__ || {}) }
+      const collector = options.collector ? (Array.isArray(options.collector) ? options.collector : [options.collector]) : [];
+      const rawEnv = __baml_options__?.env ? { ...process.env, ...__baml_options__.env } : { ...process.env };
+      const env: Record<string, string> = Object.fromEntries(
+        Object.entries(rawEnv).filter(([_, value]) => value !== undefined) as [string, string][]
+      );
+      const raw = await this.runtime.callFunction(
+        "DetermineToolUsageOllama",
+        {
+          "query": query,"context": context?? null
+        },
+        this.ctxManager.cloneContext(),
+        options.tb?.__tb(),
+        options.clientRegistry,
+        collector,
+        env,
+      )
+      return raw.parsed(false) as types.ChatResponseWithTools
+    } catch (error) {
+      throw toBamlError(error);
+    }
+  }
+  
   async ExtractResume(
       resume: string,
       __baml_options__?: BamlCallOptions
@@ -166,6 +222,62 @@ export class BamlAsyncClient {
         env,
       )
       return raw.parsed(false) as types.Resume
+    } catch (error) {
+      throw toBamlError(error);
+    }
+  }
+  
+  async GenerateVisualizationCode(
+      request: string,data_context?: string | null,
+      __baml_options__?: BamlCallOptions
+  ): Promise<types.E2BCodeRequest> {
+    try {
+      const options = { ...this.bamlOptions, ...(__baml_options__ || {}) }
+      const collector = options.collector ? (Array.isArray(options.collector) ? options.collector : [options.collector]) : [];
+      const rawEnv = __baml_options__?.env ? { ...process.env, ...__baml_options__.env } : { ...process.env };
+      const env: Record<string, string> = Object.fromEntries(
+        Object.entries(rawEnv).filter(([_, value]) => value !== undefined) as [string, string][]
+      );
+      const raw = await this.runtime.callFunction(
+        "GenerateVisualizationCode",
+        {
+          "request": request,"data_context": data_context?? null
+        },
+        this.ctxManager.cloneContext(),
+        options.tb?.__tb(),
+        options.clientRegistry,
+        collector,
+        env,
+      )
+      return raw.parsed(false) as types.E2BCodeRequest
+    } catch (error) {
+      throw toBamlError(error);
+    }
+  }
+  
+  async GenerateVisualizationCodeOllama(
+      request: string,data_context?: string | null,
+      __baml_options__?: BamlCallOptions
+  ): Promise<types.E2BCodeRequest> {
+    try {
+      const options = { ...this.bamlOptions, ...(__baml_options__ || {}) }
+      const collector = options.collector ? (Array.isArray(options.collector) ? options.collector : [options.collector]) : [];
+      const rawEnv = __baml_options__?.env ? { ...process.env, ...__baml_options__.env } : { ...process.env };
+      const env: Record<string, string> = Object.fromEntries(
+        Object.entries(rawEnv).filter(([_, value]) => value !== undefined) as [string, string][]
+      );
+      const raw = await this.runtime.callFunction(
+        "GenerateVisualizationCodeOllama",
+        {
+          "request": request,"data_context": data_context?? null
+        },
+        this.ctxManager.cloneContext(),
+        options.tb?.__tb(),
+        options.clientRegistry,
+        collector,
+        env,
+      )
+      return raw.parsed(false) as types.E2BCodeRequest
     } catch (error) {
       throw toBamlError(error);
     }
@@ -449,6 +561,74 @@ class BamlStreamClient {
     }
   }
   
+  DetermineToolUsage(
+      query: string,context?: string | null,
+      __baml_options__?: { tb?: TypeBuilder, clientRegistry?: ClientRegistry, collector?: Collector | Collector[], env?: Record<string, string | undefined> }
+  ): BamlStream<partial_types.ChatResponseWithTools, types.ChatResponseWithTools> {
+    try {
+      const options = { ...this.bamlOptions, ...(__baml_options__ || {}) }
+      const collector = options.collector ? (Array.isArray(options.collector) ? options.collector : [options.collector]) : [];
+      const rawEnv = __baml_options__?.env ? { ...process.env, ...__baml_options__.env } : { ...process.env };
+      const env: Record<string, string> = Object.fromEntries(
+        Object.entries(rawEnv).filter(([_, value]) => value !== undefined) as [string, string][]
+      );
+      const raw = this.runtime.streamFunction(
+        "DetermineToolUsage",
+        {
+          "query": query,"context": context ?? null
+        },
+        undefined,
+        this.ctxManager.cloneContext(),
+        options.tb?.__tb(),
+        options.clientRegistry,
+        collector,
+        env,
+      )
+      return new BamlStream<partial_types.ChatResponseWithTools, types.ChatResponseWithTools>(
+        raw,
+        (a): partial_types.ChatResponseWithTools => a,
+        (a): types.ChatResponseWithTools => a,
+        this.ctxManager.cloneContext(),
+      )
+    } catch (error) {
+      throw toBamlError(error);
+    }
+  }
+  
+  DetermineToolUsageOllama(
+      query: string,context?: string | null,
+      __baml_options__?: { tb?: TypeBuilder, clientRegistry?: ClientRegistry, collector?: Collector | Collector[], env?: Record<string, string | undefined> }
+  ): BamlStream<partial_types.ChatResponseWithTools, types.ChatResponseWithTools> {
+    try {
+      const options = { ...this.bamlOptions, ...(__baml_options__ || {}) }
+      const collector = options.collector ? (Array.isArray(options.collector) ? options.collector : [options.collector]) : [];
+      const rawEnv = __baml_options__?.env ? { ...process.env, ...__baml_options__.env } : { ...process.env };
+      const env: Record<string, string> = Object.fromEntries(
+        Object.entries(rawEnv).filter(([_, value]) => value !== undefined) as [string, string][]
+      );
+      const raw = this.runtime.streamFunction(
+        "DetermineToolUsageOllama",
+        {
+          "query": query,"context": context ?? null
+        },
+        undefined,
+        this.ctxManager.cloneContext(),
+        options.tb?.__tb(),
+        options.clientRegistry,
+        collector,
+        env,
+      )
+      return new BamlStream<partial_types.ChatResponseWithTools, types.ChatResponseWithTools>(
+        raw,
+        (a): partial_types.ChatResponseWithTools => a,
+        (a): types.ChatResponseWithTools => a,
+        this.ctxManager.cloneContext(),
+      )
+    } catch (error) {
+      throw toBamlError(error);
+    }
+  }
+  
   ExtractResume(
       resume: string,
       __baml_options__?: { tb?: TypeBuilder, clientRegistry?: ClientRegistry, collector?: Collector | Collector[], env?: Record<string, string | undefined> }
@@ -476,6 +656,74 @@ class BamlStreamClient {
         raw,
         (a): partial_types.Resume => a,
         (a): types.Resume => a,
+        this.ctxManager.cloneContext(),
+      )
+    } catch (error) {
+      throw toBamlError(error);
+    }
+  }
+  
+  GenerateVisualizationCode(
+      request: string,data_context?: string | null,
+      __baml_options__?: { tb?: TypeBuilder, clientRegistry?: ClientRegistry, collector?: Collector | Collector[], env?: Record<string, string | undefined> }
+  ): BamlStream<partial_types.E2BCodeRequest, types.E2BCodeRequest> {
+    try {
+      const options = { ...this.bamlOptions, ...(__baml_options__ || {}) }
+      const collector = options.collector ? (Array.isArray(options.collector) ? options.collector : [options.collector]) : [];
+      const rawEnv = __baml_options__?.env ? { ...process.env, ...__baml_options__.env } : { ...process.env };
+      const env: Record<string, string> = Object.fromEntries(
+        Object.entries(rawEnv).filter(([_, value]) => value !== undefined) as [string, string][]
+      );
+      const raw = this.runtime.streamFunction(
+        "GenerateVisualizationCode",
+        {
+          "request": request,"data_context": data_context ?? null
+        },
+        undefined,
+        this.ctxManager.cloneContext(),
+        options.tb?.__tb(),
+        options.clientRegistry,
+        collector,
+        env,
+      )
+      return new BamlStream<partial_types.E2BCodeRequest, types.E2BCodeRequest>(
+        raw,
+        (a): partial_types.E2BCodeRequest => a,
+        (a): types.E2BCodeRequest => a,
+        this.ctxManager.cloneContext(),
+      )
+    } catch (error) {
+      throw toBamlError(error);
+    }
+  }
+  
+  GenerateVisualizationCodeOllama(
+      request: string,data_context?: string | null,
+      __baml_options__?: { tb?: TypeBuilder, clientRegistry?: ClientRegistry, collector?: Collector | Collector[], env?: Record<string, string | undefined> }
+  ): BamlStream<partial_types.E2BCodeRequest, types.E2BCodeRequest> {
+    try {
+      const options = { ...this.bamlOptions, ...(__baml_options__ || {}) }
+      const collector = options.collector ? (Array.isArray(options.collector) ? options.collector : [options.collector]) : [];
+      const rawEnv = __baml_options__?.env ? { ...process.env, ...__baml_options__.env } : { ...process.env };
+      const env: Record<string, string> = Object.fromEntries(
+        Object.entries(rawEnv).filter(([_, value]) => value !== undefined) as [string, string][]
+      );
+      const raw = this.runtime.streamFunction(
+        "GenerateVisualizationCodeOllama",
+        {
+          "request": request,"data_context": data_context ?? null
+        },
+        undefined,
+        this.ctxManager.cloneContext(),
+        options.tb?.__tb(),
+        options.clientRegistry,
+        collector,
+        env,
+      )
+      return new BamlStream<partial_types.E2BCodeRequest, types.E2BCodeRequest>(
+        raw,
+        (a): partial_types.E2BCodeRequest => a,
+        (a): types.E2BCodeRequest => a,
         this.ctxManager.cloneContext(),
       )
     } catch (error) {

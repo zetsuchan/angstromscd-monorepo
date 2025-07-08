@@ -25,6 +25,14 @@ export interface Message {
 	citations?: SimplifiedCitation[];
 	model?: string;
 	provider?: string;
+	visualizations?: Visualization[];
+	executionCode?: string;
+}
+
+export interface Visualization {
+	type: string;
+	data: string; // base64 encoded image
+	format: 'png' | 'html' | 'svg';
 }
 
 // Simplified citation for UI display

@@ -297,6 +297,8 @@ router.post("/api/chat", async (c) => {
 			citations: result.citations,
 			pubmedArticles: result.pubmedArticles,
 			model: result.model,
+			visualizations: result.visualizations,
+			executionCode: result.executionCode,
 		});
 
 		return c.json(response);

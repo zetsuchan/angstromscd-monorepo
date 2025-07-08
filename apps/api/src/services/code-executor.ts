@@ -1,4 +1,4 @@
-import { CodeInterpreter } from "@e2b/code-interpreter"
+import { Sandbox } from "@e2b/code-interpreter"
 import type { 
   CodeExecutionInput, 
   ExecutionResult, 
@@ -7,7 +7,6 @@ import type {
 
 export class CodeExecutorService {
   private config: E2BConfig
-  private activeSandboxes: Map<string, CodeInterpreter> = new Map()
 
   constructor(config: E2BConfig) {
     this.config = config
@@ -18,42 +17,37 @@ export class CodeExecutorService {
    */
   async executeCode(input: CodeExecutionInput): Promise<ExecutionResult> {
     const startTime = Date.now()
-    let sandbox: CodeInterpreter | null = null
+    let sandbox: Sandbox | null = null
     
     try {
       // Create a new sandbox instance
-      sandbox = await CodeInterpreter.create({
+      sandbox = await Sandbox.create({
         apiKey: this.config.apiKey,
-        timeoutMs: input.timeout ? input.timeout * 1000 : this.config.timeoutMs,
+        timeout: input.timeout ? input.timeout * 1000 : this.config.timeoutMs,
       })
 
-      const sandboxId = sandbox.sandboxId
-
-      // Upload files if provided
-      if (input.files && input.files.length > 0) {
-        for (const file of input.files) {
-          await sandbox.notebook.uploadFile(file.content, file.name)
-        }
-      }
+      const sandboxId = sandbox.id
 
       // Install packages if provided
       if (input.packages && input.packages.length > 0) {
         const installCommand = this.getInstallCommand(input.language, input.packages)
         if (installCommand) {
-          await sandbox.notebook.execCell(installCommand)
+          await sandbox.runCode(installCommand)
         }
       }
 
       // Execute the main code
-      const execution = await sandbox.notebook.execCell(input.code)
+      const execution = await sandbox.runCode(input.code)
       
       // Collect results
-      const output = execution.logs.map((log: any) => log.line).join('\n')
-      const error = execution.error?.name ? `${execution.error.name}: ${execution.error.value}` : undefined
+      const output = execution.text || ''
+      const error = execution.error || undefined
       
-      // Get generated files
+      // Get generated files (images, plots, etc)
       const files = []
-      if (execution.results) {
+      
+      // Check for matplotlib figures
+      if (execution.results && execution.results.length > 0) {
         for (const result of execution.results) {
           if (result.png) {
             files.push({
@@ -105,15 +99,15 @@ export class CodeExecutorService {
         output: '',
         error: error instanceof Error ? error.message : 'Unknown execution error',
         executionTime,
-        sandboxId: sandbox?.sandboxId || 'unknown',
+        sandboxId: sandbox?.id || 'unknown',
       }
     } finally {
       // Clean up sandbox
       if (sandbox) {
         try {
-          await sandbox.close()
+          await sandbox.kill()
         } catch (error) {
-          console.error('Error closing sandbox:', error)
+          console.error('Error killing sandbox:', error)
         }
       }
     }
@@ -128,45 +122,43 @@ export class CodeExecutorService {
     onError: (error: string) => void
   ): Promise<ExecutionResult> {
     const startTime = Date.now()
-    let sandbox: CodeInterpreter | null = null
+    let sandbox: Sandbox | null = null
     
     try {
-      sandbox = await CodeInterpreter.create({
+      sandbox = await Sandbox.create({
         apiKey: this.config.apiKey,
-        timeoutMs: input.timeout ? input.timeout * 1000 : this.config.timeoutMs,
+        timeout: input.timeout ? input.timeout * 1000 : this.config.timeoutMs,
       })
 
-      const sandboxId = sandbox.sandboxId
-
-      // Upload files if provided
-      if (input.files && input.files.length > 0) {
-        for (const file of input.files) {
-          await sandbox.notebook.uploadFile(file.content, file.name)
-        }
-      }
+      const sandboxId = sandbox.id
 
       // Install packages if provided
       if (input.packages && input.packages.length > 0) {
         const installCommand = this.getInstallCommand(input.language, input.packages)
         if (installCommand) {
-          const installExecution = await sandbox.notebook.execCell(installCommand)
-          if (installExecution.logs) {
-            installExecution.logs.forEach((log: any) => onOutput(log.line))
+          const installExecution = await sandbox.runCode(installCommand)
+          if (installExecution.text) {
+            onOutput(installExecution.text)
           }
         }
       }
 
       // Execute with streaming
-      const execution = await sandbox.notebook.execCell(input.code, {
-        onStdout: (output: any) => onOutput(output),
-        onStderr: (error: any) => onError(error),
-      })
+      const execution = await sandbox.runCode(input.code)
+      
+      if (execution.text) {
+        onOutput(execution.text)
+      }
+      
+      if (execution.error) {
+        onError(execution.error)
+      }
 
-      const output = execution.logs.map((log: any) => log.line).join('\n')
-      const error = execution.error?.name ? `${execution.error.name}: ${execution.error.value}` : undefined
+      const output = execution.text || ''
+      const error = execution.error || undefined
       
       const files = []
-      if (execution.results) {
+      if (execution.results && execution.results.length > 0) {
         for (const result of execution.results) {
           if (result.png) {
             files.push({
@@ -198,7 +190,7 @@ export class CodeExecutorService {
         output: '',
         error: error instanceof Error ? error.message : 'Unknown execution error',
         executionTime,
-        sandboxId: sandbox?.sandboxId || 'unknown',
+        sandboxId: sandbox?.id || 'unknown',
       }
     } finally {
       if (sandbox) {
@@ -225,22 +217,6 @@ export class CodeExecutorService {
         return null
     }
   }
-
-  /**
-   * Clean up all active sandboxes
-   */
-  async cleanup(): Promise<void> {
-    const cleanupPromises = Array.from(this.activeSandboxes.values()).map(async (sandbox) => {
-      try {
-        await sandbox.close()
-      } catch (error) {
-        console.error('Error closing sandbox during cleanup:', error)
-      }
-    })
-
-    await Promise.all(cleanupPromises)
-    this.activeSandboxes.clear()
-  }
 }
 
 // Singleton instance
@@ -262,4 +238,4 @@ export function getCodeExecutor(): CodeExecutorService {
   }
   
   return codeExecutorInstance
-} 
+}

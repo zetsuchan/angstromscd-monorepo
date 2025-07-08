@@ -30,7 +30,7 @@ interface ChatContextType {
 	isLoading: boolean;
 	setCurrentThread: (threadId: string) => void;
 	setCurrentWorkspace: (workspace: Workspace) => void;
-	addMessage: (content: string, sender: "user" | "ai") => void;
+	addMessage: (content: string, sender: "user" | "ai", additionalData?: Partial<Message>) => void;
 	createThread: (name: string) => void;
 	setChatMode: (mode: ChatMode) => void;
 	setMessageTone: (tone: MessageTone) => void;
@@ -68,7 +68,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
 		setWorkspace(workspace);
 	};
 
-	const addMessage = (content: string, sender: "user" | "ai") => {
+	const addMessage = (content: string, sender: "user" | "ai", additionalData?: Partial<Message>) => {
 		if (!currentThread) return;
 
 		const newMessage: Message = {
@@ -76,6 +76,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
 			content,
 			sender,
 			timestamp: new Date(),
+			...additionalData,
 		};
 
 		setThreads((prevThreads) =>
