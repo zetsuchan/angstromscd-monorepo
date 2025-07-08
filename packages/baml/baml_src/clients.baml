@@ -95,8 +95,8 @@ client<llm> AppleFoundation3B {
 client<llm> OllamaMeditron7B {
   provider openai
   options {
-    model "meditron:7b"
-    base_url env.OLLAMA_BASE_URL
+    model "meditron"
+    base_url "http://localhost:11434/v1"
     api_key "unused"
   }
 }

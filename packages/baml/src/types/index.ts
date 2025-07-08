@@ -15,8 +15,6 @@ export interface HealthCheckResponse {
 	[key: string]: boolean;
 }
 
- main
-
 export interface ModelHealth {
 	provider: import("@angstromscd/shared-types").ProviderName;
 	available: boolean;

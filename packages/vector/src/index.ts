@@ -1,4 +1,7 @@
- main
+import { Hono } from "hono";
+import { serve } from "@hono/node-server";
+import { cors } from "hono/cors";
+import { VectorService } from "./services/vector-service";
 
 const app = new Hono();
 const vectorService = new VectorService();

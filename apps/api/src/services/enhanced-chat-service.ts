@@ -17,7 +17,7 @@ interface EnhancedChatResponse {
  */
 export class EnhancedChatService {
 	private ollamaBaseUrl: string;
-	private defaultModel: string = "meditron:7b";
+	private defaultModel: string = "meditron:latest";
 
 	constructor(ollamaBaseUrl = "http://localhost:11434") {
 		this.ollamaBaseUrl = ollamaBaseUrl;

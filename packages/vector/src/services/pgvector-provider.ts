@@ -44,7 +44,7 @@ export class PgVectorProvider implements VectorProvider {
           id TEXT NOT NULL,
           collection_id INTEGER NOT NULL REFERENCES vector_collections(id) ON DELETE CASCADE,
           content TEXT NOT NULL,
-          embedding vector,
+          embedding vector(1536),
           metadata JSONB DEFAULT '{}',
           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
           PRIMARY KEY (id, collection_id)

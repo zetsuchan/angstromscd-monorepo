@@ -11,7 +11,7 @@ export interface AIModel {
 
 const models: AIModel[] = [
   // Medical Models
-  { id: 'meditron:7b', name: 'Meditron 7B', provider: 'ollama', type: 'medical', description: 'Medical-specific LLM' },
+  { id: 'meditron:latest', name: 'Meditron 7B', provider: 'ollama', type: 'medical', description: 'Medical-specific LLM' },
   
   // Cloud Models
   { id: 'gpt-4o', name: 'GPT-4o', provider: 'openai', type: 'cloud' },
