@@ -1,4 +1,6 @@
 import { searchPubMed, formatCitations, shouldSearchPubMed } from "./pubmed-service";
+import { VisualizationDetector } from "./visualization-detector";
+import { getCodeExecutor } from "./code-executor";
 
 interface EnhancedChatMessage {
 	role: "user" | "assistant" | "system";
@@ -10,6 +12,12 @@ interface EnhancedChatResponse {
 	citations?: string;
 	pubmedArticles?: any[];
 	model: string;
+	visualizations?: Array<{
+		type: string;
+		data: string; // base64 encoded image or HTML
+		format: 'png' | 'html' | 'svg';
+	}>;
+	executionCode?: string;
 }
 
 /**
@@ -18,9 +26,11 @@ interface EnhancedChatResponse {
 export class EnhancedChatService {
 	private ollamaBaseUrl: string;
 	private defaultModel: string = "meditron:latest";
+	private visualizationDetector: VisualizationDetector;
 
 	constructor(ollamaBaseUrl = "http://localhost:11434") {
 		this.ollamaBaseUrl = ollamaBaseUrl;
+		this.visualizationDetector = new VisualizationDetector();
 	}
 
 	/**
@@ -55,6 +65,39 @@ export class EnhancedChatService {
 			}
 		}
 
+		// Check if visualization is needed
+		const vizDetection = this.visualizationDetector.detectVisualization(message);
+		let visualizations = undefined;
+		let executionCode = undefined;
+
+		if (vizDetection.requiresVisualization) {
+			try {
+				// Generate code for visualization
+				const code = this.visualizationDetector.generateE2BCode(message, enhancedPrompt);
+				executionCode = code;
+
+				// Execute code in E2B sandbox
+				const codeExecutor = getCodeExecutor();
+				const result = await codeExecutor.executeCode({
+					code,
+					language: 'python',
+					packages: vizDetection.suggestedLibraries || ['matplotlib', 'pandas', 'numpy'],
+				});
+
+				if (result.success && result.files) {
+					visualizations = result.files.map(file => ({
+						type: vizDetection.visualizationType || 'other',
+						data: file.content,
+						format: file.type.includes('png') ? 'png' as const : 
+						       file.type.includes('svg') ? 'svg' as const : 'html' as const,
+					}));
+				}
+			} catch (error) {
+				console.error("Visualization execution failed:", error);
+				// Continue without visualization
+			}
+		}
+
 		// Call Meditron with the enhanced prompt
 		const reply = await this.callMeditron(enhancedPrompt, selectedModel);
 
@@ -69,6 +112,8 @@ export class EnhancedChatService {
 			citations: citations || undefined,
 			pubmedArticles: pubmedArticles || undefined,
 			model: selectedModel,
+			visualizations,
+			executionCode,
 		};
 	}
 

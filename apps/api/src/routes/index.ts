@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { z } from "zod";
 import { supabase } from "../lib/db";
 import { EnhancedChatService } from "../services/enhanced-chat-service";
+import { conversationsRouter } from "./conversations";
 import { 
   DatabaseError,
   ValidationError,
@@ -324,3 +325,6 @@ router.get("/api/chat/health", async (c) => {
 		return c.json(response, statusCode);
 	}
 });
+
+// Mount conversations router
+router.route("/api/conversations", conversationsRouter);

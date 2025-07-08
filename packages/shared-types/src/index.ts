@@ -30,3 +30,6 @@ export * from "./constants";
 
 // Environment variable types
 export * from "./env";
+
+// Conversation types
+export * from "./conversation";
