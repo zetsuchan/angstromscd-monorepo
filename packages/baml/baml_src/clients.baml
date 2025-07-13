@@ -101,6 +101,15 @@ client<llm> OllamaMeditron7B {
   }
 }
 
+client<llm> OllamaMeditronLatest {
+  provider openai
+  options {
+    model "meditron:latest"
+    base_url "http://localhost:11434/v1"
+    api_key "unused"
+  }
+}
+
 // https://docs.boundaryml.com/docs/snippets/clients/round-robin
 client<llm> CustomFast {
   provider round-robin

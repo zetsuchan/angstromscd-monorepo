@@ -23,7 +23,7 @@ import { toBamlError, BamlStream, type HTTPRequest } from "@boundaryml/baml"
 import type { Checked, Check, RecursivePartialNull as MovedRecursivePartialNull } from "./types"
 import type { partial_types } from "./partial_types"
 import type * as types from "./types"
-import type {ChatResponseWithTools, Citation, E2BCodeRequest, MedicalInsight, Resume, Tool, ToolCall, ToolType} from "./types"
+import type {ChatResponseWithTools, Citation, E2BCodeRequest, MedicalChatResponse, MedicalContext, MedicalInsight, Resume, Tool, ToolCall, ToolType} from "./types"
 import type TypeBuilder from "./type_builder"
 import { AsyncHttpRequest, AsyncHttpStreamRequest } from "./async_request"
 import { LlmResponseParser, LlmStreamParser } from "./parser"
@@ -339,6 +339,62 @@ export class BamlAsyncClient {
     }
   }
   
+  async MedicalChat(
+      query: string,model: string,context?: string | null,
+      __baml_options__?: BamlCallOptions
+  ): Promise<types.MedicalChatResponse> {
+    try {
+      const options = { ...this.bamlOptions, ...(__baml_options__ || {}) }
+      const collector = options.collector ? (Array.isArray(options.collector) ? options.collector : [options.collector]) : [];
+      const rawEnv = __baml_options__?.env ? { ...process.env, ...__baml_options__.env } : { ...process.env };
+      const env: Record<string, string> = Object.fromEntries(
+        Object.entries(rawEnv).filter(([_, value]) => value !== undefined) as [string, string][]
+      );
+      const raw = await this.runtime.callFunction(
+        "MedicalChat",
+        {
+          "query": query,"model": model,"context": context?? null
+        },
+        this.ctxManager.cloneContext(),
+        options.tb?.__tb(),
+        options.clientRegistry,
+        collector,
+        env,
+      )
+      return raw.parsed(false) as types.MedicalChatResponse
+    } catch (error) {
+      throw toBamlError(error);
+    }
+  }
+  
+  async MedicalChatOllama(
+      query: string,model: string,context?: string | null,
+      __baml_options__?: BamlCallOptions
+  ): Promise<types.MedicalChatResponse> {
+    try {
+      const options = { ...this.bamlOptions, ...(__baml_options__ || {}) }
+      const collector = options.collector ? (Array.isArray(options.collector) ? options.collector : [options.collector]) : [];
+      const rawEnv = __baml_options__?.env ? { ...process.env, ...__baml_options__.env } : { ...process.env };
+      const env: Record<string, string> = Object.fromEntries(
+        Object.entries(rawEnv).filter(([_, value]) => value !== undefined) as [string, string][]
+      );
+      const raw = await this.runtime.callFunction(
+        "MedicalChatOllama",
+        {
+          "query": query,"model": model,"context": context?? null
+        },
+        this.ctxManager.cloneContext(),
+        options.tb?.__tb(),
+        options.clientRegistry,
+        collector,
+        env,
+      )
+      return raw.parsed(false) as types.MedicalChatResponse
+    } catch (error) {
+      throw toBamlError(error);
+    }
+  }
+  
   async MedicalResearcher(
       query: string,
       __baml_options__?: BamlCallOptions
@@ -390,6 +446,34 @@ export class BamlAsyncClient {
         env,
       )
       return raw.parsed(false) as string
+    } catch (error) {
+      throw toBamlError(error);
+    }
+  }
+  
+  async ProcessMedicalQuery(
+      query: string,model: string,
+      __baml_options__?: BamlCallOptions
+  ): Promise<types.MedicalChatResponse> {
+    try {
+      const options = { ...this.bamlOptions, ...(__baml_options__ || {}) }
+      const collector = options.collector ? (Array.isArray(options.collector) ? options.collector : [options.collector]) : [];
+      const rawEnv = __baml_options__?.env ? { ...process.env, ...__baml_options__.env } : { ...process.env };
+      const env: Record<string, string> = Object.fromEntries(
+        Object.entries(rawEnv).filter(([_, value]) => value !== undefined) as [string, string][]
+      );
+      const raw = await this.runtime.callFunction(
+        "ProcessMedicalQuery",
+        {
+          "query": query,"model": model
+        },
+        this.ctxManager.cloneContext(),
+        options.tb?.__tb(),
+        options.clientRegistry,
+        collector,
+        env,
+      )
+      return raw.parsed(false) as types.MedicalChatResponse
     } catch (error) {
       throw toBamlError(error);
     }
@@ -799,6 +883,74 @@ class BamlStreamClient {
     }
   }
   
+  MedicalChat(
+      query: string,model: string,context?: string | null,
+      __baml_options__?: { tb?: TypeBuilder, clientRegistry?: ClientRegistry, collector?: Collector | Collector[], env?: Record<string, string | undefined> }
+  ): BamlStream<partial_types.MedicalChatResponse, types.MedicalChatResponse> {
+    try {
+      const options = { ...this.bamlOptions, ...(__baml_options__ || {}) }
+      const collector = options.collector ? (Array.isArray(options.collector) ? options.collector : [options.collector]) : [];
+      const rawEnv = __baml_options__?.env ? { ...process.env, ...__baml_options__.env } : { ...process.env };
+      const env: Record<string, string> = Object.fromEntries(
+        Object.entries(rawEnv).filter(([_, value]) => value !== undefined) as [string, string][]
+      );
+      const raw = this.runtime.streamFunction(
+        "MedicalChat",
+        {
+          "query": query,"model": model,"context": context ?? null
+        },
+        undefined,
+        this.ctxManager.cloneContext(),
+        options.tb?.__tb(),
+        options.clientRegistry,
+        collector,
+        env,
+      )
+      return new BamlStream<partial_types.MedicalChatResponse, types.MedicalChatResponse>(
+        raw,
+        (a): partial_types.MedicalChatResponse => a,
+        (a): types.MedicalChatResponse => a,
+        this.ctxManager.cloneContext(),
+      )
+    } catch (error) {
+      throw toBamlError(error);
+    }
+  }
+  
+  MedicalChatOllama(
+      query: string,model: string,context?: string | null,
+      __baml_options__?: { tb?: TypeBuilder, clientRegistry?: ClientRegistry, collector?: Collector | Collector[], env?: Record<string, string | undefined> }
+  ): BamlStream<partial_types.MedicalChatResponse, types.MedicalChatResponse> {
+    try {
+      const options = { ...this.bamlOptions, ...(__baml_options__ || {}) }
+      const collector = options.collector ? (Array.isArray(options.collector) ? options.collector : [options.collector]) : [];
+      const rawEnv = __baml_options__?.env ? { ...process.env, ...__baml_options__.env } : { ...process.env };
+      const env: Record<string, string> = Object.fromEntries(
+        Object.entries(rawEnv).filter(([_, value]) => value !== undefined) as [string, string][]
+      );
+      const raw = this.runtime.streamFunction(
+        "MedicalChatOllama",
+        {
+          "query": query,"model": model,"context": context ?? null
+        },
+        undefined,
+        this.ctxManager.cloneContext(),
+        options.tb?.__tb(),
+        options.clientRegistry,
+        collector,
+        env,
+      )
+      return new BamlStream<partial_types.MedicalChatResponse, types.MedicalChatResponse>(
+        raw,
+        (a): partial_types.MedicalChatResponse => a,
+        (a): types.MedicalChatResponse => a,
+        this.ctxManager.cloneContext(),
+      )
+    } catch (error) {
+      throw toBamlError(error);
+    }
+  }
+  
   MedicalResearcher(
       query: string,
       __baml_options__?: { tb?: TypeBuilder, clientRegistry?: ClientRegistry, collector?: Collector | Collector[], env?: Record<string, string | undefined> }
@@ -860,6 +1012,40 @@ class BamlStreamClient {
         raw,
         (a): string => a,
         (a): string => a,
+        this.ctxManager.cloneContext(),
+      )
+    } catch (error) {
+      throw toBamlError(error);
+    }
+  }
+  
+  ProcessMedicalQuery(
+      query: string,model: string,
+      __baml_options__?: { tb?: TypeBuilder, clientRegistry?: ClientRegistry, collector?: Collector | Collector[], env?: Record<string, string | undefined> }
+  ): BamlStream<partial_types.MedicalChatResponse, types.MedicalChatResponse> {
+    try {
+      const options = { ...this.bamlOptions, ...(__baml_options__ || {}) }
+      const collector = options.collector ? (Array.isArray(options.collector) ? options.collector : [options.collector]) : [];
+      const rawEnv = __baml_options__?.env ? { ...process.env, ...__baml_options__.env } : { ...process.env };
+      const env: Record<string, string> = Object.fromEntries(
+        Object.entries(rawEnv).filter(([_, value]) => value !== undefined) as [string, string][]
+      );
+      const raw = this.runtime.streamFunction(
+        "ProcessMedicalQuery",
+        {
+          "query": query,"model": model
+        },
+        undefined,
+        this.ctxManager.cloneContext(),
+        options.tb?.__tb(),
+        options.clientRegistry,
+        collector,
+        env,
+      )
+      return new BamlStream<partial_types.MedicalChatResponse, types.MedicalChatResponse>(
+        raw,
+        (a): partial_types.MedicalChatResponse => a,
+        (a): types.MedicalChatResponse => a,
         this.ctxManager.cloneContext(),
       )
     } catch (error) {

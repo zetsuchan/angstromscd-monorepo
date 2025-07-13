@@ -147,6 +147,91 @@ CREATE TABLE conversation_messages (
 - API with Hono.js framework
 - BAML integration for structured AI responses
 
+## [0.3.0] - 2025-07-13
+
+### Added
+
+#### BAML Pipeline Integration
+- **Full BAML Integration**: Enabled BAML pipelines for all chat interactions
+  - Uncommented and fixed BAML tool detection code in enhanced-chat-service.ts
+  - All model calls now route through BAML's structured pipeline
+  - Better error handling with fallback to direct calls
+- **Meditron BAML Support**: Added Meditron model configuration to BAML clients
+  - Created `OllamaMeditronLatest` client for meditron:latest model
+  - Updated tool detection to use appropriate Ollama client
+- **Unified Medical Chat Function**: Created comprehensive BAML medical chat system
+  - New `MedicalChat` function for cloud models (GPT-4, Claude)
+  - New `MedicalChatOllama` function for local models (Meditron, Llama, etc.)
+  - Structured responses with medical context and suggestions
+  - Automatic tool detection and usage recommendations
+- **Enhanced Logging**: Added detailed logging for BAML pipeline execution
+  - Tool detection logging
+  - Medical chat response logging
+  - Error tracking with fallback indicators
+
+### Changed
+
+#### Chat Service Architecture
+- **BAML-First Approach**: Replaced direct Ollama calls with BAML functions
+  - All responses now go through MedicalChat/MedicalChatOllama
+  - Consistent response format across all models
+  - Better medical context handling
+- **Tool Detection Flow**: Improved tool analysis workflow
+  - Model-specific tool detection (Ollama vs Cloud)
+  - Better integration with E2B code interpreter
+  - Enhanced PubMed search triggering
+
+#### Response Structure
+- **Medical Context**: Added structured medical information to responses
+  - Key considerations for medical decisions
+  - Follow-up suggestions
+  - Treatment options when relevant
+- **Tool Integration**: Seamless tool usage through BAML
+  - Automatic visualization detection
+  - Smart PubMed search triggering
+  - Structured tool call arguments
+
+### Fixed
+
+#### BAML Integration Issues
+- **Client Generation**: Fixed BAML client generation process
+  - Proper handling of new functions and types
+  - Correct TypeScript type exports
+- **Model Routing**: Fixed model-specific routing logic
+  - Proper detection of Ollama vs cloud models
+  - Correct client selection for each model type
+- **Error Handling**: Improved error recovery in BAML calls
+  - Graceful fallback to direct calls
+  - Better error logging and debugging
+
+### Technical Details
+
+#### New BAML Files
+- `packages/baml/baml_src/medical_chat.baml` - Unified medical chat functions
+- Updated `packages/baml/baml_src/clients.baml` - Added Meditron support
+- Updated `packages/baml/baml_src/tools.baml` - Fixed tool detection client
+
+#### Testing
+- Created `test-baml-integration.js` for integration testing
+- Test cases for visualization, literature search, and general queries
+- Verification of BAML pipeline execution
+
+#### Documentation
+- Created `BAML_INTEGRATION_SUMMARY.md` with detailed integration guide
+- Updated inline documentation for BAML usage
+- Added debugging tips and environment setup
+
+### Known Issues
+- BAML generation requires manual `bunx @boundaryml/baml generate` command
+- Some Ollama models may have inconsistent BAML responses
+- Tool detection accuracy varies by model
+
+### Upcoming Features
+- Dynamic model client selection in BAML
+- Enhanced medical context extraction
+- Improved visualization code generation
+- Real-time streaming responses through BAML
+
 ### Contributors
 - @zetsuchan - Initial implementation
-- @danchou - E2B integration and conversation history
+- @danchou - E2B integration, conversation history, and BAML pipeline integration

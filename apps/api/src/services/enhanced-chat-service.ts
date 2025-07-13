@@ -221,8 +221,7 @@ plt.show()
 			}
 		}
 		
-		// Original tool detection code (commented out for now)
-		/*
+		// BAML tool detection for advanced capabilities
 		try {
 			// Use the appropriate tool detection based on model
 			const isOllamaModel = selectedModel.startsWith("qwen") || 
@@ -230,12 +229,22 @@ plt.show()
 			                     selectedModel.startsWith("mixtral") ||
 			                     selectedModel === "meditron:latest";
 			
+			console.log(`Using BAML tool detection for model: ${selectedModel}, isOllama: ${isOllamaModel}`);
+			
 			const toolAnalysis = isOllamaModel 
 				? await b.DetermineToolUsageOllama(message, null)
 				: await b.DetermineToolUsage(message, null);
 			
+			console.log("BAML tool analysis result:", {
+				requires_tools: toolAnalysis.requires_tools,
+				tool_calls: toolAnalysis.tool_calls.length,
+				message_preview: toolAnalysis.message?.substring(0, 100)
+			});
+			
 			if (toolAnalysis.requires_tools && toolAnalysis.tool_calls.length > 0) {
 				for (const toolCall of toolAnalysis.tool_calls) {
+					console.log(`Processing tool call: ${toolCall.tool}, reasoning: ${toolCall.reasoning}`);
+					
 					if (toolCall.tool === "E2B_CODE_INTERPRETER" as ToolType) {
 						// Parse the arguments
 						const args = JSON.parse(toolCall.arguments);
@@ -264,20 +273,21 @@ plt.show()
 							enhancedPrompt += `\n\nExecution Result:\n${result.output}`;
 						}
 					} else if (toolCall.tool === "PUBMED_SEARCH" as ToolType) {
-						// PubMed search will be handled below
+						// Mark that PubMed search should be performed
+						// The actual search is handled below to maintain compatibility
+						console.log("BAML detected need for PubMed search");
 					}
 				}
 			}
 			
 			// Use the tool analysis message as part of the response
 			if (toolAnalysis.message) {
-				enhancedPrompt = toolAnalysis.message + "\n\n" + enhancedPrompt;
+				enhancedPrompt = toolAnalysis.message;
 			}
 		} catch (error) {
-			console.error("Error in tool analysis:", error);
+			console.error("Error in BAML tool analysis:", error);
 			// Continue without tools if there's an error
 		}
-		*/
 
 		// Check if we should search PubMed
 		if (shouldSearchPubMed(message)) {
@@ -311,9 +321,50 @@ plt.show()
 			// We already have results from E2B execution, use the enhanced prompt as the reply
 			finalReply = enhancedPrompt;
 		} else {
-			// Call the selected model with the enhanced prompt
-			const reply = await this.callMeditron(enhancedPrompt, selectedModel);
-			finalReply = reply;
+			// Use BAML MedicalChat for comprehensive medical responses
+			try {
+				console.log("Calling BAML MedicalChat with model:", selectedModel);
+				
+				// Determine if we should use Ollama or cloud version
+				const isOllamaModel = selectedModel.startsWith("qwen") || 
+				                     selectedModel.startsWith("llama") || 
+				                     selectedModel.startsWith("mixtral") ||
+				                     selectedModel === "meditron:latest";
+				
+				// Call the appropriate BAML function
+				const medicalResponse = isOllamaModel
+					? await b.MedicalChatOllama(enhancedPrompt, selectedModel, null)
+					: await b.MedicalChat(enhancedPrompt, selectedModel, null);
+				
+				console.log("BAML MedicalChat response:", {
+					has_message: !!medicalResponse.message,
+					requires_tools: medicalResponse.requires_tools,
+					tool_calls: medicalResponse.tool_calls?.length || 0
+				});
+				
+				// Use the BAML response
+				finalReply = medicalResponse.message;
+				
+				// Add medical context if available
+				if (medicalResponse.medical_context) {
+					const context = medicalResponse.medical_context;
+					if (context.key_considerations && context.key_considerations.length > 0) {
+						finalReply += "\n\n**Key Considerations:**\n" + 
+						             context.key_considerations.map(c => `- ${c}`).join("\n");
+					}
+				}
+				
+				// Add suggestions if available
+				if (medicalResponse.suggestions && medicalResponse.suggestions.length > 0) {
+					finalReply += "\n\n**You might also want to know:**\n" + 
+					             medicalResponse.suggestions.map(s => `- ${s}`).join("\n");
+				}
+			} catch (error) {
+				console.error("BAML MedicalChat failed, falling back to direct call:", error);
+				// Fallback to direct model call if BAML fails
+				const reply = await this.callMeditron(enhancedPrompt, selectedModel);
+				finalReply = reply;
+			}
 		}
 
 		// If we have citations, append them to the reply

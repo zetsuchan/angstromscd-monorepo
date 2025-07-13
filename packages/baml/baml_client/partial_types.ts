@@ -20,7 +20,7 @@ $ pnpm add @boundaryml/baml
 
 import type { Image, Audio } from "@boundaryml/baml"
 import type { Checked, Check } from "./types"
-import type {  ChatResponseWithTools,  Citation,  E2BCodeRequest,  MedicalInsight,  Resume,  Tool,  ToolCall,  ToolType } from "./types"
+import type {  ChatResponseWithTools,  Citation,  E2BCodeRequest,  MedicalChatResponse,  MedicalContext,  MedicalInsight,  Resume,  Tool,  ToolCall,  ToolType } from "./types"
 import type * as types from "./types"
 
 /******************************************************************************
@@ -56,6 +56,20 @@ export namespace partial_types {
       description?: string | null
       packages: string[]
       expected_output?: string | null
+    }
+    export interface MedicalChatResponse {
+      message?: string | null
+      requires_tools?: boolean | null
+      tool_calls: ToolCall[]
+      medical_context?: MedicalContext | null
+      suggestions: string[]
+    }
+    export interface MedicalContext {
+      condition?: string | null
+      severity?: string | null
+      treatment_options: string[]
+      key_considerations: string[]
+      requires_literature?: boolean | null
     }
     export interface MedicalInsight {
       summary?: string | null

@@ -133,7 +133,7 @@ function GenerateVisualizationCodeOllama(request: string, data_context: string?)
 
 // Ollama-compatible tool detection function
 function DetermineToolUsageOllama(query: string, context: string?) -> ChatResponseWithTools {
-  client OllamaQwen05B
+  client OllamaMeditronLatest
   prompt #"
     You are a medical research assistant that can use various tools to provide comprehensive answers.
     

@@ -22,7 +22,7 @@ import type { BamlRuntime, BamlCtxManager, ClientRegistry, Image, Audio } from "
 import { toBamlError, HTTPRequest } from "@boundaryml/baml"
 import type { Checked, Check } from "./types"
 import type * as types from "./types"
-import type {ChatResponseWithTools, Citation, E2BCodeRequest, MedicalInsight, Resume, Tool, ToolCall, ToolType} from "./types"
+import type {ChatResponseWithTools, Citation, E2BCodeRequest, MedicalChatResponse, MedicalContext, MedicalInsight, Resume, Tool, ToolCall, ToolType} from "./types"
 import type TypeBuilder from "./type_builder"
 
 type BamlCallOptions = {
@@ -260,6 +260,56 @@ export class AsyncHttpRequest {
     }
   }
   
+  async MedicalChat(
+      query: string,model: string,context?: string | null,
+      __baml_options__?: BamlCallOptions
+  ): Promise<HTTPRequest> {
+    try {
+      const rawEnv = __baml_options__?.env ? { ...process.env, ...__baml_options__.env } : { ...process.env };
+      const env: Record<string, string> = Object.fromEntries(
+        Object.entries(rawEnv).filter(([_, value]) => value !== undefined) as [string, string][]
+      );
+      return await this.runtime.buildRequest(
+        "MedicalChat",
+        {
+          "query": query,"model": model,"context": context?? null
+        },
+        this.ctxManager.cloneContext(),
+        __baml_options__?.tb?.__tb(),
+        __baml_options__?.clientRegistry,
+        false,
+        env
+      )
+    } catch (error) {
+      throw toBamlError(error);
+    }
+  }
+  
+  async MedicalChatOllama(
+      query: string,model: string,context?: string | null,
+      __baml_options__?: BamlCallOptions
+  ): Promise<HTTPRequest> {
+    try {
+      const rawEnv = __baml_options__?.env ? { ...process.env, ...__baml_options__.env } : { ...process.env };
+      const env: Record<string, string> = Object.fromEntries(
+        Object.entries(rawEnv).filter(([_, value]) => value !== undefined) as [string, string][]
+      );
+      return await this.runtime.buildRequest(
+        "MedicalChatOllama",
+        {
+          "query": query,"model": model,"context": context?? null
+        },
+        this.ctxManager.cloneContext(),
+        __baml_options__?.tb?.__tb(),
+        __baml_options__?.clientRegistry,
+        false,
+        env
+      )
+    } catch (error) {
+      throw toBamlError(error);
+    }
+  }
+  
   async MedicalResearcher(
       query: string,
       __baml_options__?: BamlCallOptions
@@ -298,6 +348,31 @@ export class AsyncHttpRequest {
         "PopulationRiskAnalysis",
         {
           "population_data": population_data,"demographic_factors": demographic_factors,"environmental_factors": environmental_factors
+        },
+        this.ctxManager.cloneContext(),
+        __baml_options__?.tb?.__tb(),
+        __baml_options__?.clientRegistry,
+        false,
+        env
+      )
+    } catch (error) {
+      throw toBamlError(error);
+    }
+  }
+  
+  async ProcessMedicalQuery(
+      query: string,model: string,
+      __baml_options__?: BamlCallOptions
+  ): Promise<HTTPRequest> {
+    try {
+      const rawEnv = __baml_options__?.env ? { ...process.env, ...__baml_options__.env } : { ...process.env };
+      const env: Record<string, string> = Object.fromEntries(
+        Object.entries(rawEnv).filter(([_, value]) => value !== undefined) as [string, string][]
+      );
+      return await this.runtime.buildRequest(
+        "ProcessMedicalQuery",
+        {
+          "query": query,"model": model
         },
         this.ctxManager.cloneContext(),
         __baml_options__?.tb?.__tb(),
@@ -616,6 +691,56 @@ export class AsyncHttpStreamRequest {
     }
   }
   
+  async MedicalChat(
+      query: string,model: string,context?: string | null,
+      __baml_options__?: BamlCallOptions
+  ): Promise<HTTPRequest> {
+    try {
+      const rawEnv = __baml_options__?.env ? { ...process.env, ...__baml_options__.env } : { ...process.env };
+      const env: Record<string, string> = Object.fromEntries(
+        Object.entries(rawEnv).filter(([_, value]) => value !== undefined) as [string, string][]
+      );
+      return await this.runtime.buildRequest(
+        "MedicalChat",
+        {
+          "query": query,"model": model,"context": context?? null
+        },
+        this.ctxManager.cloneContext(),
+        __baml_options__?.tb?.__tb(),
+        __baml_options__?.clientRegistry,
+        true,
+        env
+      )
+    } catch (error) {
+      throw toBamlError(error);
+    }
+  }
+  
+  async MedicalChatOllama(
+      query: string,model: string,context?: string | null,
+      __baml_options__?: BamlCallOptions
+  ): Promise<HTTPRequest> {
+    try {
+      const rawEnv = __baml_options__?.env ? { ...process.env, ...__baml_options__.env } : { ...process.env };
+      const env: Record<string, string> = Object.fromEntries(
+        Object.entries(rawEnv).filter(([_, value]) => value !== undefined) as [string, string][]
+      );
+      return await this.runtime.buildRequest(
+        "MedicalChatOllama",
+        {
+          "query": query,"model": model,"context": context?? null
+        },
+        this.ctxManager.cloneContext(),
+        __baml_options__?.tb?.__tb(),
+        __baml_options__?.clientRegistry,
+        true,
+        env
+      )
+    } catch (error) {
+      throw toBamlError(error);
+    }
+  }
+  
   async MedicalResearcher(
       query: string,
       __baml_options__?: BamlCallOptions
@@ -654,6 +779,31 @@ export class AsyncHttpStreamRequest {
         "PopulationRiskAnalysis",
         {
           "population_data": population_data,"demographic_factors": demographic_factors,"environmental_factors": environmental_factors
+        },
+        this.ctxManager.cloneContext(),
+        __baml_options__?.tb?.__tb(),
+        __baml_options__?.clientRegistry,
+        true,
+        env
+      )
+    } catch (error) {
+      throw toBamlError(error);
+    }
+  }
+  
+  async ProcessMedicalQuery(
+      query: string,model: string,
+      __baml_options__?: BamlCallOptions
+  ): Promise<HTTPRequest> {
+    try {
+      const rawEnv = __baml_options__?.env ? { ...process.env, ...__baml_options__.env } : { ...process.env };
+      const env: Record<string, string> = Object.fromEntries(
+        Object.entries(rawEnv).filter(([_, value]) => value !== undefined) as [string, string][]
+      );
+      return await this.runtime.buildRequest(
+        "ProcessMedicalQuery",
+        {
+          "query": query,"model": model
         },
         this.ctxManager.cloneContext(),
         __baml_options__?.tb?.__tb(),

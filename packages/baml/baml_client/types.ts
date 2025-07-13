@@ -81,6 +81,24 @@ export interface E2BCodeRequest {
   
 }
 
+export interface MedicalChatResponse {
+  message: string
+  requires_tools: boolean
+  tool_calls: ToolCall[]
+  medical_context?: MedicalContext | null
+  suggestions: string[]
+  
+}
+
+export interface MedicalContext {
+  condition?: string | null
+  severity?: string | null
+  treatment_options: string[]
+  key_considerations: string[]
+  requires_literature: boolean
+  
+}
+
 export interface MedicalInsight {
   summary: string
   key_findings: string[]

@@ -31,6 +31,10 @@ export default class TypeBuilder {
     
     E2BCodeRequest: ClassViewer<'E2BCodeRequest', "code" | "description" | "packages" | "expected_output">;
     
+    MedicalChatResponse: ClassViewer<'MedicalChatResponse', "message" | "requires_tools" | "tool_calls" | "medical_context" | "suggestions">;
+    
+    MedicalContext: ClassViewer<'MedicalContext', "condition" | "severity" | "treatment_options" | "key_considerations" | "requires_literature">;
+    
     MedicalInsight: ClassViewer<'MedicalInsight', "summary" | "key_findings" | "citations" | "recommendations" | "confidence_level">;
     
     Resume: ClassViewer<'Resume', "name" | "email" | "experience" | "skills">;
@@ -46,7 +50,7 @@ export default class TypeBuilder {
     constructor() {
         this.tb = new _TypeBuilder({
           classes: new Set([
-            "ChatResponseWithTools","Citation","E2BCodeRequest","MedicalInsight","Resume","Tool","ToolCall",
+            "ChatResponseWithTools","Citation","E2BCodeRequest","MedicalChatResponse","MedicalContext","MedicalInsight","Resume","Tool","ToolCall",
           ]),
           enums: new Set([
             "ToolType",
@@ -64,6 +68,14 @@ export default class TypeBuilder {
         
         this.E2BCodeRequest = this.tb.classViewer("E2BCodeRequest", [
           "code","description","packages","expected_output",
+        ]);
+        
+        this.MedicalChatResponse = this.tb.classViewer("MedicalChatResponse", [
+          "message","requires_tools","tool_calls","medical_context","suggestions",
+        ]);
+        
+        this.MedicalContext = this.tb.classViewer("MedicalContext", [
+          "condition","severity","treatment_options","key_considerations","requires_literature",
         ]);
         
         this.MedicalInsight = this.tb.classViewer("MedicalInsight", [
