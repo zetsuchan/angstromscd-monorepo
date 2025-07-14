@@ -1,5 +1,27 @@
 # AngstromSCD Monorepo
 
+[![MIT License](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Bun](https://img.shields.io/badge/Bun-v1.0+-black?logo=bun&logoColor=white)](https://bun.sh)
+[![React](https://img.shields.io/badge/React-18.3-61DAFB?logo=react&logoColor=white)](https://reactjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.8-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Hono](https://img.shields.io/badge/Hono-4.7-E36002?logo=hono&logoColor=white)](https://hono.dev/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-with%20pgvector-336791?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-3.4-38B2AC?logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+[![Docker](https://img.shields.io/badge/Docker-Compose-2496ED?logo=docker&logoColor=white)](https://www.docker.com/)
+[![E2B](https://img.shields.io/badge/E2B-Sandboxed%20Execution-00D084)](https://e2b.dev)
+
+### AI Models
+[![OpenAI](https://img.shields.io/badge/OpenAI-GPT--4-412991?logo=openai&logoColor=white)](https://openai.com/)
+[![Anthropic](https://img.shields.io/badge/Anthropic-Claude-6B46C1)](https://www.anthropic.com/)
+[![Ollama](https://img.shields.io/badge/Ollama-Local%20Models-000000)](https://ollama.com/)
+[![Meditron](https://img.shields.io/badge/Meditron-Medical%20LLM-DC143C)](https://github.com/epfLLM/meditron)
+
+### Medical Research
+[![Medical Research](https://img.shields.io/badge/Focus-Sickle%20Cell%20Disease-DC143C)](https://www.cdc.gov/ncbddd/sicklecell/index.html)
+[![FHIR Compatible](https://img.shields.io/badge/FHIR-Compatible-FF6B6B)](https://www.hl7.org/fhir/)
+[![Biome](https://img.shields.io/badge/Code%20Style-Biome-60A5FA?logo=biome)](https://biomejs.dev/)
+[![Monorepo](https://img.shields.io/badge/Monorepo-Bun%20Workspaces-000000)](https://bun.sh/docs/install/workspaces)
+
 This repository houses the microservices and shared packages that power **AngstromSCD**, an AI-powered medical research platform focused on sickle cell disease (SCD). It features advanced conversational AI with data visualization capabilities, medical literature search, and clinical decision support.
 
 ## Key Features
