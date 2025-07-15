@@ -1,7 +1,5 @@
 import type {
-	ApiErrorResponse,
 	ApiResponse,
-	ApiSuccessResponse,
 	AssistantMessage,
 	AuthRequest,
 	AuthResponse,

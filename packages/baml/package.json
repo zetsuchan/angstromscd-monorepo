@@ -10,11 +10,13 @@
     "baml:generate": "baml generate"
   },
   "dependencies": {
+    "@angstromscd/shared-types": "workspace:*",
     "@boundaryml/baml": "0.201.0",
     "hono": "^4.7.10"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "typescript": "^5.8.3"
   }
 }
