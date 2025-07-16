@@ -75,7 +75,7 @@ const Composer: React.FC = () => {
 	};
 
 	return (
-		<div className="border-t border-gray-200 bg-white p-4 flex-shrink-0">
+		<div className="border-t border-white/20 glass-subtle p-4 flex-shrink-0">
 			<form onSubmit={handleSubmit} className="flex items-center">
 				<div className="flex space-x-2 mr-3">
 					<ModelSelector 
@@ -84,7 +84,7 @@ const Composer: React.FC = () => {
 					/>
 					<button
 						type="button"
-						className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-full transition-colors"
+						className="p-2 text-white/70 hover:text-white/90 glass-subtle hover:glass-hover glass-focus rounded-full transition-all"
 						title="Attach file"
 					>
 						<Paperclip size={20} />
@@ -92,7 +92,7 @@ const Composer: React.FC = () => {
 
 					<button
 						type="button"
-						className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-full transition-colors"
+						className="p-2 text-white/70 hover:text-white/90 glass-subtle hover:glass-hover glass-focus rounded-full transition-all"
 						title="Insert citation"
 					>
 						<Link size={20} />
@@ -101,7 +101,7 @@ const Composer: React.FC = () => {
 					<div className="relative">
 						<button
 							type="button"
-							className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-full transition-colors"
+							className="p-2 text-white/70 hover:text-white/90 glass-subtle hover:glass-hover glass-focus rounded-full transition-all"
 							title="Chat mode"
 							onClick={() => setIsModeDropdownOpen(!isModeDropdownOpen)}
 						>
@@ -109,9 +109,9 @@ const Composer: React.FC = () => {
 						</button>
 
 						{isModeDropdownOpen && (
-							<div className="absolute bottom-full left-0 mb-2 bg-white shadow-lg rounded-md border border-gray-200 w-48 z-10">
-								<div className="py-2 px-3 border-b border-gray-200">
-									<span className="text-sm font-medium text-gray-700">
+							<div className="absolute bottom-full left-0 mb-2 glass-strong rounded-md border border-white/20 w-48 z-10">
+								<div className="py-2 px-3 border-b border-white/20">
+									<span className="text-sm font-medium text-white/90">
 										Mode
 									</span>
 								</div>
@@ -128,10 +128,10 @@ const Composer: React.FC = () => {
 										<li key={mode}>
 											<button
 												type="button"
-												className={`w-full text-left px-4 py-2 text-sm ${
+												className={`w-full text-left px-4 py-2 text-sm transition-all ${
 													mode === chatMode
-														? "bg-blue-50 text-blue-700"
-														: "hover:bg-gray-100"
+														? "medical-primary text-blue-300"
+														: "text-white/80 hover:glass-subtle"
 												}`}
 												onClick={() => handleModeSelect(mode)}
 											>
@@ -147,7 +147,7 @@ const Composer: React.FC = () => {
 
 				<input
 					type="text"
-					className="flex-1 border border-gray-300 rounded-l-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed"
+					className="flex-1 glass-subtle border border-white/20 rounded-l-md px-4 py-2 text-white/90 placeholder-white/50 glass-focus disabled:opacity-50 disabled:cursor-not-allowed"
 					placeholder={isLoading ? "Waiting for response..." : "Ask MedLab Chat..."}
 					value={input}
 					onChange={(e) => setInput(e.target.value)}
@@ -157,7 +157,7 @@ const Composer: React.FC = () => {
 				<div className="relative">
 					<button
 						type="button"
-						className="flex items-center space-x-1 bg-gray-100 hover:bg-gray-200 transition-colors px-3 py-2 border-t border-b border-r border-gray-300 focus:outline-none"
+						className="flex items-center space-x-1 glass-subtle hover:glass-hover glass-focus transition-all px-3 py-2 border-t border-b border-r border-white/20 text-white/90"
 						onClick={() => setIsToneDropdownOpen(!isToneDropdownOpen)}
 					>
 						<span className="text-sm">{messageTone}</span>
@@ -165,9 +165,9 @@ const Composer: React.FC = () => {
 					</button>
 
 					{isToneDropdownOpen && (
-						<div className="absolute bottom-full right-0 mb-2 bg-white shadow-lg rounded-md border border-gray-200 w-48 z-10">
-							<div className="py-2 px-3 border-b border-gray-200">
-								<span className="text-sm font-medium text-gray-700">Tone</span>
+						<div className="absolute bottom-full right-0 mb-2 glass-strong rounded-md border border-white/20 w-48 z-10">
+							<div className="py-2 px-3 border-b border-white/20">
+								<span className="text-sm font-medium text-white/90">Tone</span>
 							</div>
 							<ul>
 								{(
@@ -181,10 +181,10 @@ const Composer: React.FC = () => {
 									<li key={tone}>
 										<button
 											type="button"
-											className={`w-full text-left px-4 py-2 text-sm ${
+											className={`w-full text-left px-4 py-2 text-sm transition-all ${
 												tone === messageTone
-													? "bg-blue-50 text-blue-700"
-													: "hover:bg-gray-100"
+													? "medical-primary text-blue-300"
+													: "text-white/80 hover:glass-subtle"
 											}`}
 											onClick={() => handleToneSelect(tone)}
 										>
@@ -199,7 +199,7 @@ const Composer: React.FC = () => {
 
 				<button
 					type="submit"
-					className="bg-blue-600 hover:bg-blue-700 transition-colors text-white px-4 py-2 rounded-r-md focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed"
+					className="medical-primary hover:glass-hover glass-focus transition-all text-blue-300 px-4 py-2 rounded-r-md disabled:opacity-50 disabled:cursor-not-allowed"
 					disabled={isLoading}
 				>
 					<Send size={20} />

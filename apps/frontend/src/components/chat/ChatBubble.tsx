@@ -27,8 +27,8 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({ message }) => {
 			<div
 				className={`relative max-w-3xl rounded-lg px-4 py-3 ${
 					message.sender === "user"
-						? "bg-blue-600 text-white"
-						: "bg-white border border-gray-200 text-gray-800"
+						? "medical-primary text-blue-300"
+						: "glass-subtle border border-white/20 text-white/90"
 				}`}
 			>
 				<div className="mb-1">
@@ -49,7 +49,7 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({ message }) => {
 					{message.visualizations && message.visualizations.length > 0 && (
 						<div className="mt-4 space-y-3">
 							{message.visualizations.map((viz, index) => (
-								<div key={index} className="rounded-lg overflow-hidden border border-gray-200">
+								<div key={index} className="rounded-lg overflow-hidden glass-subtle border border-white/20">
 									{viz.format === 'png' ? (
 										<img 
 											src={`data:image/png;base64,${viz.data}`}
@@ -81,8 +81,8 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({ message }) => {
 										type="button"
 										className={`flex items-center ${
 											message.sender === "user"
-												? "text-blue-200"
-												: "text-blue-600"
+												? "text-blue-400"
+												: "text-blue-300"
 										}`}
 										onClick={() => toggleCitation(citation.id)}
 									>
@@ -99,8 +99,8 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({ message }) => {
 										<div
 											className={`mt-2 p-3 rounded ${
 												message.sender === "user"
-													? "bg-blue-700 text-white"
-													: "bg-gray-50 text-gray-800"
+													? "glass-strong text-blue-300"
+													: "glass-subtle text-white/90"
 											}`}
 										>
 											<p className="mb-2">"{citation.snippet}"</p>
@@ -115,8 +115,8 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({ message }) => {
 													}}
 													className={`flex items-center ${
 														message.sender === "user"
-															? "text-blue-200"
-															: "text-blue-600"
+															? "text-blue-400"
+															: "text-blue-300"
 													}`}
 												>
 													<span className="mr-1">View Source</span>

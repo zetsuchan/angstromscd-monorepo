@@ -14,16 +14,16 @@ const Header: React.FC = () => {
 	};
 
 	return (
-		<header className="bg-white border-b border-gray-200 py-3 px-4 flex items-center justify-between">
+		<header className="glass-light border-b border-white/20 py-3 px-4 flex items-center justify-between">
 			<div className="flex items-center space-x-4">
 				<div className="flex items-center">
-					<span className="text-blue-700 font-bold text-2xl">MedLab Chat</span>
-					<span className="text-gray-500 text-xs ml-2">by Angstrom AI</span>
+					<span className="text-blue-300 font-bold text-2xl">MedLab Chat</span>
+					<span className="text-gray-300 text-xs ml-2">by Angstrom AI</span>
 				</div>
 
 				<div className="relative">
 					<button
-						className="flex items-center space-x-1 bg-gray-100 hover:bg-gray-200 transition-colors px-3 py-1.5 rounded-md text-gray-700"
+						className="flex items-center space-x-1 glass-subtle hover:glass-hover glass-focus px-3 py-1.5 rounded-md text-white/90 transition-all"
 						onClick={() => setIsWorkspaceDropdownOpen(!isWorkspaceDropdownOpen)}
 					>
 						<span>{currentWorkspace.name}</span>
@@ -31,15 +31,15 @@ const Header: React.FC = () => {
 					</button>
 
 					{isWorkspaceDropdownOpen && (
-						<div className="absolute top-full left-0 mt-1 bg-white shadow-lg rounded-md border border-gray-200 w-48 z-10">
+						<div className="absolute top-full left-0 mt-1 glass-strong rounded-md border border-white/20 w-48 z-10">
 							<ul>
 								{workspaces.map((workspace) => (
 									<li key={workspace.id}>
 										<button
-											className={`w-full text-left px-4 py-2 hover:bg-gray-100 ${
+											className={`w-full text-left px-4 py-2 hover:glass-subtle transition-all rounded-md ${
 												workspace.id === currentWorkspace.id
-													? "bg-blue-50 text-blue-700"
-													: ""
+													? "medical-primary text-blue-300"
+													: "text-white/90"
 											}`}
 											onClick={() => handleWorkspaceChange(workspace)}
 										>
@@ -54,22 +54,22 @@ const Header: React.FC = () => {
 			</div>
 
 			<div className="flex items-center space-x-3">
-				<button className="flex items-center space-x-1 text-gray-700 hover:text-blue-700 transition-colors">
+				<button className="flex items-center space-x-1 text-white/80 hover:text-blue-300 glass-subtle hover:glass-hover glass-focus px-3 py-1.5 rounded-md transition-all">
 					<Search size={18} />
 					<span className="text-sm">New Search</span>
 				</button>
 
-				<button className="flex items-center space-x-1 text-gray-700 hover:text-blue-700 transition-colors">
+				<button className="flex items-center space-x-1 text-white/80 hover:text-green-300 glass-subtle hover:glass-hover glass-focus px-3 py-1.5 rounded-md transition-all">
 					<Upload size={18} />
 					<span className="text-sm">Upload</span>
 				</button>
 
-				<button className="flex items-center space-x-1 text-gray-700 hover:text-blue-700 transition-colors">
+				<button className="flex items-center space-x-1 text-white/80 hover:text-pink-300 glass-subtle hover:glass-hover glass-focus px-3 py-1.5 rounded-md transition-all">
 					<Grid3X3 size={18} />
 					<span className="text-sm">Claims Matrix</span>
 				</button>
 
-				<button className="p-1.5 text-gray-500 hover:text-gray-700 rounded-full hover:bg-gray-100 transition-colors">
+				<button className="p-1.5 text-white/70 hover:text-white/90 rounded-full glass-subtle hover:glass-hover glass-focus transition-all">
 					<Settings size={20} />
 				</button>
 			</div>

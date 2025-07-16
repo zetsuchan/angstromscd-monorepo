@@ -38,11 +38,11 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ selectedModel, onModelSel
   const getIcon = (type: string) => {
     switch(type) {
       case 'medical':
-        return <Activity size={16} className="text-red-500" />;
+        return <Activity size={16} className="text-pink-400" />;
       case 'cloud':
-        return <Cloud size={16} className="text-blue-500" />;
+        return <Cloud size={16} className="text-blue-400" />;
       case 'local':
-        return <Computer size={16} className="text-green-500" />;
+        return <Computer size={16} className="text-green-400" />;
       default:
         return null;
     }
@@ -63,7 +63,7 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ selectedModel, onModelSel
     <div className="relative">
       <button
         type="button"
-        className="flex items-center space-x-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors"
+        className="flex items-center space-x-2 px-3 py-2 glass-subtle hover:glass-hover glass-focus rounded-md transition-all text-white/90"
         onClick={() => setIsOpen(!isOpen)}
       >
         {getIcon(selectedModelData.type)}
@@ -72,10 +72,10 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ selectedModel, onModelSel
       </button>
       
       {isOpen && (
-        <div className="absolute bottom-full left-0 mb-2 bg-white shadow-lg rounded-md border border-gray-200 w-64 z-10 max-h-96 overflow-y-auto">
+        <div className="absolute bottom-full left-0 mb-2 glass-strong rounded-md border border-white/20 w-64 z-10 max-h-96 overflow-y-auto">
           {selectedModelData.type === 'medical' && (
-            <div className="px-3 py-2 bg-red-50 border-b border-red-100">
-              <p className="text-xs text-red-700">Medical model with PubMed integration</p>
+            <div className="px-3 py-2 medical-alert border-b border-pink-300/20">
+              <p className="text-xs text-pink-300">Medical model with PubMed integration</p>
             </div>
           )}
           
@@ -84,10 +84,10 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ selectedModel, onModelSel
             
             return (
               <div key={type}>
-                <div className="px-3 py-2 bg-gray-50 border-b border-gray-200">
+                <div className="px-3 py-2 glass-subtle border-b border-white/20">
                   <div className="flex items-center space-x-2">
                     {getIcon(type)}
-                    <span className="text-xs font-medium text-gray-700 uppercase">{type}</span>
+                    <span className="text-xs font-medium text-white/90 uppercase">{type}</span>
                   </div>
                 </div>
                 <ul>
@@ -95,17 +95,17 @@ const ModelSelector: React.FC<ModelSelectorProps> = ({ selectedModel, onModelSel
                     <li key={model.id}>
                       <button
                         type="button"
-                        className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-100 ${
-                          model.id === selectedModel ? 'bg-blue-50 text-blue-700' : ''
+                        className={`w-full text-left px-4 py-2 text-sm transition-all ${
+                          model.id === selectedModel ? 'medical-primary text-blue-300' : 'text-white/80 hover:glass-subtle'
                         }`}
                         onClick={() => handleSelect(model.id)}
                       >
                         <div className="flex items-center justify-between">
                           <span>{model.name}</span>
-                          <span className="text-xs text-gray-500">{model.provider}</span>
+                          <span className="text-xs text-white/60">{model.provider}</span>
                         </div>
                         {model.description && (
-                          <p className="text-xs text-gray-500 mt-1">{model.description}</p>
+                          <p className="text-xs text-white/60 mt-1">{model.description}</p>
                         )}
                       </button>
                     </li>

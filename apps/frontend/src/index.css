@@ -19,15 +19,177 @@ html, body, #root {
 }
 
 .overflow-y-auto::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: rgba(241, 241, 241, 0.1);
   border-radius: 4px;
+  backdrop-filter: blur(10px);
 }
 
 .overflow-y-auto::-webkit-scrollbar-thumb {
-  background: #888;
+  background: rgba(136, 136, 136, 0.3);
   border-radius: 4px;
+  backdrop-filter: blur(10px);
 }
 
 .overflow-y-auto::-webkit-scrollbar-thumb:hover {
-  background: #555;
+  background: rgba(85, 85, 85, 0.5);
+}
+
+/* Liquid Glass Orbs */
+.liquid-glass-orb {
+  position: absolute;
+  background: linear-gradient(135deg, 
+    rgba(79, 195, 247, 0.15) 0%, 
+    rgba(129, 199, 132, 0.12) 50%, 
+    rgba(244, 143, 177, 0.1) 100%);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+  box-shadow: 
+    0 8px 32px rgba(79, 195, 247, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  animation: liquid-morph 20s ease-in-out infinite;
+}
+
+.liquid-orb-1 {
+  width: 280px;
+  height: 380px;
+  top: 10%;
+  left: 15%;
+  animation-delay: 0s;
+  animation-duration: 25s;
+}
+
+.liquid-orb-2 {
+  width: 220px;
+  height: 320px;
+  top: 45%;
+  right: 12%;
+  animation-delay: -5s;
+  animation-duration: 30s;
+}
+
+.liquid-orb-3 {
+  width: 180px;
+  height: 260px;
+  bottom: 25%;
+  left: 20%;
+  animation-delay: -10s;
+  animation-duration: 22s;
+}
+
+.liquid-orb-4 {
+  width: 160px;
+  height: 220px;
+  top: 30%;
+  right: 35%;
+  animation-delay: -15s;
+  animation-duration: 28s;
+}
+
+.liquid-orb-5 {
+  width: 140px;
+  height: 180px;
+  bottom: 35%;
+  right: 25%;
+  animation-delay: -20s;
+  animation-duration: 35s;
+}
+
+@keyframes liquid-morph {
+  0%, 100% { 
+    transform: translate(0px, 0px) rotate(0deg) scale(1);
+    border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+  }
+  25% { 
+    transform: translate(15px, -25px) rotate(90deg) scale(1.1);
+    border-radius: 70% 30% 30% 70% / 70% 70% 30% 30%;
+  }
+  50% { 
+    transform: translate(-8px, 18px) rotate(180deg) scale(0.9);
+    border-radius: 50% 50% 50% 50% / 60% 40% 60% 40%;
+  }
+  75% { 
+    transform: translate(-15px, -8px) rotate(270deg) scale(1.05);
+    border-radius: 40% 60% 60% 40% / 40% 40% 60% 60%;
+  }
+}
+
+/* Glassmorphism Utilities */
+.glass-light {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px) saturate(180%);
+  -webkit-backdrop-filter: blur(10px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.glass-strong {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+}
+
+.glass-subtle {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(5px) saturate(160%);
+  -webkit-backdrop-filter: blur(5px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Medical Theme Glass Colors */
+.medical-primary {
+  background: rgba(79, 195, 247, 0.15);
+  backdrop-filter: blur(12px) saturate(180%);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  border: 1px solid rgba(79, 195, 247, 0.25);
+  box-shadow: 0 4px 16px rgba(79, 195, 247, 0.15);
+}
+
+.medical-success {
+  background: rgba(129, 199, 132, 0.15);
+  backdrop-filter: blur(12px) saturate(180%);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  border: 1px solid rgba(129, 199, 132, 0.25);
+  box-shadow: 0 4px 16px rgba(129, 199, 132, 0.15);
+}
+
+.medical-alert {
+  background: rgba(244, 143, 177, 0.15);
+  backdrop-filter: blur(12px) saturate(180%);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  border: 1px solid rgba(244, 143, 177, 0.25);
+  box-shadow: 0 4px 16px rgba(244, 143, 177, 0.15);
+}
+
+/* Glass Focus States */
+.glass-focus:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(79, 195, 247, 0.4);
+  backdrop-filter: blur(16px) saturate(200%);
+  -webkit-backdrop-filter: blur(16px) saturate(200%);
+}
+
+/* Hover Effects */
+.glass-hover:hover {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(15px) saturate(200%);
+  -webkit-backdrop-filter: blur(15px) saturate(200%);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  .liquid-glass-orb {
+    animation: none;
+  }
+  
+  .glass-hover:hover {
+    transform: none;
+    transition: none;
+  }
 }
