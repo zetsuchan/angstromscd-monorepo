@@ -2,7 +2,9 @@ version: '3.8'
 
 services:
   postgres:
-    image: pgvector/pgvector:pg15
+    build:
+      context: .
+      dockerfile: Dockerfile.postgres
     environment:
       POSTGRES_DB: angstromscd
       POSTGRES_USER: postgres

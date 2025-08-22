@@ -15,6 +15,7 @@ import type {
   DbMessage, 
   DbUser
 } from "@angstromscd/shared-types";
+import queueRoutes from "./queue";
 
 export const router = new Hono();
 
@@ -330,3 +331,6 @@ router.get("/api/chat/health", async (c) => {
 
 // Mount conversations router
 router.route("/api/conversations", conversationsRouter);
+
+// Mount queue routes
+router.route("/api/queue", queueRoutes);

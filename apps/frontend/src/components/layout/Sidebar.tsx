@@ -19,10 +19,10 @@ const Sidebar: React.FC = () => {
 
 	if (isCollapsed) {
 		return (
-			<div className="w-12 bg-gray-100 border-r border-gray-200 flex flex-col items-center py-4 h-full">
+			<div className="w-12 glass-light border-r border-white/20 flex flex-col items-center py-4 h-full">
 				<button
 					onClick={() => setIsCollapsed(false)}
-					className="p-1.5 text-gray-500 hover:text-gray-700 rounded-full hover:bg-gray-200 mb-6"
+					className="p-1.5 text-white/70 hover:text-white/90 rounded-full glass-subtle hover:glass-hover glass-focus mb-6 transition-all"
 				>
 					<ChevronRight size={18} />
 				</button>
@@ -30,10 +30,10 @@ const Sidebar: React.FC = () => {
 				{threads.map((thread) => (
 					<button
 						key={thread.id}
-						className={`w-8 h-8 mb-2 rounded-full flex items-center justify-center ${
+						className={`w-8 h-8 mb-2 rounded-full flex items-center justify-center transition-all ${
 							thread.isActive
-								? "bg-blue-600 text-white"
-								: "bg-gray-200 text-gray-700 hover:bg-gray-300"
+								? "medical-primary text-blue-300"
+								: "glass-subtle text-white/80 hover:glass-hover glass-focus"
 						}`}
 						onClick={() => handleThreadClick(thread.id)}
 					>
@@ -41,7 +41,7 @@ const Sidebar: React.FC = () => {
 					</button>
 				))}
 
-				<button className="w-8 h-8 mt-2 rounded-full bg-gray-200 text-gray-700 hover:bg-gray-300 flex items-center justify-center">
+				<button className="w-8 h-8 mt-2 rounded-full glass-subtle text-white/80 hover:glass-hover glass-focus flex items-center justify-center transition-all">
 					<Plus size={16} />
 				</button>
 			</div>
@@ -49,12 +49,12 @@ const Sidebar: React.FC = () => {
 	}
 
 	return (
-		<div className="w-64 bg-gray-100 border-r border-gray-200 flex flex-col h-full">
-			<div className="p-4 flex items-center justify-between border-b border-gray-200">
-				<h2 className="font-medium text-gray-700">Threads</h2>
+		<div className="w-64 glass-light border-r border-white/20 flex flex-col h-full">
+			<div className="p-4 flex items-center justify-between border-b border-white/20">
+				<h2 className="font-medium text-white/90">Threads</h2>
 				<button
 					onClick={() => setIsCollapsed(true)}
-					className="p-1.5 text-gray-500 hover:text-gray-700 rounded-full hover:bg-gray-200"
+					className="p-1.5 text-white/70 hover:text-white/90 rounded-full glass-subtle hover:glass-hover glass-focus transition-all"
 				>
 					<ChevronLeft size={18} />
 				</button>
@@ -72,27 +72,27 @@ const Sidebar: React.FC = () => {
 				</ul>
 
 				<div className="px-4 py-2">
-					<button className="w-full flex items-center space-x-2 text-gray-700 hover:text-blue-700 transition-colors py-2">
+					<button className="w-full flex items-center space-x-2 text-white/80 hover:text-blue-300 glass-subtle hover:glass-hover glass-focus px-3 py-2 rounded-md transition-all">
 						<Plus size={16} />
 						<span>New Thread</span>
 					</button>
 				</div>
 			</div>
 
-			<div className="border-t border-gray-200 p-4">
-				<h3 className="font-medium text-sm text-gray-700 mb-2">
+			<div className="border-t border-white/20 p-4">
+				<h3 className="font-medium text-sm text-white/90 mb-2">
 					Recent Alerts
 				</h3>
 				<ul>
 					{alerts.map((alert) => (
 						<li key={alert.id} className="mb-2">
 							<button
-								className={`w-full text-left py-1 px-2 rounded ${
+								className={`w-full text-left py-1 px-2 rounded transition-all ${
 									alert.isRead
-										? "text-gray-500"
+										? "text-white/50 glass-subtle"
 										: alert.type === "warning"
-											? "text-red-600 bg-red-50"
-											: "text-blue-600 bg-blue-50"
+											? "text-pink-300 medical-alert"
+											: "text-blue-300 medical-primary"
 								}`}
 								onClick={() => handleAlertClick(alert)}
 							>
@@ -122,17 +122,17 @@ const ThreadItem: React.FC<ThreadItemProps> = ({ thread, onClick }) => {
 	return (
 		<li>
 			<button
-				className={`w-full flex items-center space-x-2 px-4 py-2 text-left ${
+				className={`w-full flex items-center space-x-2 px-4 py-2 text-left transition-all ${
 					thread.isActive
-						? "bg-blue-100 text-blue-700"
-						: "text-gray-700 hover:bg-gray-200"
+						? "medical-primary text-blue-300"
+						: "text-white/80 hover:glass-subtle"
 				}`}
 				onClick={onClick}
 			>
 				<span className={thread.isActive ? "font-medium" : ""}>
 					{thread.name}
 				</span>
-				{thread.isActive && <span className="text-blue-700 text-xs">▶</span>}
+				{thread.isActive && <span className="text-blue-300 text-xs">▶</span>}
 			</button>
 		</li>
 	);

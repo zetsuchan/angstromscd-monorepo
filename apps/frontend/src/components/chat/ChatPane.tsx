@@ -52,8 +52,8 @@ const ChatPane: React.FC = () => {
 
 	if (!currentThread) {
 		return (
-			<div className="flex-1 flex items-center justify-center bg-gray-50 p-4">
-				<div className="text-center text-gray-500">
+			<div className="flex-1 flex items-center justify-center p-4">
+				<div className="text-center text-white/70 glass-subtle p-8 rounded-lg">
 					<p className="mb-2">No thread selected.</p>
 					<p>Select a thread from the sidebar or create a new one.</p>
 				</div>
@@ -62,11 +62,11 @@ const ChatPane: React.FC = () => {
 	}
 
 	return (
-		<div className="flex-1 flex flex-col bg-gray-50 relative overflow-hidden">
-			<div className="flex items-center justify-between px-4 py-2 bg-white border-b border-gray-200 flex-shrink-0">
-				<h2 className="font-medium text-gray-800">{currentThread.name}</h2>
+		<div className="flex-1 flex flex-col relative overflow-hidden">
+			<div className="flex items-center justify-between px-4 py-2 glass-subtle border-b border-white/20 flex-shrink-0">
+				<h2 className="font-medium text-white/90">{currentThread.name}</h2>
 				<button
-					className="flex items-center space-x-1 text-gray-700 hover:text-blue-700 transition-colors px-2 py-1 rounded hover:bg-gray-100"
+					className="flex items-center space-x-1 text-white/80 hover:text-blue-300 transition-all px-2 py-1 rounded glass-subtle hover:glass-hover glass-focus"
 					onClick={() => setIsCreatingBranch(true)}
 				>
 					<GitBranch size={16} />
@@ -76,8 +76,10 @@ const ChatPane: React.FC = () => {
 
 			<div className="flex-1 overflow-y-auto p-4 min-h-0" ref={chatContainerRef}>
 				{currentThread.messages.length === 0 ? (
-					<div className="flex items-center justify-center h-full text-gray-500">
-						<p>This thread is empty. Start a conversation!</p>
+					<div className="flex items-center justify-center h-full text-white/70">
+						<div className="glass-subtle p-6 rounded-lg">
+							<p>This thread is empty. Start a conversation!</p>
+						</div>
 					</div>
 				) : (
 					<>
@@ -86,17 +88,17 @@ const ChatPane: React.FC = () => {
 						))}
 						{isLoading && (
 							<div className="flex items-start space-x-3 mt-4">
-								<div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center">
-									<span className="text-white font-bold text-sm">AI</span>
+								<div className="w-8 h-8 rounded-full medical-primary flex items-center justify-center">
+									<span className="text-blue-300 font-bold text-sm">AI</span>
 								</div>
-								<div className="bg-gray-100 rounded-lg px-4 py-3 max-w-3xl">
+								<div className="glass-subtle rounded-lg px-4 py-3 max-w-3xl">
 									<div className="flex items-center space-x-2">
 										<div className="flex space-x-1">
-											<div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-											<div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-											<div className="w-2 h-2 bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+											<div className="w-2 h-2 bg-blue-300 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+											<div className="w-2 h-2 bg-blue-300 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+											<div className="w-2 h-2 bg-blue-300 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
 										</div>
-										<span className="text-sm text-gray-600">
+										<span className="text-sm text-white/80">
 											Thinking{elapsedTime > 0 && ` for ${elapsedTime}s`}...
 										</span>
 									</div>
@@ -109,12 +111,12 @@ const ChatPane: React.FC = () => {
 			</div>
 
 			{isCreatingBranch && (
-				<div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-10">
-					<div className="bg-white rounded-lg p-6 w-80">
-						<h3 className="text-lg font-medium mb-4">Fork this thread as...</h3>
+				<div className="absolute inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-10">
+					<div className="glass-strong rounded-lg p-6 w-80">
+						<h3 className="text-lg font-medium mb-4 text-white/90">Fork this thread as...</h3>
 						<input
 							type="text"
-							className="w-full border border-gray-300 rounded px-3 py-2 mb-4"
+							className="w-full glass-subtle border border-white/20 rounded px-3 py-2 mb-4 text-white/90 placeholder-white/50 glass-focus"
 							placeholder="Enter branch name"
 							value={branchName}
 							onChange={(e) => setBranchName(e.target.value)}
@@ -122,13 +124,13 @@ const ChatPane: React.FC = () => {
 						/>
 						<div className="flex justify-end space-x-2">
 							<button
-								className="px-4 py-2 text-gray-700 hover:text-gray-900 rounded"
+								className="px-4 py-2 text-white/80 hover:text-white/90 glass-subtle hover:glass-hover glass-focus rounded transition-all"
 								onClick={() => setIsCreatingBranch(false)}
 							>
 								Cancel
 							</button>
 							<button
-								className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+								className="px-4 py-2 medical-primary text-blue-300 hover:glass-hover glass-focus rounded transition-all"
 								onClick={handleCreateBranch}
 							>
 								Create

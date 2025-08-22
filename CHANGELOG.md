@@ -5,6 +5,67 @@ All notable changes to the AngstromSCD project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2025-07-15
+
+### Added
+
+#### PostgreSQL Message Queue (PGMQ) Integration
+- **Medical Alert Queue System**: Integrated PGMQ for reliable medical alert processing
+  - VOE (Vaso-Occlusive Episode) alert queues
+  - Medication reminder scheduling
+  - Lab result notifications
+  - Clinical trial update notifications
+- **Custom PostgreSQL Docker Image**: Built custom image with both pgvector and PGMQ extensions
+- **Type-safe Queue Client**: Created `@angstromscd/queue` package with TypeScript wrapper
+  - Generic PGMQ operations (send, read, delete, archive)
+  - Medical-specific convenience methods
+  - Connection pooling and error handling
+- **API Endpoints**: Added REST endpoints for queue operations
+  - `POST /api/queue/voe-alert` - Send VOE alerts
+  - `POST /api/queue/medication-reminder` - Schedule medication reminders
+  - `POST /api/queue/lab-result` - Send lab result notifications
+  - `GET /api/queue/alerts/:type` - Retrieve pending alerts by type
+- **Background Worker Pattern**: Example alert worker for processing queued messages
+  - Automatic alert processing and notifications
+  - Message archiving for audit trails
+  - Graceful error handling and retry logic
+- **Database Setup**: Automated queue creation during database initialization
+  - Extension installation scripts
+  - Pre-configured medical queues
+  - Integration with existing setup process
+
+#### Queue Architecture Features
+- **Exactly-once Delivery**: Guaranteed message processing with PGMQ
+- **Visibility Timeout**: Messages become invisible while being processed
+- **Message Archiving**: Processed messages archived for compliance and audit
+- **Medical Data Security**: Queue operations designed for PHI compliance
+
+### Changed
+
+#### Infrastructure
+- **Docker Compose**: Updated PostgreSQL service to use custom PGMQ-enabled image
+- **Database Setup**: Enhanced setup scripts to include PGMQ extension and queue creation
+- **Package Dependencies**: Added queue package to API service dependencies
+
+#### API Service
+- **Enhanced Routes**: Integrated queue routes into main API router
+- **Service Layer**: Added queue service wrapper for medical alert operations
+- **Error Handling**: Extended error handling for queue operations
+
+### Technical Details
+
+#### Package Structure
+- **packages/queue/**: New PGMQ client package
+  - `src/index.ts`: Main client and medical service classes
+  - `examples/`: Working examples for alerts and worker patterns
+  - `README.md`: Comprehensive usage documentation
+- **infra/Dockerfile.postgres**: Custom PostgreSQL image with pgvector + PGMQ
+- **infra/scripts/init-pgmq.sql**: Queue initialization script
+
+#### Dependencies
+- **postgres**: ^3.4.0 - PostgreSQL client for queue operations
+- **@angstromscd/queue**: workspace package for queue functionality
+
 ## [0.2.0] - 2025-07-08
 
 ### Added

@@ -13,6 +13,7 @@
 	},
 	"dependencies": {
 		"@angstromscd/shared-types": "workspace:*",
+		"@angstromscd/queue": "workspace:*",
 		"@e2b/code-interpreter": "^1.5.1",
 		"@hono/node-server": "^1.14.3",
 		"@supabase/supabase-js": "^2.49.8",
