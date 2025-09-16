@@ -1,0 +1,13 @@
+{
+	"name": "angstromscd-realtime-gateway",
+	"type": "module",
+	"private": true,
+	"scripts": {
+		"dev": "bun run --hot src/index.ts",
+		"start": "bun run src/index.ts"
+	},
+	"dependencies": {
+		"@angstromscd/shared-types": "workspace:*",
+		"nats": "^2.26.2"
+	}
+}

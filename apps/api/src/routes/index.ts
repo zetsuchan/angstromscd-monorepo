@@ -1,21 +1,19 @@
+import {
+	AuthenticationError,
+	DatabaseError,
+	ValidationError,
+	errorToApiError,
+	isAppError,
+} from "@angstromscd/shared-types";
+import type { ApiResponse, DbUser } from "@angstromscd/shared-types";
 import { Hono } from "hono";
 import { z } from "zod";
 import { supabase } from "../lib/db";
 import { EnhancedChatService } from "../services/enhanced-chat-service";
+import { OutboxService } from "../services/outbox-service";
 import { conversationsRouter } from "./conversations";
-import { 
-  DatabaseError,
-  ValidationError,
-  AuthenticationError,
-  isAppError,
-  errorToApiError
-} from "@angstromscd/shared-types";
-import type { 
-  ApiResponse, 
-  DbMessage, 
-  DbUser
-} from "@angstromscd/shared-types";
 import queueRoutes from "./queue";
+import { streamRouter } from "./stream";
 
 export const router = new Hono();
 
@@ -44,8 +42,9 @@ function createErrorResponse(error: unknown): ApiResponse<never> {
 	};
 }
 
-// Initialize enhanced chat service
-const chatService = new EnhancedChatService()
+// Initialize services used across routes
+const chatService = new EnhancedChatService();
+const outboxService = new OutboxService();
 
 // health endpoint
 router.get("/health", (c) => {
@@ -58,7 +57,10 @@ router.get("/health", (c) => {
 
 router.get("/health/db", async (c) => {
 	try {
-		const { error } = await supabase.from("messages").select("id").limit(1);
+		const { error } = await supabase
+			.from("conversation_messages")
+			.select("id")
+			.limit(1);
 		if (error) {
 			throw new DatabaseError("health check", error);
 		}
@@ -179,8 +181,13 @@ router.post("/auth/login", async (c) => {
 // Message schema
 const messageSchema = z.object({
 	content: z.string().min(1, "Message content cannot be empty"),
+	conversation_id: z.string().uuid("Invalid conversation ID").optional(),
 	thread_id: z.string().uuid("Invalid thread ID").optional(),
-	user_id: z.string().uuid("Invalid user ID").optional(),
+	role: z.enum(["user", "assistant", "system"]).optional(),
+	model: z.string().optional(),
+	citations: z.unknown().optional(),
+	pubmed_articles: z.unknown().optional(),
+	metadata: z.record(z.unknown()).optional(),
 });
 
 // create message
@@ -193,27 +200,45 @@ router.post("/api/messages", async (c) => {
 			throw new ValidationError("Invalid message data", parsed.error.flatten());
 		}
 
-		const messageData: Partial<DbMessage> = {
-			...parsed.data,
-			sender: "user",
-			created_at: new Date().toISOString(),
-		};
-
-		const { data, error } = await supabase
-			.from("messages")
-			.insert(messageData)
-			.select()
-			.single();
-
-		if (error) {
-			throw new DatabaseError("create message", error);
+		const {
+			content,
+			conversation_id,
+			thread_id,
+			role,
+			model,
+			citations,
+			pubmed_articles,
+			metadata,
+		} = parsed.data;
+		const conversationId = conversation_id ?? thread_id;
+		if (!conversationId) {
+			throw new ValidationError("Conversation ID is required", [
+				{
+					field: "conversation_id",
+					message: "Provide a valid conversation identifier",
+				},
+			]);
 		}
 
-		if (!data) {
-			throw new DatabaseError("create message", "No data returned");
-		}
+		const result = await outboxService.enqueueMessage({
+			conversationId,
+			role: role ?? "user",
+			content,
+			model,
+			citations,
+			pubmedArticles: pubmed_articles,
+			metadata: metadata as Record<string, unknown> | undefined,
+		});
 
-		const response = createApiResponse({ message: data });
+		const response = createApiResponse({
+			message: result.message,
+			outbox: {
+				id: result.outboxEntry.id,
+				sequence: result.sequence,
+				dedupeId: result.outboxEntry.dedupe_id,
+				status: result.outboxEntry.status,
+			},
+		});
 		return c.json(response);
 	} catch (error) {
 		const response = createErrorResponse(error);
@@ -223,13 +248,15 @@ router.post("/api/messages", async (c) => {
 });
 
 // list messages
+
 router.get("/api/messages", async (c) => {
 	try {
 		// Parse query parameters
 		const threadId = c.req.query("thread_id");
+		const conversationFilter = c.req.query("conversation_id") ?? threadId;
 		const limitStr = c.req.query("limit") || "50";
 		const offsetStr = c.req.query("offset") || "0";
-		
+
 		const limit = Number.parseInt(limitStr);
 		const offset = Number.parseInt(offsetStr);
 
@@ -237,19 +264,21 @@ router.get("/api/messages", async (c) => {
 		if (Number.isNaN(limit) || limit < 1 || limit > 100) {
 			throw new ValidationError("Limit must be a number between 1 and 100");
 		}
-		
+
 		if (Number.isNaN(offset) || offset < 0) {
 			throw new ValidationError("Offset must be a non-negative number");
 		}
 
-		let query = supabase.from("messages").select("*", { count: "exact" });
+		let query = supabase
+			.from("conversation_messages")
+			.select("*", { count: "exact" });
 
-		if (threadId) {
-			query = query.eq("thread_id", threadId);
+		if (conversationFilter) {
+			query = query.eq("conversation_id", conversationFilter);
 		}
 
 		const { data, error, count } = await query
-			.order("created_at", { ascending: false })
+			.order("sequence", { ascending: true })
 			.range(offset, offset + limit - 1);
 
 		if (error) {
@@ -314,7 +343,7 @@ router.post("/api/chat", async (c) => {
 router.get("/api/chat/health", async (c) => {
 	try {
 		const isConnected = await chatService.testConnection();
-		
+
 		const response = createApiResponse({
 			status: isConnected ? "connected" : "disconnected",
 			meditronAvailable: isConnected,
@@ -334,3 +363,6 @@ router.route("/api/conversations", conversationsRouter);
 
 // Mount queue routes
 router.route("/api/queue", queueRoutes);
+
+// Realtime stream endpoints
+router.route("/", streamRouter);

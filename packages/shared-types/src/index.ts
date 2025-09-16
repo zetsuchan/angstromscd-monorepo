@@ -33,3 +33,6 @@ export * from "./env";
 
 // Conversation types
 export * from "./conversation";
+
+// Realtime protocol types
+export * from "./realtime";
