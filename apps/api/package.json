@@ -17,6 +17,7 @@
 		"@e2b/code-interpreter": "^1.5.1",
 		"@hono/node-server": "^1.14.3",
 		"@supabase/supabase-js": "^2.49.8",
+		"nats": "^2.26.2",
 		"cors": "^2.8.5",
 		"dotenv": "^17.1.0",
 		"hono": "^4.7.10",

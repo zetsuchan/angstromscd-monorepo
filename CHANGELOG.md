@@ -5,6 +5,113 @@ All notable changes to the AngstromSCD project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2025-09-16
+
+### Added
+
+#### Real-time Messaging Gateway & WebSocket Infrastructure
+- **Gateway Service**: New dedicated real-time gateway service (`apps/gateway/`)
+  - WebSocket server for real-time client connections
+  - Message routing and broadcasting capabilities
+  - Client connection management and authentication
+- **NATS Message Broker Integration**: Added NATS.js client for distributed messaging
+  - Reliable pub/sub messaging between services
+  - Topic-based message routing
+  - Connection management and auto-reconnection
+- **Outbox Pattern Implementation**: Reliable message delivery system
+  - Database-backed message queuing for guaranteed delivery
+  - Worker-based message relay to NATS
+  - Transaction-safe message publishing
+- **Token Streaming Protocol**: Real-time streaming of chat responses
+  - WebSocket-based token delivery for live chat updates
+  - Message chunking and reassembly
+  - Error handling and connection recovery
+
+#### Frontend Real-time Client
+- **Gateway Client**: WebSocket client for real-time communication
+  - Automatic connection management
+  - Message type handling and routing
+  - Reconnection logic and error recovery
+- **Token Stream Handler**: Real-time chat response processing
+  - Live token reception and display
+  - Message assembly and completion detection
+  - Integration with existing ChatContext
+- **Enhanced Chat Context**: Updated chat system for real-time features
+  - WebSocket integration for live responses
+  - Streaming message state management
+  - Backward compatibility with existing chat flows
+
+#### Infrastructure Enhancements
+- **NATS Docker Integration**: Added NATS server to docker-compose
+  - Pre-configured NATS streaming server
+  - Bootstrap scripts for topic and stream setup
+  - Development environment integration
+- **Database Migrations**: Outbox table creation and management
+  - SQL schema for reliable message queuing
+  - Database setup script integration
+  - Message status tracking and cleanup
+- **Protocol Documentation**: Comprehensive real-time protocol specification
+  - WebSocket message format definitions
+  - Authentication and connection flow
+  - Error handling and recovery procedures
+
+### Changed
+
+#### API Service Architecture
+- **Streaming Endpoints**: New routes for real-time communication
+  - `/api/stream` endpoints for WebSocket upgrade
+  - Message publishing integration
+  - Outbox service integration for reliable delivery
+- **Service Layer**: Enhanced with real-time messaging capabilities
+  - Outbox service for transactional message publishing
+  - NATS client integration
+  - Background worker for message relay
+
+#### Development Environment
+- **Enhanced Docker Compose**: Updated with NATS and gateway services
+  - Multi-service orchestration
+  - Environment variable management
+  - Service dependency configuration
+- **Package Structure**: New gateway service in monorepo
+  - Independent gateway application
+  - Shared types for real-time messaging
+  - Cross-service type safety
+
+### Technical Details
+
+#### New Services & Packages
+- **apps/gateway/**: Dedicated WebSocket gateway service
+  - TypeScript implementation with Bun runtime
+  - WebSocket server with connection management
+  - NATS integration for message distribution
+- **packages/shared-types/**: Enhanced with real-time types
+  - WebSocket message type definitions
+  - Token streaming interfaces
+  - Protocol specification types
+
+#### Dependencies Added
+- **@nats-io/nats**: NATS client for distributed messaging
+- **ws**: WebSocket library for gateway service
+- Enhanced TypeScript types for real-time features
+
+#### Architecture Improvements
+- **Microservice Communication**: NATS-based service mesh
+- **Event-Driven Architecture**: Pub/sub messaging patterns
+- **Real-time Data Flow**: WebSocket to NATS bridge
+- **Reliable Messaging**: Outbox pattern with PostgreSQL backing
+
+### Security & Reliability
+- **Connection Authentication**: Secure WebSocket connection establishment
+- **Message Integrity**: Transactional outbox pattern prevents message loss
+- **Error Recovery**: Comprehensive error handling and reconnection logic
+- **Resource Management**: Proper cleanup and connection lifecycle management
+
+### Performance Optimizations
+- **Efficient Message Routing**: NATS-based pub/sub for scalable messaging
+- **Connection Pooling**: Optimized database and NATS connections
+- **Memory Management**: Proper cleanup of WebSocket connections and message buffers
+- **Streaming Architecture**: Non-blocking real-time data delivery
+
 ## [0.3.0] - 2025-07-15
 
 ### Added

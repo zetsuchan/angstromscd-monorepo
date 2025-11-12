@@ -14,13 +14,16 @@
 		"dev:desktop": "cd apps/desktop-swift && swift run",
 		"dev:infra": "cd infra && docker-compose up -d && echo 'Databases started'",
 		"build": "bun run build:packages && bun run build:apps",
-		"build:packages": "cd packages/baml && bun run build && cd ../vector && bun run build",
+		"build:packages": "cd packages/shared-types && bun run build && cd ../baml && bun run build && cd ../vector && bun run build",
 		"build:apps": "cd apps/api && bun run build && cd ../frontend && bun run build",
 		"build:desktop": "cd apps/desktop-swift && swift build -c release",
 		"lint": "biome check .",
 		"lint:fix": "biome check . --write",
 		"setup": "bun install && bun run setup:workspaces",
-		"setup:workspaces": "cd apps/frontend && bun install && cd ../api && bun install && cd ../../packages/baml && bun install && cd ../vector && bun install"
+		"setup:workspaces": "cd apps/frontend && bun install && cd ../api && bun install && cd ../gateway && bun install && cd ../../packages/baml && bun install && cd ../vector && bun install"
+	},
+	"dependencies": {
+		"nats": "^2.26.2"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^1.9.4",
