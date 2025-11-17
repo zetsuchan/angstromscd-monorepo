@@ -11,6 +11,7 @@ export * from "./services/logger-service";
 export * from "./services/database-service";
 export * from "./services/nats-service";
 export * from "./services/conversation-service";
+export * from "./services/ai-service";
 
 // Layers
 export * from "./layers/app-layer";
