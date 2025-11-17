@@ -59,11 +59,18 @@ export const DatabaseServiceLive = Layer.effect(
           });
 
           if (result.error) {
+            // Check if this is a "not found" error from Supabase
+            const errorStr = String(result.error);
+            const isNotFound =
+              errorStr.includes("PGRST116") || // Supabase "no rows" error
+              errorStr.includes("not found") ||
+              errorStr.includes("No rows found");
+
             return yield* Effect.fail(
               new DatabaseError({
                 operation: "query",
                 table,
-                cause: result.error,
+                cause: isNotFound ? "No data returned" : result.error,
               })
             );
           }
@@ -89,5 +96,8 @@ export const DatabaseServiceLive = Layer.effect(
  */
 export const DatabaseServiceTest = Layer.succeed(DatabaseService, {
   client: null as unknown as SupabaseClient, // Mock client
-  query: <T>() => Effect.succeed({} as T),
+  query: <T>(
+    _table: string,
+    _operation: (client: SupabaseClient) => Promise<{ data: T | null; error: unknown }>
+  ) => Effect.succeed({} as T),
 });

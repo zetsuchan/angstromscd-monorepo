@@ -316,14 +316,14 @@ export const ConversationServiceLive = Layer.effect(
 				Effect.gen(function* () {
 					yield* Effect.log("Deleting conversation", { conversationId, userId });
 
-					yield* db.query<void>("conversations", (client) =>
+					yield* db.query<{ success: boolean }>("conversations", (client) =>
 						client
 							.from("conversations")
 							.delete()
 							.eq("id", conversationId)
 							.eq("user_id", userId)
 							.then((result) => ({
-								data: null as void | null,
+								data: result.error ? null : ({ success: true } as { success: boolean }),
 								error: result.error,
 							})),
 					);

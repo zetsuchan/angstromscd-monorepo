@@ -64,7 +64,7 @@ const createStreamEffect = (conversationId: string) =>
 		const sseStream = combinedStream.pipe(
 			Stream.map(({ event, data, id }) => formatSSE(event, data, id)),
 			// Prepend protocol version
-			Stream.prepend(Stream.make(formatSSE("protocol", REALTIME_PROTOCOL_VERSION))),
+			Stream.prepend(formatSSE("protocol", REALTIME_PROTOCOL_VERSION)),
 		);
 
 		return sseStream;

@@ -175,7 +175,7 @@ export const NatsServiceLive = Layer.effect(
  */
 export const NatsServiceTest = Layer.succeed(NatsService, {
   getClient: () => Effect.succeed({} as JetStreamClient),
-  subscribe: () =>
+  subscribe: (_config: SubscriptionConfig) =>
     Effect.succeed(
       Stream.make({
         data: "test-message",
@@ -183,5 +183,5 @@ export const NatsServiceTest = Layer.succeed(NatsService, {
         streamSequence: 1,
       })
     ),
-  publish: () => Effect.void,
+  publish: (_subject: string, _data: string) => Effect.void,
 });
