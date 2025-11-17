@@ -6,20 +6,27 @@ import { Layer } from "effect";
 import { ConfigServiceLive, ConfigServiceTest } from "../services/config-service";
 import { LoggerServiceLive, LoggerServiceTest } from "../services/logger-service";
 import { DatabaseServiceLive, DatabaseServiceTest } from "../services/database-service";
+import { NatsServiceLive, NatsServiceTest } from "../services/nats-service";
 
 /**
  * Live application layer
  * Composes all production service implementations
  */
 export const AppLive = Layer.mergeAll(ConfigServiceLive, LoggerServiceLive).pipe(
-  Layer.provideMerge(DatabaseServiceLive)
+  Layer.provideMerge(DatabaseServiceLive),
+  Layer.provideMerge(NatsServiceLive)
 );
 
 /**
  * Test application layer
  * Composes all test service implementations
  */
-export const AppTest = Layer.mergeAll(ConfigServiceTest, LoggerServiceTest, DatabaseServiceTest);
+export const AppTest = Layer.mergeAll(
+  ConfigServiceTest,
+  LoggerServiceTest,
+  DatabaseServiceTest,
+  NatsServiceTest
+);
 
 /**
  * Development application layer
