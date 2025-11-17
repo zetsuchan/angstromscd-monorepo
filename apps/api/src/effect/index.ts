@@ -10,6 +10,7 @@ export * from "./services/config-service";
 export * from "./services/logger-service";
 export * from "./services/database-service";
 export * from "./services/nats-service";
+export * from "./services/conversation-service";
 
 // Layers
 export * from "./layers/app-layer";

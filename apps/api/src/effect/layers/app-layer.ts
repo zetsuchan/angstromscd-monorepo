@@ -7,6 +7,7 @@ import { ConfigServiceLive, ConfigServiceTest } from "../services/config-service
 import { LoggerServiceLive, LoggerServiceTest } from "../services/logger-service";
 import { DatabaseServiceLive, DatabaseServiceTest } from "../services/database-service";
 import { NatsServiceLive, NatsServiceTest } from "../services/nats-service";
+import { ConversationServiceLive, ConversationServiceTest } from "../services/conversation-service";
 
 /**
  * Live application layer
@@ -14,7 +15,8 @@ import { NatsServiceLive, NatsServiceTest } from "../services/nats-service";
  */
 export const AppLive = Layer.mergeAll(ConfigServiceLive, LoggerServiceLive).pipe(
   Layer.provideMerge(DatabaseServiceLive),
-  Layer.provideMerge(NatsServiceLive)
+  Layer.provideMerge(NatsServiceLive),
+  Layer.provideMerge(ConversationServiceLive)
 );
 
 /**
@@ -25,7 +27,8 @@ export const AppTest = Layer.mergeAll(
   ConfigServiceTest,
   LoggerServiceTest,
   DatabaseServiceTest,
-  NatsServiceTest
+  NatsServiceTest,
+  ConversationServiceTest
 );
 
 /**
