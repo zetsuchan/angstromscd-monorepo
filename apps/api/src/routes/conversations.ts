@@ -1,7 +1,8 @@
 import { Hono } from "hono";
 import { z } from "zod";
+import { Effect } from "effect";
 import { supabase } from "../lib/db";
-import { 
+import {
   DatabaseError,
   ValidationError,
   AuthenticationError,
@@ -16,6 +17,8 @@ import {
   type ConversationListResponse,
   type ConversationDetailResponse
 } from "@angstromscd/shared-types";
+import { useEffectForRoute } from "../config/features";
+import { AppLive, ConversationService, errorToResponse, errorToStatusCode } from "../effect";
 
 export const conversationsRouter = new Hono();
 
@@ -69,10 +72,34 @@ const getUserId = (c: any): string => {
 
 // List conversations
 conversationsRouter.get("/", async (c) => {
+  const userId = getUserId(c);
+  const page = parseInt(c.req.query("page") || "1");
+  const limit = parseInt(c.req.query("limit") || "20");
+
+  // Use Effect.ts implementation if enabled
+  if (useEffectForRoute("CONVERSATIONS")) {
+    const program = Effect.gen(function* () {
+      const conversationService = yield* ConversationService;
+      const result = yield* conversationService.list(userId, page, limit);
+      return result;
+    }).pipe(
+      Effect.provide(AppLive),
+      Effect.catchAll((error) =>
+        Effect.sync(() => errorToResponse(error))
+      )
+    );
+
+    const result = await Effect.runPromise(program);
+
+    if ("error" in result) {
+      return c.json(createErrorResponse(result), result.statusCode);
+    }
+
+    return c.json(createApiResponse(result));
+  }
+
+  // Legacy implementation
   try {
-    const userId = getUserId(c);
-    const page = parseInt(c.req.query("page") || "1");
-    const limit = parseInt(c.req.query("limit") || "20");
     const offset = (page - 1) * limit;
 
     // Get total count

@@ -12,15 +12,24 @@
 		"typescript": "^5.8.3"
 	},
 	"dependencies": {
-		"@angstromscd/shared-types": "workspace:*",
+		"@ai-sdk/anthropic": "^2.0.44",
+		"@ai-sdk/openai": "^2.0.68",
 		"@angstromscd/queue": "workspace:*",
+		"@angstromscd/shared-types": "workspace:*",
 		"@e2b/code-interpreter": "^1.5.1",
+		"@effect/platform-node": "^0.100.0",
+		"@effect/schema": "^0.75.5",
+		"@hono/effect-validator": "^1.2.0",
 		"@hono/node-server": "^1.14.3",
 		"@supabase/supabase-js": "^2.49.8",
-		"nats": "^2.26.2",
+		"ai": "^5.0.93",
+		"convex": "^1.29.1",
 		"cors": "^2.8.5",
 		"dotenv": "^17.1.0",
+		"effect": "^3.19.4",
 		"hono": "^4.7.10",
+		"nats": "^2.26.2",
+		"ollama-ai-provider": "^1.2.0",
 		"zod": "^3.25.28"
 	},
 	"scripts": {

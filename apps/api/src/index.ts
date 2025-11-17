@@ -9,6 +9,7 @@ config();
 import { shutdownNats } from "./lib/messaging/nats-client";
 import { router } from "./routes/index";
 import { outboxRelayWorker } from "./workers/outbox-relay";
+import { logFeatureFlags } from "./config/features";
 
 const app = new Hono();
 
@@ -23,6 +24,9 @@ app.route("/", router);
 
 const port = Number(process.env.PORT ?? 3001);
 console.log(`Server is running on port ${port}`);
+
+// Log enabled modernization features
+logFeatureFlags();
 
 serve({
 	fetch: app.fetch,

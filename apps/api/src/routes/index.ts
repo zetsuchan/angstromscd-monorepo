@@ -14,6 +14,7 @@ import { OutboxService } from "../services/outbox-service";
 import { conversationsRouter } from "./conversations";
 import queueRoutes from "./queue";
 import { streamRouter } from "./stream";
+import { chatAISDKRouter } from "./chat.ai-sdk";
 
 export const router = new Hono();
 
@@ -363,6 +364,9 @@ router.route("/api/conversations", conversationsRouter);
 
 // Mount queue routes
 router.route("/api/queue", queueRoutes);
+
+// Mount AI SDK chat routes
+router.route("/", chatAISDKRouter);
 
 // Realtime stream endpoints
 router.route("/", streamRouter);
