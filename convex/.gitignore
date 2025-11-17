@@ -1,0 +1,9 @@
+# Convex generated files
+_generated/
+
+# Node modules
+node_modules/
+
+# Environment variables
+.env.local
+.env
