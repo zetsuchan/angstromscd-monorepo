@@ -342,19 +342,33 @@ export const ConversationServiceLive = Layer.effect(
  * Test implementation of Conversation service
  */
 export const ConversationServiceTest = Layer.succeed(ConversationService, {
-	list: () =>
+	list: (_userId: string, _page: number, _limit: number) =>
 		Effect.succeed({
 			conversations: [],
 			total: 0,
 			page: 1,
 			limit: 20,
 		}),
-	get: () =>
+	get: (_conversationId: string, _userId: string) =>
 		Effect.succeed({
 			conversation: {} as Conversation,
 			messages: [],
 		}),
-	create: () => Effect.succeed({} as Conversation),
-	addMessage: () => Effect.succeed({} as ConversationMessage),
-	delete: () => Effect.succeed(true),
+	create: (
+		_userId: string,
+		_data: { title: string; metadata?: Record<string, unknown> },
+	) => Effect.succeed({} as Conversation),
+	addMessage: (
+		_conversationId: string,
+		_userId: string,
+		_message: {
+			role: "user" | "assistant" | "system";
+			content: string;
+			model?: string;
+			citations?: unknown[];
+			pubmedArticles?: unknown[];
+			metadata?: Record<string, unknown>;
+		},
+	) => Effect.succeed({} as ConversationMessage),
+	delete: (_conversationId: string, _userId: string) => Effect.succeed(true),
 });
