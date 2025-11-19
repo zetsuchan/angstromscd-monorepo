@@ -1,6 +1,6 @@
 import { REALTIME_PROTOCOL_VERSION } from "@angstromscd/shared-types";
 import { Hono } from "hono";
-import { DeliverPolicy, StringCodec } from "nats";
+import { DeliverPolicy, StringCodec, type Subscription } from "nats";
 import { getJetStream } from "../lib/messaging/nats-client";
 
 const encoder = new TextEncoder();
@@ -11,11 +11,10 @@ const EVENTS_PREFIX = process.env.NATS_EVENTS_PREFIX ?? "chat.events";
 
 export const streamRouter = new Hono();
 
-streamRouter.get("/stream/:conversationId", async (c) => {
+streamRouter.get("/stream/:conversationId", (c) => {
 	const conversationId = c.req.param("conversationId");
 	const tokenSubject = `${TOKENS_PREFIX}.${conversationId}`;
 	const eventSubject = `${EVENTS_PREFIX}.${conversationId}`;
-	const js = await getJetStream();
 
 	const headers = new Headers({
 		"Content-Type": "text/event-stream",
@@ -23,8 +22,8 @@ streamRouter.get("/stream/:conversationId", async (c) => {
 		Connection: "keep-alive",
 	});
 
-	let tokenSub: Awaited<ReturnType<typeof js.subscribe>> | undefined;
-	let eventSub: Awaited<ReturnType<typeof js.subscribe>> | undefined;
+	let tokenSub: Subscription | undefined;
+	let eventSub: Subscription | undefined;
 
 	const stream = new ReadableStream<Uint8Array>({
 		start(controller) {
@@ -36,6 +35,7 @@ streamRouter.get("/stream/:conversationId", async (c) => {
 
 			void (async () => {
 				try {
+					const js = await getJetStream();
 					tokenSub = await js.subscribe(tokenSubject, {
 						ordered_consumer: true,
 						config: {
@@ -69,12 +69,19 @@ streamRouter.get("/stream/:conversationId", async (c) => {
 						forward(eventSub as NonNullable<typeof eventSub>, "event"),
 					]);
 				} catch (error) {
-					console.error("Failed to start SSE subscriptions", error);
+					console.error(
+						"Failed to start SSE stream",
+						{ conversationId },
+						error,
+					);
 					controller.enqueue(
 						encoder.encode(
-							`event: error\ndata: ${JSON.stringify({ message: "subscription failure" })}\n\n`,
+							`event: error\ndata: ${JSON.stringify({
+								message: "stream_unavailable",
+							})}\n\n`,
 						),
 					);
+					controller.close();
 				}
 			})();
 		},

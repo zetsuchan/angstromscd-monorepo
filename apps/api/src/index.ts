@@ -12,8 +12,27 @@ import { outboxRelayWorker } from "./workers/outbox-relay";
 
 const app = new Hono();
 
+const defaultOrigins = ["http://localhost:5173", "http://127.0.0.1:5173"];
+const configuredOrigins =
+	process.env.CORS_ORIGINS?.split(",")
+		.map((origin) => origin.trim())
+		.filter(Boolean) ?? defaultOrigins;
+
 // global middleware
-app.use("/*", cors());
+app.use(
+	"/*",
+	cors({
+		origin: (origin) => {
+			if (!origin) {
+				return configuredOrigins[0] ?? "*";
+			}
+			return configuredOrigins.includes(origin) ? origin : null;
+		},
+		credentials: true,
+		allowMethods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+		allowHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+	}),
+);
 
 // root route
 app.get("/", (c) => c.json({ message: "AngstromSCD API" }));

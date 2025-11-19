@@ -32,7 +32,7 @@ export interface Message {
 export interface Visualization {
 	type: string;
 	data: string; // base64 encoded image
-	format: 'png' | 'html' | 'svg';
+	format: "png" | "html" | "svg";
 }
 
 // Simplified citation for UI display

@@ -221,7 +221,8 @@ export const apiClient = {
 		const searchParams = new URLSearchParams();
 		if (params?.threadId) searchParams.set("thread_id", params.threadId);
 		if (params?.limit) searchParams.set("limit", params.limit.toString());
-		if (params?.offset !== undefined) searchParams.set("offset", params.offset.toString());
+		if (params?.offset !== undefined)
+			searchParams.set("offset", params.offset.toString());
 
 		const query = searchParams.toString();
 		return fetchApiAuth(`/api/messages${query ? `?${query}` : ""}`);

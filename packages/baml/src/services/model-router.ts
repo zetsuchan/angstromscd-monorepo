@@ -1,13 +1,18 @@
 import { type ChatRequest, type ModelName, ModelProviderMap } from "../types";
 import {
+	generateConversationalResponse,
 	runAnthropicChat,
 	runAppleFoundationChat,
+	runLMStudioChat,
 	runOllamaChat,
 	runOpenAIChat,
+	runOpenRouterChat,
 	testAnthropicConnection,
 	testAppleBridgeConnection,
+	testLMStudioConnection,
 	testOllamaConnection,
 	testOpenAIConnection,
+	testOpenRouterConnection,
 } from "./baml-service";
 
 /**
@@ -34,23 +39,13 @@ export async function routeModelChat(request: ChatRequest): Promise<string> {
 		selectedProvider = "openai";
 	}
 
-	switch (selectedProvider) {
-		case "openai":
-			return runOpenAIChat(message);
-
-		case "anthropic":
-			return runAnthropicChat(message);
-
-		case "ollama":
-			// Default to meditron for medical queries if no model specified
-			return runOllamaChat(message, model || "llama3.2:3b");
-
-		case "apple":
-			return runAppleFoundationChat(message);
-
-		default:
-			throw new Error(`Unsupported provider: ${selectedProvider}`);
-	}
+	// Use the unified conversational response handler with dynamic model selection
+	return generateConversationalResponse(
+		message,
+		[],
+		selectedProvider,
+		model || "gpt-4o-mini",
+	);
 }
 
 /**
@@ -74,16 +69,21 @@ export function getAvailableModels() {
  * @returns An object indicating the connection status for each provider.
  */
 export async function checkAllProviders() {
-	const [openai, anthropic, ollama, apple] = await Promise.all([
-		testOpenAIConnection(),
-		testAnthropicConnection(),
-		testOllamaConnection(),
-		testAppleBridgeConnection(),
-	]);
+	const [openai, anthropic, openrouter, lmstudio, ollama, apple] =
+		await Promise.all([
+			testOpenAIConnection(),
+			testAnthropicConnection(),
+			testOpenRouterConnection(),
+			testLMStudioConnection(),
+			testOllamaConnection(),
+			testAppleBridgeConnection(),
+		]);
 
 	return {
 		openai,
 		anthropic,
+		openrouter,
+		lmstudio,
 		ollama,
 		apple,
 	};

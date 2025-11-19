@@ -44,3 +44,4 @@ Thumbs.db
 .parcel-cache/
 .nyc_output/
 .sass-cache/
+.crush/

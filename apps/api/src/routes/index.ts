@@ -346,7 +346,7 @@ router.get("/api/chat/health", async (c) => {
 
 		const response = createApiResponse({
 			status: isConnected ? "connected" : "disconnected",
-			meditronAvailable: isConnected,
+			bamlServiceAvailable: isConnected,
 			timestamp: new Date().toISOString(),
 		});
 

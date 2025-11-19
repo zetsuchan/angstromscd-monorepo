@@ -1,22 +1,22 @@
 {
-  "name": "@angstromscd/vector",
-  "version": "1.0.0",
-  "type": "module",
-  "private": true,
-  "main": "dist/index.js",
-  "scripts": {
-    "dev": "bun run --hot src/index.ts",
-    "build": "bun build src/index.ts --target=bun --outdir=dist"
-  },
-  "dependencies": {
-    "@angstromscd/shared-types": "workspace:*",
-    "@hono/node-server": "^1.15.0",
-    "@qdrant/js-client-rest": "^1.13.0",
-    "hono": "^4.7.10"
-  },
-  "devDependencies": {
-    "@biomejs/biome": "^1.9.4",
-    "@types/bun": "latest",
-    "typescript": "^5.8.3"
-  }
+	"name": "@angstromscd/vector",
+	"version": "1.0.0",
+	"type": "module",
+	"private": true,
+	"main": "dist/index.js",
+	"scripts": {
+		"dev": "bun run --hot src/index.ts",
+		"build": "bun build src/index.ts --target=bun --outdir=dist"
+	},
+	"dependencies": {
+		"@angstromscd/shared-types": "workspace:*",
+		"@hono/node-server": "^1.15.0",
+		"@qdrant/js-client-rest": "^1.13.0",
+		"hono": "^4.7.10"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^1.9.4",
+		"@types/bun": "latest",
+		"typescript": "^5.8.3"
+	}
 }

@@ -12,12 +12,15 @@ const STREAM_NAME = process.env.NATS_STREAM ?? "CHAT_EVENTS";
 
 async function ensureStream(jsm: JetStreamManager) {
 	try {
-		await jsm.streams.info(STREAM_NAME);
+		const info = await jsm.streams.info(STREAM_NAME);
+		console.log(`Stream ${STREAM_NAME} already exists`);
 		return;
-	} catch (error) {
-		if ((error as { code?: number }).code !== 404) {
+	} catch (error: any) {
+		// Check for stream not found error
+		if (error.code !== '404' && error.api_error?.err_code !== 10059) {
 			throw error;
 		}
+		console.log(`Creating stream ${STREAM_NAME}...`);
 	}
 
 	await jsm.streams.add({
@@ -30,6 +33,7 @@ async function ensureStream(jsm: JetStreamManager) {
 		discard: DiscardPolicy.Old,
 		description: "Realtime chat events for AngstromSCD",
 	});
+	console.log(`Stream ${STREAM_NAME} created successfully`);
 }
 
 async function ensureConsumer(
@@ -39,11 +43,13 @@ async function ensureConsumer(
 ) {
 	try {
 		await jsm.consumers.info(STREAM_NAME, durableName);
+		console.log(`Consumer ${durableName} already exists`);
 		return;
-	} catch (error) {
-		if ((error as { code?: number }).code !== 404) {
+	} catch (error: any) {
+		if (error.code !== '404' && error.api_error?.err_code !== 10014) {
 			throw error;
 		}
+		console.log(`Creating consumer ${durableName}...`);
 	}
 
 	await jsm.consumers.add(STREAM_NAME, {
@@ -55,17 +61,20 @@ async function ensureConsumer(
 		replay_policy: "instant",
 		filter_subject: "chat.events.*",
 	});
+	console.log(`Consumer ${durableName} created successfully`);
 }
 
 async function ensureTokenConsumer(jsm: JetStreamManager) {
 	const durableName = "SSE_TOKEN_FANOUT";
 	try {
 		await jsm.consumers.info(STREAM_NAME, durableName);
+		console.log(`Consumer ${durableName} already exists`);
 		return;
-	} catch (error) {
-		if ((error as { code?: number }).code !== 404) {
+	} catch (error: any) {
+		if (error.code !== '404' && error.api_error?.err_code !== 10014) {
 			throw error;
 		}
+		console.log(`Creating consumer ${durableName}...`);
 	}
 
 	await jsm.consumers.add(STREAM_NAME, {
@@ -75,9 +84,11 @@ async function ensureTokenConsumer(jsm: JetStreamManager) {
 		deliver_policy: "last_per_subject",
 		filter_subject: "chat.tokens.*",
 	});
+	console.log(`Consumer ${durableName} created successfully`);
 }
 
 async function main() {
+	console.log(`Connecting to NATS at ${NATS_URL}...`);
 	const connection = await connect({ servers: NATS_URL });
 	const jsm = await connection.jetstreamManager();
 
@@ -85,6 +96,7 @@ async function main() {
 	await ensureConsumer(jsm, "GATEWAY_FANOUT", "Gateway websocket fanout");
 	await ensureTokenConsumer(jsm);
 
+	console.log("✅ NATS JetStream setup complete");
 	await connection.close();
 }
 

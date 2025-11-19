@@ -6,12 +6,16 @@ import {
 	generateInsight,
 	runAnthropicChat,
 	runAppleFoundationChat,
+	runLMStudioChat,
 	runOllamaChat,
 	runOpenAIChat,
+	runOpenRouterChat,
 	testAnthropicConnection,
 	testAppleBridgeConnection,
+	testLMStudioConnection,
 	testOllamaConnection,
 	testOpenAIConnection,
+	testOpenRouterConnection,
 } from "./services/baml-service";
 import {
 	checkAllProviders,

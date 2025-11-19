@@ -19,7 +19,7 @@ class Citation {
 }
 
 function MedicalResearcher(query: string) -> MedicalInsight {
-  client "openai/gpt-4o"
+  client OpenRouterGemini3Pro
   prompt #"
     You are a medical research assistant specializing in Sickle Cell Disease (SCD). 
     Analyze the following query and provide comprehensive medical insights.

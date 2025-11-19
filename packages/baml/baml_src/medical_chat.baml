@@ -18,7 +18,7 @@ class MedicalContext {
 
 // Main medical chat function that routes to appropriate model
 function MedicalChat(query: string, model: string, context: string?) -> MedicalChatResponse {
-  client CustomGPT4o
+  client OpenRouterGemini3Pro
   prompt #"
     You are a medical AI assistant specializing in Sickle Cell Disease (SCD) and related conditions.
     

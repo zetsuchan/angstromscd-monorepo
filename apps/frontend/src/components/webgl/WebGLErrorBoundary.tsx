@@ -1,4 +1,4 @@
-import { Component, type ErrorInfo, type ReactNode } from 'react';
+import { Component, type ErrorInfo, type ReactNode } from "react";
 
 interface Props {
 	children: ReactNode;
@@ -20,7 +20,7 @@ export class WebGLErrorBoundary extends Component<Props, State> {
 	}
 
 	componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-		console.warn('WebGL Error:', error, errorInfo);
+		console.warn("WebGL Error:", error, errorInfo);
 	}
 
 	render() {

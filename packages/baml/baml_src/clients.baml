@@ -36,7 +36,7 @@ client<llm> CustomHaiku {
 }
 
 client<llm> LocalOllama {
-  provider openai
+  provider "openai-generic"
   options {
     base_url "http://localhost:11434/v1"
     model "llama3.2"
@@ -46,7 +46,7 @@ client<llm> LocalOllama {
 
 // Ollama Local Models
 client<llm> OllamaQwen05B {
-  provider openai
+  provider "openai-generic"
   options {
     model "qwen2.5:0.5b"
     base_url "http://localhost:11434/v1"
@@ -55,7 +55,7 @@ client<llm> OllamaQwen05B {
 }
 
 client<llm> OllamaLlama32B {
-  provider openai
+  provider "openai-generic"
   options {
     model "llama3.3:70b-instruct-q4_K_M"
     base_url env.OLLAMA_BASE_URL
@@ -64,7 +64,7 @@ client<llm> OllamaLlama32B {
 }
 
 client<llm> OllamaLlama70B {
-  provider openai
+  provider "openai-generic"
   options {
     model "llama3.3:70b-instruct-q4_K_M"
     base_url env.OLLAMA_BASE_URL
@@ -73,7 +73,7 @@ client<llm> OllamaLlama70B {
 }
 
 client<llm> OllamaMixtral {
-  provider openai
+  provider "openai-generic"
   options {
     model "mixtral:8x7b"
     base_url env.OLLAMA_BASE_URL
@@ -83,7 +83,7 @@ client<llm> OllamaMixtral {
 
 // Apple Foundation Models (via Swift bridge)
 client<llm> AppleFoundation3B {
-  provider openai
+  provider "openai-generic"
   options {
     model "apple-foundation-3b"
     api_key "local"
@@ -91,9 +91,98 @@ client<llm> AppleFoundation3B {
   }
 }
 
+// OpenRouter Models
+client<llm> OpenRouterGemini3Pro {
+  provider "openai-generic"
+  options {
+    model "google/gemini-3-pro-preview"
+    api_key env.OPENROUTER_API_KEY
+    base_url "https://openrouter.ai/api/v1"
+    headers {
+      "HTTP-Referer" "http://localhost:5173"
+      "X-Title" "AngstromSCD"
+    }
+  }
+}
+
+client<llm> OpenRouterClaudeSonnet45 {
+  provider "openai-generic"
+  options {
+    model "anthropic/claude-sonnet-4.5"
+    api_key env.OPENROUTER_API_KEY
+    base_url "https://openrouter.ai/api/v1"
+    headers {
+      "HTTP-Referer" "http://localhost:5173"
+      "X-Title" "AngstromSCD"
+    }
+  }
+}
+
+client<llm> OpenRouterMiniMaxM2 {
+  provider "openai-generic"
+  options {
+    model "minimax/minimax-m2"
+    api_key env.OPENROUTER_API_KEY
+    base_url "https://openrouter.ai/api/v1"
+    headers {
+      "HTTP-Referer" "http://localhost:5173"
+      "X-Title" "AngstromSCD"
+    }
+  }
+}
+
+client<llm> OpenRouterGLM46 {
+  provider "openai-generic"
+  options {
+    model "z-ai/glm-4.6"
+    api_key env.OPENROUTER_API_KEY
+    base_url "https://openrouter.ai/api/v1"
+    headers {
+      "HTTP-Referer" "http://localhost:5173"
+      "X-Title" "AngstromSCD"
+    }
+  }
+}
+
+client<llm> OpenRouterGPT5 {
+  provider "openai-generic"
+  options {
+    model "openai/gpt-5"
+    api_key env.OPENROUTER_API_KEY
+    base_url "https://openrouter.ai/api/v1"
+    headers {
+      "HTTP-Referer" "http://localhost:5173"
+      "X-Title" "AngstromSCD"
+    }
+  }
+}
+
+client<llm> OpenRouterGPTOSS120B {
+  provider "openai-generic"
+  options {
+    model "openai/gpt-oss-120b"
+    api_key env.OPENROUTER_API_KEY
+    base_url "https://openrouter.ai/api/v1"
+    headers {
+      "HTTP-Referer" "http://localhost:5173"
+      "X-Title" "AngstromSCD"
+    }
+  }
+}
+
+// LM Studio Local Models
+client<llm> LMStudioLocal {
+  provider "openai-generic"
+  options {
+    model "local-model"  // This will be replaced with actual model loaded in LM Studio
+    api_key "lm-studio"
+    base_url "http://localhost:1234/v1"
+  }
+}
+
 // Medical-specific Ollama Models
 client<llm> OllamaMeditron7B {
-  provider openai
+  provider "openai-generic"
   options {
     model "meditron"
     base_url "http://localhost:11434/v1"
@@ -102,7 +191,7 @@ client<llm> OllamaMeditron7B {
 }
 
 client<llm> OllamaMeditronLatest {
-  provider openai
+  provider "openai-generic"
   options {
     model "meditron:latest"
     base_url "http://localhost:11434/v1"

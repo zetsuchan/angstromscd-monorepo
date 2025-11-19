@@ -16,6 +16,7 @@
 		"lucide-react": "^0.344.0",
 		"react": "^18.3.1",
 		"react-dom": "^18.3.1",
+		"react-grab": "^0.0.39",
 		"three": "^0.160.0"
 	},
 	"devDependencies": {

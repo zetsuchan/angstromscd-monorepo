@@ -4,8 +4,8 @@ import Composer from "./components/chat/Composer";
 import Footer from "./components/layout/Footer";
 import Header from "./components/layout/Header";
 import Sidebar from "./components/layout/Sidebar";
-import { ChatProvider } from "./context/ChatContext";
 import GlassBackground from "./components/webgl/GlassBackground";
+import { ChatProvider } from "./context/ChatContext";
 
 function App() {
 	return (
