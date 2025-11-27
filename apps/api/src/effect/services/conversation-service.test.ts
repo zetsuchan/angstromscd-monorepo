@@ -5,8 +5,8 @@
  */
 
 import { describe, it, expect } from "bun:test";
-import { Effect, Layer } from "effect";
-import { ConversationService } from "./conversation-service";
+import { Effect, Layer, Logger, LogLevel } from "effect";
+import { ConversationService, ConversationServiceLive } from "./conversation-service";
 import { DatabaseService } from "./database-service";
 import { LoggerService, LoggerServiceTest } from "./logger-service";
 import { ConfigService, ConfigServiceTest } from "./config-service";
@@ -44,21 +44,32 @@ const DatabaseErrorMock = Layer.succeed(DatabaseService, {
 });
 
 /**
- * Test layer with NotFound mock
+ * Silent logger layer - suppresses all Effect.log output during tests
  */
-const AppNotFoundTest = Layer.mergeAll(
-	ConfigServiceTest,
-	LoggerServiceTest,
-	DatabaseNotFoundMock
+const SilentLoggerLayer = Logger.minimumLogLevel(LogLevel.None);
+
+/**
+ * Test layer with NotFound mock - composes ConversationServiceLive with mocked dependencies
+ */
+const AppNotFoundTest = ConversationServiceLive.pipe(
+	Layer.provide(Layer.mergeAll(
+		ConfigServiceTest,
+		LoggerServiceTest,
+		DatabaseNotFoundMock,
+		SilentLoggerLayer
+	))
 );
 
 /**
- * Test layer with DatabaseError mock
+ * Test layer with DatabaseError mock - composes ConversationServiceLive with mocked dependencies
  */
-const AppDatabaseErrorTest = Layer.mergeAll(
-	ConfigServiceTest,
-	LoggerServiceTest,
-	DatabaseErrorMock
+const AppDatabaseErrorTest = ConversationServiceLive.pipe(
+	Layer.provide(Layer.mergeAll(
+		ConfigServiceTest,
+		LoggerServiceTest,
+		DatabaseErrorMock,
+		SilentLoggerLayer
+	))
 );
 
 describe("ConversationService", () => {

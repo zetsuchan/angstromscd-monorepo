@@ -19,6 +19,18 @@ export const TableNames = {
 } as const;
 
 /**
+ * Database user record
+ */
+export interface DbUser {
+	id: string;
+	email: string;
+	role: "viewer" | "editor" | "admin";
+	display_name?: string;
+	created_at: string;
+	updated_at: string;
+}
+
+/**
  * Database patient record
  */
 export interface DBPatient {

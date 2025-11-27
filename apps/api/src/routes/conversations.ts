@@ -5,20 +5,18 @@ import { supabase } from "../lib/db";
 import {
   DatabaseError,
   ValidationError,
-  AuthenticationError,
   isAppError,
   errorToApiError,
   type ApiResponse,
   type Conversation,
   type ConversationMessage,
   type ConversationSummary,
-  type CreateConversationRequest,
-  type CreateMessageRequest,
   type ConversationListResponse,
   type ConversationDetailResponse
 } from "@angstromscd/shared-types";
 import { useEffectForRoute } from "../config/features";
-import { AppLive, ConversationService, errorToResponse, errorToStatusCode } from "../effect";
+import { AppLive, ConversationService, errorToResponse } from "../effect";
+import { getAuthUser } from "../middleware";
 
 export const conversationsRouter = new Hono();
 
@@ -63,16 +61,9 @@ const createMessageSchema = z.object({
   metadata: z.record(z.any()).optional(),
 });
 
-// Middleware to extract user ID (simplified for now)
-const getUserId = (c: any): string => {
-  // TODO: Implement proper authentication
-  // For now, use a default user ID for testing
-  return c.req.header("X-User-Id") || "00000000-0000-0000-0000-000000000000";
-};
-
 // List conversations
 conversationsRouter.get("/", async (c) => {
-  const userId = getUserId(c);
+  const { id: userId } = getAuthUser(c);
   const page = parseInt(c.req.query("page") || "1");
   const limit = parseInt(c.req.query("limit") || "20");
 
@@ -138,7 +129,7 @@ conversationsRouter.get("/", async (c) => {
 // Create conversation
 conversationsRouter.post("/", async (c) => {
   try {
-    const userId = getUserId(c);
+    const { id: userId } = getAuthUser(c);
     const body = await c.req.json();
     const parsed = createConversationSchema.safeParse(body);
 
@@ -171,7 +162,7 @@ conversationsRouter.post("/", async (c) => {
 // Get conversation details with messages
 conversationsRouter.get("/:id", async (c) => {
   try {
-    const userId = getUserId(c);
+    const { id: userId } = getAuthUser(c);
     const conversationId = c.req.param("id");
 
     // Get conversation
@@ -217,7 +208,7 @@ conversationsRouter.get("/:id", async (c) => {
 // Add message to conversation
 conversationsRouter.post("/:id/messages", async (c) => {
   try {
-    const userId = getUserId(c);
+    const { id: userId } = getAuthUser(c);
     const conversationId = c.req.param("id");
     const body = await c.req.json();
 
@@ -273,7 +264,7 @@ conversationsRouter.post("/:id/messages", async (c) => {
 // Delete conversation
 conversationsRouter.delete("/:id", async (c) => {
   try {
-    const userId = getUserId(c);
+    const { id: userId } = getAuthUser(c);
     const conversationId = c.req.param("id");
 
     const { error } = await supabase

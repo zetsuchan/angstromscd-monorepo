@@ -10,11 +10,13 @@ import { shutdownNats } from "./lib/messaging/nats-client";
 import { router } from "./routes/index";
 import { outboxRelayWorker } from "./workers/outbox-relay";
 import { logFeatureFlags } from "./config/features";
+import { authMiddleware } from "./middleware";
 
 const app = new Hono();
 
 // global middleware
 app.use("/*", cors());
+app.use("/*", authMiddleware);
 
 // root route
 app.get("/", (c) => c.json({ message: "AngstromSCD API" }));
