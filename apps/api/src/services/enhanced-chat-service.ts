@@ -23,11 +23,11 @@ interface EnhancedChatResponse {
 }
 
 /**
- * Enhanced chat service that combines Meditron medical LLM with PubMed literature search
+ * Enhanced chat service that combines local LLMs with PubMed literature search
  */
 export class EnhancedChatService {
 	private ollamaBaseUrl: string;
-	private defaultModel: string = "meditron:latest";
+	private defaultModel: string = "llama3.2:3b";
 	private visualizationDetector: VisualizationDetector;
 
 	constructor(ollamaBaseUrl = "http://localhost:11434") {
@@ -64,10 +64,12 @@ export class EnhancedChatService {
 			console.log("Visualization request detected, generating code...");
 			
 			// For Ollama models, use direct approach without BAML structured parsing
-			const isOllamaModel = selectedModel.startsWith("qwen") || 
-			                     selectedModel.startsWith("llama") || 
+			const isOllamaModel = selectedModel.startsWith("qwen") ||
+			                     selectedModel.startsWith("llama") ||
 			                     selectedModel.startsWith("mixtral") ||
-			                     selectedModel === "meditron:latest";
+			                     selectedModel.startsWith("yi:") ||
+			                     selectedModel.startsWith("deepseek") ||
+			                     selectedModel.startsWith("gpt-oss");
 			
 			if (isOllamaModel) {
 				// Direct approach for Ollama models
@@ -87,7 +89,7 @@ plt.show()
 
 Remember: ONLY return the code inside the code block, nothing else.`;
 
-					const codeResponse = await this.callMeditron(codePrompt, selectedModel);
+					const codeResponse = await this.callLocalModel(codePrompt, selectedModel);
 					console.log("Ollama code generation response length:", codeResponse.length);
 					
 					// Extract code from response (look for code blocks)
@@ -224,10 +226,12 @@ plt.show()
 		// BAML tool detection for advanced capabilities
 		try {
 			// Use the appropriate tool detection based on model
-			const isOllamaModel = selectedModel.startsWith("qwen") || 
-			                     selectedModel.startsWith("llama") || 
+			const isOllamaModel = selectedModel.startsWith("qwen") ||
+			                     selectedModel.startsWith("llama") ||
 			                     selectedModel.startsWith("mixtral") ||
-			                     selectedModel === "meditron:latest";
+			                     selectedModel.startsWith("yi:") ||
+			                     selectedModel.startsWith("deepseek") ||
+			                     selectedModel.startsWith("gpt-oss");
 			
 			console.log(`Using BAML tool detection for model: ${selectedModel}, isOllama: ${isOllamaModel}`);
 			
@@ -326,10 +330,12 @@ plt.show()
 				console.log("Calling BAML MedicalChat with model:", selectedModel);
 				
 				// Determine if we should use Ollama or cloud version
-				const isOllamaModel = selectedModel.startsWith("qwen") || 
-				                     selectedModel.startsWith("llama") || 
+				const isOllamaModel = selectedModel.startsWith("qwen") ||
+				                     selectedModel.startsWith("llama") ||
 				                     selectedModel.startsWith("mixtral") ||
-				                     selectedModel === "meditron:latest";
+				                     selectedModel.startsWith("yi:") ||
+				                     selectedModel.startsWith("deepseek") ||
+				                     selectedModel.startsWith("gpt-oss");
 				
 				// Call the appropriate BAML function
 				const medicalResponse = isOllamaModel
@@ -362,7 +368,7 @@ plt.show()
 			} catch (error) {
 				console.error("BAML MedicalChat failed, falling back to direct call:", error);
 				// Fallback to direct model call if BAML fails
-				const reply = await this.callMeditron(enhancedPrompt, selectedModel);
+				const reply = await this.callLocalModel(enhancedPrompt, selectedModel);
 				finalReply = reply;
 			}
 		}
@@ -454,9 +460,9 @@ Please provide a comprehensive answer that incorporates insights from these stud
 	}
 
 	/**
-	 * Call Meditron model via Ollama
+	 * Call local model via Ollama
 	 */
-	private async callMeditron(prompt: string, model: string): Promise<string> {
+	private async callLocalModel(prompt: string, model: string): Promise<string> {
 		try {
 			const response = await fetch(`${this.ollamaBaseUrl}/api/chat`, {
 				method: "POST",
@@ -468,7 +474,7 @@ Please provide a comprehensive answer that incorporates insights from these stud
 					messages: [
 						{
 							role: "system",
-							content: "You are Meditron, a medical AI assistant specializing in Sickle Cell Disease (SCD) and related hematological conditions. Provide evidence-based medical information and cite relevant research when available. Always remind users to consult with healthcare providers for personal medical decisions.",
+							content: "You are a medical AI assistant specializing in Sickle Cell Disease (SCD) and related hematological conditions. Provide evidence-based medical information and cite relevant research when available. Always remind users to consult with healthcare providers for personal medical decisions.",
 						},
 						{
 							role: "user",
@@ -486,22 +492,22 @@ Please provide a comprehensive answer that incorporates insights from these stud
 			const data = await response.json();
 			return data.message?.content || "No response generated";
 		} catch (error) {
-			console.error("Meditron call failed:", error);
+			console.error("Local model call failed:", error);
 			// Return a fallback response instead of throwing
-			return "I apologize, but I'm having trouble generating a response. Please ensure Meditron is running in Ollama and try again.";
+			return "I apologize, but I'm having trouble generating a response. Please ensure Ollama is running with a local model and try again.";
 		}
 	}
 
 	/**
-	 * Test if Meditron is available
+	 * Test if Ollama is available with any model
 	 */
 	async testConnection(): Promise<boolean> {
 		try {
 			const response = await fetch(`${this.ollamaBaseUrl}/api/tags`);
 			if (!response.ok) return false;
-			
+
 			const data = await response.json();
-			return data.models?.some((m: any) => m.name.includes("meditron"));
+			return data.models && data.models.length > 0;
 		} catch {
 			return false;
 		}

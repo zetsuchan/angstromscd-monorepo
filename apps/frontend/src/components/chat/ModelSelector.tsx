@@ -10,19 +10,28 @@ export interface AIModel {
 }
 
 const models: AIModel[] = [
-  // Medical Models
-  { id: 'meditron:latest', name: 'Meditron 7B', provider: 'ollama', type: 'medical', description: 'Medical-specific LLM' },
-  
   // Cloud Models
   { id: 'gpt-4o', name: 'GPT-4o', provider: 'openai', type: 'cloud' },
   { id: 'gpt-4o-mini', name: 'GPT-4o Mini', provider: 'openai', type: 'cloud' },
   { id: 'claude-3-5-sonnet-20241022', name: 'Claude 3.5 Sonnet', provider: 'anthropic', type: 'cloud' },
   { id: 'claude-3-haiku-20240307', name: 'Claude 3 Haiku', provider: 'anthropic', type: 'cloud' },
-  
-  // Local Models
-  { id: 'llama3.2:3b', name: 'Llama 3.2 3B', provider: 'ollama', type: 'local' },
-  { id: 'qwen2.5:0.5b', name: 'Qwen 2.5 0.5B', provider: 'ollama', type: 'local' },
-  { id: 'mixtral:8x7b', name: 'Mixtral 8x7B', provider: 'ollama', type: 'local' },
+
+  // Local Models - Small
+  { id: 'llama3.2:3b', name: 'Llama 3.2 3B', provider: 'ollama', type: 'local', description: 'Fast, lightweight' },
+  { id: 'qwen2.5:0.5b', name: 'Qwen 2.5 0.5B', provider: 'ollama', type: 'local', description: 'Ultra-fast' },
+  { id: 'mixtral:8x7b', name: 'Mixtral 8x7B', provider: 'ollama', type: 'local', description: 'MoE architecture' },
+
+  // OpenAI GPT-OSS (Open-Weight, Apache 2.0)
+  { id: 'gpt-oss:20b', name: 'GPT-OSS 20B', provider: 'ollama', type: 'local', description: '21B params, 16GB RAM' },
+  { id: 'gpt-oss:120b', name: 'GPT-OSS 120B', provider: 'ollama', type: 'local', description: '117B params, 80GB RAM' },
+
+  // Local Models - Large (20B+ class)
+  { id: 'yi:34b', name: 'Yi 34B', provider: 'ollama', type: 'local', description: '34B parameters' },
+  { id: 'deepseek-coder:33b', name: 'DeepSeek 33B', provider: 'ollama', type: 'local', description: 'Code-optimized' },
+
+  // Local Models - Very Large (70B+ class)
+  { id: 'llama3.1:70b', name: 'Llama 3.1 70B', provider: 'ollama', type: 'local', description: '70B parameters' },
+  { id: 'qwen2.5:72b', name: 'Qwen 2.5 72B', provider: 'ollama', type: 'local', description: '72B parameters' },
 ];
 
 interface ModelSelectorProps {

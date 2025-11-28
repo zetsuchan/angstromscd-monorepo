@@ -54,24 +54,6 @@ client<llm> OllamaQwen05B {
   }
 }
 
-client<llm> OllamaLlama32B {
-  provider openai
-  options {
-    model "llama3.3:70b-instruct-q4_K_M"
-    base_url env.OLLAMA_BASE_URL
-    api_key "unused"
-  }
-}
-
-client<llm> OllamaLlama70B {
-  provider openai
-  options {
-    model "llama3.3:70b-instruct-q4_K_M"
-    base_url env.OLLAMA_BASE_URL
-    api_key "unused"
-  }
-}
-
 client<llm> OllamaMixtral {
   provider openai
   options {
@@ -91,21 +73,60 @@ client<llm> AppleFoundation3B {
   }
 }
 
-// Medical-specific Ollama Models
-client<llm> OllamaMeditron7B {
+// OpenAI GPT-OSS Open-Weight Models (via Ollama)
+// Apache 2.0 licensed, MoE architecture, 128k context
+client<llm> GptOss20B {
   provider openai
   options {
-    model "meditron"
+    model "gpt-oss:20b"
     base_url "http://localhost:11434/v1"
     api_key "unused"
   }
 }
 
-client<llm> OllamaMeditronLatest {
+client<llm> GptOss120B {
   provider openai
   options {
-    model "meditron:latest"
+    model "gpt-oss:120b"
+    base_url env.OLLAMA_BASE_URL
+    api_key "unused"
+  }
+}
+
+// Additional Large Open-Source Models (via Ollama)
+client<llm> OllamaYi34B {
+  provider openai
+  options {
+    model "yi:34b"
     base_url "http://localhost:11434/v1"
+    api_key "unused"
+  }
+}
+
+client<llm> OllamaDeepseek33B {
+  provider openai
+  options {
+    model "deepseek-coder:33b"
+    base_url "http://localhost:11434/v1"
+    api_key "unused"
+  }
+}
+
+// Very Large Open-Source Models (via Ollama) - 70B+ class
+client<llm> OllamaQwen72B {
+  provider openai
+  options {
+    model "qwen2.5:72b"
+    base_url env.OLLAMA_BASE_URL
+    api_key "unused"
+  }
+}
+
+client<llm> OllamaLlama70B {
+  provider openai
+  options {
+    model "llama3.1:70b"
+    base_url env.OLLAMA_BASE_URL
     api_key "unused"
   }
 }
