@@ -8,7 +8,7 @@ import {
 import type { ApiResponse, DbUser } from "@angstromscd/shared-types";
 import { Hono } from "hono";
 import { z } from "zod";
-import { supabase } from "../lib/db";
+import { supabase, supabaseAdmin } from "../lib/db";
 import { EnhancedChatService } from "../services/enhanced-chat-service";
 import { OutboxService } from "../services/outbox-service";
 import { conversationsRouter } from "./conversations";
@@ -89,40 +89,89 @@ router.post("/auth/signup", async (c) => {
 			throw new ValidationError("Invalid signup data", parsed.error.flatten());
 		}
 
-		const { data, error } = await supabase.auth.signUp({
-			email: parsed.data.email,
-			password: parsed.data.password,
-		});
+		// Use admin API if available to auto-confirm email (for testing/dev)
+		// Otherwise use regular signup (requires email confirmation if enabled)
+		const isAdminAvailable = supabaseAdmin !== supabase;
 
-		if (error) {
-			throw new AuthenticationError(error.message);
+		let userId: string;
+		let userEmail: string;
+		let session: { access_token: string; refresh_token: string; expires_at?: number } | null = null;
+
+		if (isAdminAvailable) {
+			// Create user with admin API - auto-confirms email
+			const { data: adminData, error: adminError } = await supabaseAdmin.auth.admin.createUser({
+				email: parsed.data.email,
+				password: parsed.data.password,
+				email_confirm: true,
+			});
+
+			if (adminError) {
+				throw new AuthenticationError(adminError.message);
+			}
+
+			if (!adminData.user) {
+				throw new AuthenticationError("Failed to create user");
+			}
+
+			userId = adminData.user.id;
+			userEmail = adminData.user.email!;
+
+			// Sign in to get session token
+			const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+				email: parsed.data.email,
+				password: parsed.data.password,
+			});
+
+			if (!signInError && signInData.session) {
+				session = signInData.session;
+			}
+		} else {
+			// Regular signup flow (may require email confirmation)
+			const { data, error } = await supabase.auth.signUp({
+				email: parsed.data.email,
+				password: parsed.data.password,
+			});
+
+			if (error) {
+				throw new AuthenticationError(error.message);
+			}
+
+			if (!data.user) {
+				throw new AuthenticationError("Failed to create user");
+			}
+
+			userId = data.user.id;
+			userEmail = data.user.email!;
+			session = data.session;
 		}
 
-		if (!data.user) {
-			throw new AuthenticationError("Failed to create user");
-		}
+		// Create user profile in our database
+		const dbUser: DbUser = {
+			id: userId,
+			email: userEmail,
+			role: "viewer",
+			created_at: new Date().toISOString(),
+			updated_at: new Date().toISOString(),
+		};
 
-		// TODO: Create user profile in our database
-		// const dbUser: Partial<DbUser> = {
-		// 	id: data.user.id,
-		// 	email: data.user.email!,
-		// 	role: "viewer",
-		// 	created_at: new Date().toISOString(),
-		// 	updated_at: new Date().toISOString(),
-		// };
-		// await supabase.from("users").insert(dbUser);
+		// Use admin client to bypass RLS for profile creation
+		const { error: profileError } = await supabaseAdmin.from("users").insert(dbUser);
+		if (profileError) {
+			console.error("Failed to create user profile:", profileError);
+			// Don't fail signup if profile creation fails - user can still authenticate
+		}
 
 		const response = createApiResponse({
 			user: {
-				id: data.user.id,
-				email: data.user.email!,
+				id: userId,
+				email: userEmail,
 				role: "viewer" as const,
 			},
-			session: data.session
+			session: session
 				? {
-						token: data.session.access_token,
-						expiresAt: new Date(data.session.expires_at! * 1000),
-						refreshToken: data.session.refresh_token,
+						token: session.access_token,
+						expiresAt: new Date(session.expires_at! * 1000),
+						refreshToken: session.refresh_token,
 					}
 				: undefined,
 		});

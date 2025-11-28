@@ -29,14 +29,22 @@ export const MODELS = {
 	"anthropic:claude-3-5-haiku-20241022": "claude-3-5-haiku-20241022",
 	"anthropic:claude-3-opus-20240229": "claude-3-opus-20240229",
 
-	// Ollama (local)
+	// Ollama (local) - Small/Medium
 	"ollama:llama3.2:3b": "llama3.2:3b",
-	"ollama:llama3.3:32b": "llama3.3:32b",
-	"ollama:llama3.3:70b": "llama3.3:70b",
 	"ollama:qwen2.5:0.5b": "qwen2.5:0.5b",
 	"ollama:mixtral:8x7b": "mixtral:8x7b",
-	"ollama:codellama:70b": "codellama:70b",
-	"ollama:meditron:70b": "meditron:70b",
+
+	// OpenAI GPT-OSS (local via Ollama) - Apache 2.0, MoE, 128k context
+	"ollama:gpt-oss:20b": "gpt-oss:20b",
+	"ollama:gpt-oss:120b": "gpt-oss:120b",
+
+	// Ollama (local) - Large (20B+ class)
+	"ollama:yi:34b": "yi:34b",
+	"ollama:deepseek-coder:33b": "deepseek-coder:33b",
+
+	// Ollama (local) - Very Large (70B+ class)
+	"ollama:llama3.1:70b": "llama3.1:70b",
+	"ollama:qwen2.5:72b": "qwen2.5:72b",
 } as const;
 
 export type ModelId = keyof typeof MODELS;
