@@ -1,5 +1,6 @@
 import { b } from "@angstromscd/baml/baml_client";
 import type { ToolType } from "@angstromscd/baml/baml_client/types";
+import { MODEL_PROVIDERS } from "@angstromscd/shared-types";
 import { getCodeExecutor } from "./code-executor";
 import {
 	formatCitations,
@@ -50,20 +51,11 @@ export class EnhancedChatService {
 		const selectedModel = model || this.defaultModel;
 
 		// Check if this is an OpenRouter, LM Studio, or other cloud model
-		const openRouterModels = [
-			"gemini-3-pro",
-			"claude-sonnet-4.5",
-			"minimax-m2",
-			"glm-4.6",
-			"gpt-5",
-			"gpt-oss-120b",
-		];
-		const lmStudioModels = ["lmstudio-local"];
-		const openAIModels = ["gpt-4o", "gpt-4o-mini"];
-		const anthropicModels = [
-			"claude-3-5-sonnet-20241022",
-			"claude-3-haiku-20240307",
-		];
+		// Model lists are centralized in @angstromscd/shared-types
+		const openRouterModels = MODEL_PROVIDERS.openrouter.models as readonly string[];
+		const lmStudioModels = MODEL_PROVIDERS.lmstudio.models as readonly string[];
+		const openAIModels = MODEL_PROVIDERS.openai.models as readonly string[];
+		const anthropicModels = MODEL_PROVIDERS.anthropic.models as readonly string[];
 
 		const isOpenRouterModel = openRouterModels.includes(selectedModel);
 		const isLMStudioModel = lmStudioModels.includes(selectedModel);
@@ -76,8 +68,9 @@ export class EnhancedChatService {
 		if (isCloudModel) {
 			try {
 				// Call the BAML service directly
-				const bamlUrl =
-					process.env.BAML_SERVICE_URL ?? "http://localhost:3002/chat";
+				const bamlBaseUrl =
+					process.env.BAML_SERVICE_URL ?? "http://localhost:3002";
+				const bamlUrl = `${bamlBaseUrl}/chat`;
 				const bamlResponse = await fetch(bamlUrl, {
 					method: "POST",
 					headers: {

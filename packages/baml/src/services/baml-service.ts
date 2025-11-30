@@ -149,7 +149,7 @@ function createClientRegistry(
 ): ClientRegistry {
 	const cr = new ClientRegistry();
 
-	// Map model names to their actual provider model names
+	// Map model IDs (from MODEL_PROVIDERS) to their actual provider model names
 	const modelMapping: Record<string, string> = {
 		// OpenRouter models
 		"gemini-3-pro": "google/gemini-3-pro-preview",
@@ -161,9 +161,9 @@ function createClientRegistry(
 		// OpenAI models
 		"gpt-4o": "gpt-4o",
 		"gpt-4o-mini": "gpt-4o-mini",
-		// Anthropic models
-		"claude-3.5-sonnet": "claude-3.5-sonnet",
-		"claude-3-haiku": "claude-3-haiku",
+		// Anthropic models (using full version IDs from MODEL_PROVIDERS)
+		"claude-3-5-sonnet-20241022": "claude-3-5-sonnet-20241022",
+		"claude-3-haiku-20240307": "claude-3-haiku-20240307",
 		// LM Studio
 		"lmstudio-local": "lmstudio-local",
 		// Ollama models
@@ -333,7 +333,7 @@ export async function runAnthropicChat(message: string): Promise<string> {
 		message,
 		[],
 		"anthropic",
-		"claude-3-haiku",
+		"claude-3-haiku-20240307",
 	);
 }
 

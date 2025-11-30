@@ -1,3 +1,4 @@
+import { MODEL_PROVIDERS } from "@angstromscd/shared-types";
 import { Activity, ChevronDown, Cloud, Computer } from "lucide-react";
 import type React from "react";
 import { useState } from "react";
@@ -10,96 +11,51 @@ export interface AIModel {
 	description?: string;
 }
 
-const models: AIModel[] = [
-	// Cloud Models - OpenAI & Anthropic
-	{ id: "gpt-4o", name: "GPT-4o", provider: "openai", type: "cloud" },
-	{ id: "gpt-4o-mini", name: "GPT-4o Mini", provider: "openai", type: "cloud" },
-	{
-		id: "claude-3-5-sonnet-20241022",
-		name: "Claude 3.5 Sonnet",
-		provider: "anthropic",
-		type: "cloud",
-	},
-	{
-		id: "claude-3-haiku-20240307",
-		name: "Claude 3 Haiku",
-		provider: "anthropic",
-		type: "cloud",
-	},
+// Display metadata for models (IDs come from centralized MODEL_PROVIDERS)
+const modelDisplayInfo: Record<string, { name: string; description?: string }> = {
+	// OpenAI
+	"gpt-4o": { name: "GPT-4o" },
+	"gpt-4o-mini": { name: "GPT-4o Mini" },
+	// Anthropic
+	"claude-3-5-sonnet-20241022": { name: "Claude 3.5 Sonnet" },
+	"claude-3-haiku-20240307": { name: "Claude 3 Haiku" },
+	// OpenRouter
+	"gemini-3-pro": { name: "Gemini 3 Pro Preview", description: "Google Gemini 3 Pro via OpenRouter" },
+	"claude-sonnet-4.5": { name: "Claude Sonnet 4.5", description: "Anthropic Claude 4.5 via OpenRouter" },
+	"minimax-m2": { name: "MiniMax M2", description: "MiniMax M2 via OpenRouter" },
+	"glm-4.6": { name: "GLM 4.6", description: "Z-AI GLM 4.6 via OpenRouter" },
+	"gpt-5": { name: "GPT-5", description: "OpenAI GPT-5 via OpenRouter" },
+	"gpt-oss-120b": { name: "GPT OSS 120B", description: "Open-source GPT 120B via OpenRouter" },
+	// Ollama
+	"llama3.2:3b": { name: "Llama 3.2 3B" },
+	"qwen2.5:0.5b": { name: "Qwen 2.5 0.5B" },
+	"mixtral:8x7b": { name: "Mixtral 8x7B" },
+	// LM Studio
+	"lmstudio-local": { name: "LM Studio Model", description: "Currently loaded model in LM Studio" },
+};
 
-	// OpenRouter Models
-	{
-		id: "gemini-3-pro",
-		name: "Gemini 3 Pro Preview",
-		provider: "openrouter",
-		type: "cloud",
-		description: "Google Gemini 3 Pro via OpenRouter",
-	},
-	{
-		id: "claude-sonnet-4.5",
-		name: "Claude Sonnet 4.5",
-		provider: "openrouter",
-		type: "cloud",
-		description: "Anthropic Claude 4.5 via OpenRouter",
-	},
-	{
-		id: "minimax-m2",
-		name: "MiniMax M2",
-		provider: "openrouter",
-		type: "cloud",
-		description: "MiniMax M2 via OpenRouter",
-	},
-	{
-		id: "glm-4.6",
-		name: "GLM 4.6",
-		provider: "openrouter",
-		type: "cloud",
-		description: "Z-AI GLM 4.6 via OpenRouter",
-	},
-	{
-		id: "gpt-5",
-		name: "GPT-5",
-		provider: "openrouter",
-		type: "cloud",
-		description: "OpenAI GPT-5 via OpenRouter",
-	},
-	{
-		id: "gpt-oss-120b",
-		name: "GPT OSS 120B",
-		provider: "openrouter",
-		type: "cloud",
-		description: "Open-source GPT 120B via OpenRouter",
-	},
+// Provider type mapping
+const providerTypeMap: Record<string, "cloud" | "local"> = {
+	openai: "cloud",
+	anthropic: "cloud",
+	openrouter: "cloud",
+	lmstudio: "local",
+	ollama: "local",
+	apple: "local",
+};
 
-	// Local Models - Ollama
-	{
-		id: "llama3.2:3b",
-		name: "Llama 3.2 3B",
-		provider: "ollama",
-		type: "local",
-	},
-	{
-		id: "qwen2.5:0.5b",
-		name: "Qwen 2.5 0.5B",
-		provider: "ollama",
-		type: "local",
-	},
-	{
-		id: "mixtral:8x7b",
-		name: "Mixtral 8x7B",
-		provider: "ollama",
-		type: "local",
-	},
-
-	// LM Studio Local Model
-	{
-		id: "lmstudio-local",
-		name: "LM Studio Model",
-		provider: "lmstudio",
-		type: "local",
-		description: "Currently loaded model in LM Studio",
-	},
-];
+// Generate models array from centralized MODEL_PROVIDERS
+const models: AIModel[] = (Object.entries(MODEL_PROVIDERS) as [string, { models: readonly string[] }][])
+	.filter(([provider]) => provider !== "apple") // Exclude Apple Foundation for now
+	.flatMap(([provider, config]) =>
+		config.models.map((modelId) => ({
+			id: modelId,
+			name: modelDisplayInfo[modelId]?.name || modelId,
+			provider,
+			type: providerTypeMap[provider] || "cloud",
+			description: modelDisplayInfo[modelId]?.description,
+		}))
+	);
 
 interface ModelSelectorProps {
 	selectedModel: string;

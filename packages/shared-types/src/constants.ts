@@ -13,7 +13,7 @@ export const MODEL_PROVIDERS = {
 	},
 	anthropic: {
 		name: "Anthropic",
-		models: ["claude-3.5-sonnet", "claude-3-haiku"] as const,
+		models: ["claude-3-5-sonnet-20241022", "claude-3-haiku-20240307"] as const,
 		endpoint: "https://api.anthropic.com/v1",
 	},
 	openrouter: {
@@ -55,8 +55,8 @@ export type ModelName<T extends ModelProvider> =
 export const MODEL_TO_PROVIDER_MAP = {
 	"gpt-4o": "openai",
 	"gpt-4o-mini": "openai",
-	"claude-3.5-sonnet": "anthropic",
-	"claude-3-haiku": "anthropic",
+	"claude-3-5-sonnet-20241022": "anthropic",
+	"claude-3-haiku-20240307": "anthropic",
 	"gemini-3-pro": "openrouter",
 	"claude-sonnet-4.5": "openrouter",
 	"minimax-m2": "openrouter",
