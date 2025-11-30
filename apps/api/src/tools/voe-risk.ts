@@ -39,7 +39,7 @@ import matplotlib.pyplot as plt
 from sklearn.linear_model import LogisticRegression
 
 # ---------- Load data ----------
-raw = json.loads(${safeData})
+raw = ${safeData}
 try:
     data = json.loads(raw)
     df = pd.DataFrame(data)

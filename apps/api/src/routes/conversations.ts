@@ -227,12 +227,24 @@ conversationsRouter.post("/:id/messages", async (c) => {
 		const body = await c.req.json();
 
 		// Verify conversation exists and belongs to user
-		const { data: conversation } = await supabase
+		const { data: conversation, error: convError } = await supabase
 			.from("conversations")
 			.select("id")
 			.eq("id", conversationId)
 			.eq("user_id", userId)
 			.single();
+
+		if (convError) {
+			// Supabase PGRST116 = "no rows returned" - this is a 404, not a DB error
+			if ((convError as any).code === "PGRST116") {
+				throw new NotFoundError("Conversation", conversationId);
+			}
+			throw new DatabaseError(
+				"Failed to verify conversation ownership",
+				undefined,
+				convError,
+			);
+		}
 
 		if (!conversation) {
 			throw new NotFoundError("Conversation", conversationId);
@@ -284,6 +296,31 @@ conversationsRouter.delete("/:id", async (c) => {
 		const userId = getUserId(c);
 		const conversationId = c.req.param("id");
 
+		// First verify conversation exists and belongs to user
+		const { data: existing, error: checkError } = await supabase
+			.from("conversations")
+			.select("id")
+			.eq("id", conversationId)
+			.eq("user_id", userId)
+			.single();
+
+		if (checkError) {
+			// Supabase PGRST116 = "no rows returned" - this is a 404, not a DB error
+			if ((checkError as any).code === "PGRST116") {
+				throw new NotFoundError("Conversation", conversationId);
+			}
+			throw new DatabaseError(
+				"Failed to verify conversation",
+				undefined,
+				checkError,
+			);
+		}
+
+		if (!existing) {
+			throw new NotFoundError("Conversation", conversationId);
+		}
+
+		// Proceed with delete
 		const { error } = await supabase
 			.from("conversations")
 			.delete()

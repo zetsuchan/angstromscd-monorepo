@@ -170,11 +170,7 @@ export class EnhancedChatService {
 			message.toLowerCase().includes(keyword),
 		);
 
-		console.log("Checking visualization need:", {
-			message,
-			needsVisualization,
-			model: selectedModel,
-		});
+		// Debug logging removed to protect PHI/PII in medical context
 
 		if (needsVisualization) {
 			console.log("Visualization request detected, generating code...");
@@ -288,12 +284,7 @@ plt.show()
 							packages: ["matplotlib", "numpy", "pandas", "seaborn"],
 						});
 
-						console.log("E2B execution result:", {
-							success: result.success,
-							hasFiles: !!result.files,
-							filesCount: result.files?.length || 0,
-							error: result.error,
-						});
+						// E2B execution logging removed to protect PHI/PII
 
 						// Check if we have files even if there was an error (partial execution)
 						if (result.files && result.files.length > 0) {
@@ -381,17 +372,11 @@ plt.show()
 				? await b.DetermineToolUsageOllama(message, null)
 				: await b.DetermineToolUsage(message, null);
 
-			console.log("BAML tool analysis result:", {
-				requires_tools: toolAnalysis.requires_tools,
-				tool_calls: toolAnalysis.tool_calls.length,
-				message_preview: toolAnalysis.message?.substring(0, 100),
-			});
+			// BAML tool analysis logging removed to protect PHI/PII
 
 			if (toolAnalysis.requires_tools && toolAnalysis.tool_calls.length > 0) {
 				for (const toolCall of toolAnalysis.tool_calls) {
-					console.log(
-						`Processing tool call: ${toolCall.tool}, reasoning: ${toolCall.reasoning}`,
-					);
+					// Tool call logging removed to protect PHI/PII
 
 					if (toolCall.tool === ("E2B_CODE_INTERPRETER" as ToolType)) {
 						// Parse the arguments
@@ -442,12 +427,12 @@ plt.show()
 
 		// Check if we should search PubMed
 		if (shouldSearchPubMed(message)) {
-			console.log("Searching PubMed for relevant literature...");
+			// PubMed logging removed to protect PHI/PII
 
 			try {
 				// Extract medical terms for better search
 				const searchQuery = this.extractMedicalSearchTerms(message);
-				console.log("PubMed search query:", searchQuery);
+				// PubMed query logging removed to protect PHI/PII
 				const searchResults = await searchPubMed(searchQuery, 5);
 
 				if (searchResults.articles.length > 0) {
