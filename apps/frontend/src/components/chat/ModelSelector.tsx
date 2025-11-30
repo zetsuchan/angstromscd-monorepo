@@ -16,9 +16,10 @@ const modelDisplayInfo: Record<string, { name: string; description?: string }> =
 	// OpenAI
 	"gpt-4o": { name: "GPT-4o" },
 	"gpt-4o-mini": { name: "GPT-4o Mini" },
-	// Anthropic
-	"claude-3-5-sonnet-20241022": { name: "Claude 3.5 Sonnet" },
-	"claude-3-haiku-20240307": { name: "Claude 3 Haiku" },
+	// Anthropic (Claude 4.5)
+	"claude-opus-4-5-20251101": { name: "Claude 4.5 Opus", description: "Most capable, supports effort parameter" },
+	"claude-sonnet-4-5-20250929": { name: "Claude 4.5 Sonnet", description: "Best coding performance" },
+	"claude-haiku-4-5-20251001": { name: "Claude 4.5 Haiku", description: "Fast and cost-effective" },
 	// OpenRouter
 	"gemini-3-pro": { name: "Gemini 3 Pro Preview", description: "Google Gemini 3 Pro via OpenRouter" },
 	"claude-sonnet-4.5": { name: "Claude Sonnet 4.5", description: "Anthropic Claude 4.5 via OpenRouter" },

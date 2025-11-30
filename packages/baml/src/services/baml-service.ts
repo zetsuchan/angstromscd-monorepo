@@ -161,9 +161,10 @@ function createClientRegistry(
 		// OpenAI models
 		"gpt-4o": "gpt-4o",
 		"gpt-4o-mini": "gpt-4o-mini",
-		// Anthropic models (using full version IDs from MODEL_PROVIDERS)
-		"claude-3-5-sonnet-20241022": "claude-3-5-sonnet-20241022",
-		"claude-3-haiku-20240307": "claude-3-haiku-20240307",
+		// Anthropic models (Claude 4.5 - updated from 3.5)
+		"claude-opus-4-5-20251101": "claude-opus-4-5-20251101",
+		"claude-sonnet-4-5-20250929": "claude-sonnet-4-5-20250929",
+		"claude-haiku-4-5-20251001": "claude-haiku-4-5-20251001",
 		// LM Studio
 		"lmstudio-local": "lmstudio-local",
 		// Ollama models
@@ -333,7 +334,7 @@ export async function runAnthropicChat(message: string): Promise<string> {
 		message,
 		[],
 		"anthropic",
-		"claude-3-haiku-20240307",
+		"claude-haiku-4-5-20251001",
 	);
 }
 
