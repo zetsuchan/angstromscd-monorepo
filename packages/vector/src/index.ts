@@ -62,3 +62,15 @@ serve({
 	fetch: app.fetch,
 	port,
 });
+
+// Graceful shutdown handler
+const gracefulShutdown = async () => {
+	console.log("Shutting down vector service...");
+	if (vectorService && typeof vectorService.close === "function") {
+		await vectorService.close();
+	}
+	process.exit(0);
+};
+
+process.on("SIGTERM", () => void gracefulShutdown());
+process.on("SIGINT", () => void gracefulShutdown());

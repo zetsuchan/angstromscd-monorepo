@@ -9,7 +9,9 @@ import {
 	type CreateConversationRequest,
 	type CreateMessageRequest,
 	DatabaseError,
+	NotFoundError,
 	ValidationError,
+	type ValidationErrorDetail,
 	errorToApiError,
 	isAppError,
 } from "@angstromscd/shared-types";
@@ -60,11 +62,26 @@ const createMessageSchema = z.object({
 	metadata: z.record(z.any()).optional(),
 });
 
-// Middleware to extract user ID (simplified for now)
+// Middleware to extract user ID
 const getUserId = (c: any): string => {
-	// TODO: Implement proper authentication
-	// For now, use a default user ID for testing
-	return c.req.header("X-User-Id") || "00000000-0000-0000-0000-000000000000";
+	const userId = c.req.header("X-User-Id");
+	if (!userId) {
+		throw new AuthenticationError("X-User-Id header is required");
+	}
+	return userId;
+};
+
+// Helper to convert Zod flatten() output to ValidationErrorDetail[]
+const zodToValidationErrors = (
+	flatErrors: z.typeToFlattenedError<any>,
+): ValidationErrorDetail[] => {
+	return [
+		...Object.entries(flatErrors.fieldErrors || {}).flatMap(
+			([field, messages]) =>
+				(messages || []).map((message) => ({ field, message })),
+		),
+		...flatErrors.formErrors.map((message) => ({ field: "_form", message })),
+	];
 };
 
 // List conversations
@@ -90,7 +107,7 @@ conversationsRouter.get("/", async (c) => {
 			.range(offset, offset + limit - 1);
 
 		if (error) {
-			throw new DatabaseError("list conversations", error);
+			throw new DatabaseError("Failed to list conversations", undefined, error);
 		}
 
 		const response: ConversationListResponse = {
@@ -118,7 +135,7 @@ conversationsRouter.post("/", async (c) => {
 		if (!parsed.success) {
 			throw new ValidationError(
 				"Invalid conversation data",
-				parsed.error.flatten(),
+				zodToValidationErrors(parsed.error.flatten()),
 			);
 		}
 
@@ -133,7 +150,11 @@ conversationsRouter.post("/", async (c) => {
 			.single();
 
 		if (error) {
-			throw new DatabaseError("create conversation", error);
+			throw new DatabaseError(
+				"Failed to create conversation",
+				undefined,
+				error,
+			);
 		}
 
 		return c.json(createApiResponse({ conversation: data as Conversation }));
@@ -159,11 +180,15 @@ conversationsRouter.get("/:id", async (c) => {
 			.single();
 
 		if (convError) {
-			throw new DatabaseError("get conversation", convError);
+			throw new DatabaseError(
+				"Failed to get conversation",
+				undefined,
+				convError,
+			);
 		}
 
 		if (!conversation) {
-			throw new ValidationError("Conversation not found");
+			throw new NotFoundError("Conversation", conversationId);
 		}
 
 		// Get messages
@@ -174,7 +199,7 @@ conversationsRouter.get("/:id", async (c) => {
 			.order("created_at", { ascending: true });
 
 		if (msgError) {
-			throw new DatabaseError("get messages", msgError);
+			throw new DatabaseError("Failed to get messages", undefined, msgError);
 		}
 
 		const response: ConversationDetailResponse = {
@@ -206,7 +231,7 @@ conversationsRouter.post("/:id/messages", async (c) => {
 			.single();
 
 		if (!conversation) {
-			throw new ValidationError("Conversation not found");
+			throw new NotFoundError("Conversation", conversationId);
 		}
 
 		const messageData = {
@@ -217,7 +242,10 @@ conversationsRouter.post("/:id/messages", async (c) => {
 		const parsed = createMessageSchema.safeParse(messageData);
 
 		if (!parsed.success) {
-			throw new ValidationError("Invalid message data", parsed.error.flatten());
+			throw new ValidationError(
+				"Invalid message data",
+				zodToValidationErrors(parsed.error.flatten()),
+			);
 		}
 
 		const { data, error } = await supabase
@@ -235,7 +263,7 @@ conversationsRouter.post("/:id/messages", async (c) => {
 			.single();
 
 		if (error) {
-			throw new DatabaseError("create message", error);
+			throw new DatabaseError("Failed to create message", undefined, error);
 		}
 
 		return c.json(createApiResponse({ message: data as ConversationMessage }));
@@ -259,7 +287,11 @@ conversationsRouter.delete("/:id", async (c) => {
 			.eq("user_id", userId);
 
 		if (error) {
-			throw new DatabaseError("delete conversation", error);
+			throw new DatabaseError(
+				"Failed to delete conversation",
+				undefined,
+				error,
+			);
 		}
 
 		return c.json(createApiResponse({ deleted: true }));

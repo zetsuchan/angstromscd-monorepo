@@ -46,6 +46,9 @@ export class EnhancedChatService {
 		message: string,
 		model?: string,
 	): Promise<EnhancedChatResponse> {
+		// Resolve the model first - use default if not provided
+		const selectedModel = model || this.defaultModel;
+
 		// Check if this is an OpenRouter, LM Studio, or other cloud model
 		const openRouterModels = [
 			"gemini-3-pro",
@@ -62,10 +65,10 @@ export class EnhancedChatService {
 			"claude-3-haiku-20240307",
 		];
 
-		const isOpenRouterModel = model && openRouterModels.includes(model);
-		const isLMStudioModel = model && lmStudioModels.includes(model);
-		const isOpenAIModel = model && openAIModels.includes(model);
-		const isAnthropicModel = model && anthropicModels.includes(model);
+		const isOpenRouterModel = openRouterModels.includes(selectedModel);
+		const isLMStudioModel = lmStudioModels.includes(selectedModel);
+		const isOpenAIModel = openAIModels.includes(selectedModel);
+		const isAnthropicModel = anthropicModels.includes(selectedModel);
 		const isCloudModel =
 			isOpenRouterModel || isLMStudioModel || isOpenAIModel || isAnthropicModel;
 
@@ -103,7 +106,7 @@ export class EnhancedChatService {
 				if (result.success && result.data && result.data.reply) {
 					return {
 						reply: result.data.reply,
-						model: model || "unknown",
+						model: selectedModel,
 						citations: undefined,
 						pubmedArticles: undefined,
 						visualizations: [],
@@ -128,7 +131,7 @@ export class EnhancedChatService {
 								: "AI";
 				return {
 					reply: `I'm having trouble connecting to the ${serviceName} service. Please make sure the service is configured correctly and try again.`,
-					model: model || "unknown",
+					model: selectedModel,
 					citations: undefined,
 					pubmedArticles: undefined,
 					visualizations: [],
@@ -137,7 +140,7 @@ export class EnhancedChatService {
 			}
 		}
 
-		const selectedModel = model || this.defaultModel;
+		// selectedModel already resolved at the start of the method
 		let pubmedArticles = null;
 		let citations = "";
 		let enhancedPrompt = message;
@@ -178,8 +181,7 @@ export class EnhancedChatService {
 			const isOllamaModel =
 				selectedModel.startsWith("qwen") ||
 				selectedModel.startsWith("llama") ||
-				selectedModel.startsWith("mixtral") ||
-				selectedModel === "meditron:latest";
+				selectedModel.startsWith("mixtral");
 
 			if (isOllamaModel) {
 				// Direct approach for Ollama models
@@ -367,8 +369,7 @@ plt.show()
 			const isOllamaModel =
 				selectedModel.startsWith("qwen") ||
 				selectedModel.startsWith("llama") ||
-				selectedModel.startsWith("mixtral") ||
-				selectedModel === "meditron:latest";
+				selectedModel.startsWith("mixtral");
 
 			console.log(
 				`Using BAML tool detection for model: ${selectedModel}, isOllama: ${isOllamaModel}`,
@@ -483,8 +484,7 @@ plt.show()
 				const isOllamaModel =
 					selectedModel.startsWith("qwen") ||
 					selectedModel.startsWith("llama") ||
-					selectedModel.startsWith("mixtral") ||
-					selectedModel === "meditron:latest";
+					selectedModel.startsWith("mixtral");
 
 				// Call the appropriate BAML function
 				const medicalResponse = isOllamaModel
@@ -661,7 +661,7 @@ Please provide a comprehensive answer that incorporates insights from these stud
 						{
 							role: "system",
 							content:
-								"You are Meditron, a medical AI assistant specializing in Sickle Cell Disease (SCD) and related hematological conditions. Provide evidence-based medical information and cite relevant research when available. Always remind users to consult with healthcare providers for personal medical decisions.",
+								"You are a medical AI assistant specializing in Sickle Cell Disease (SCD) and related hematological conditions. Provide evidence-based medical information and cite relevant research when available. Always remind users to consult with healthcare providers for personal medical decisions.",
 						},
 						{
 							role: "user",
@@ -679,14 +679,14 @@ Please provide a comprehensive answer that incorporates insights from these stud
 			const data = await response.json();
 			return data.message?.content || "No response generated";
 		} catch (error) {
-			console.error("Meditron call failed:", error);
+			console.error("Ollama model call failed:", error);
 			// Return a fallback response instead of throwing
-			return "I apologize, but I'm having trouble generating a response. Please ensure Meditron is running in Ollama and try again.";
+			return "I apologize, but I'm having trouble generating a response. Please ensure Ollama is running and try again.";
 		}
 	}
 
 	/**
-	 * Test if Meditron is available
+	 * Test if Ollama is available
 	 */
 	async testConnection(): Promise<boolean> {
 		try {
@@ -694,7 +694,8 @@ Please provide a comprehensive answer that incorporates insights from these stud
 			if (!response.ok) return false;
 
 			const data = await response.json();
-			return data.models?.some((m: any) => m.name.includes("meditron"));
+			// Check if Ollama has any models available
+			return data.models && data.models.length > 0;
 		} catch {
 			return false;
 		}

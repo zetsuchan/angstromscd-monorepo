@@ -4,12 +4,25 @@ import postgres from "postgres";
 export class VectorService {
 	private sql: postgres.Sql;
 	private openai: OpenAI;
+	private isClosed = false;
 
+	/**
+	 * Create a new VectorService instance.
+	 * IMPORTANT: Call close() when done to properly release database connections.
+	 *
+	 * Note: This service uses direct postgres connection for pg-vector operations
+	 * which require raw SQL not supported by the Supabase client.
+	 */
 	constructor() {
-		const dbUrl =
-			process.env.DATABASE_URL ||
-			"postgresql://postgres:password@localhost:5432/angstromscd";
+		const dbUrl = process.env.DATABASE_URL;
 		const openAiKey = process.env.OPENAI_API_KEY;
+
+		if (!dbUrl) {
+			throw new Error(
+				"DATABASE_URL environment variable is not defined. " +
+					"Please set it to your PostgreSQL connection string.",
+			);
+		}
 
 		if (!openAiKey) {
 			throw new Error("OPENAI_API_KEY environment variable is not defined");
@@ -145,7 +158,15 @@ export class VectorService {
     `;
 	}
 
+	/**
+	 * Close the database connection.
+	 * Should be called when the service is no longer needed to prevent resource leaks.
+	 */
 	async close() {
+		if (this.isClosed) {
+			return;
+		}
+		this.isClosed = true;
 		await this.sql.end();
 	}
 }

@@ -16,10 +16,13 @@ streamRouter.get("/stream/:conversationId", (c) => {
 	const tokenSubject = `${TOKENS_PREFIX}.${conversationId}`;
 	const eventSubject = `${EVENTS_PREFIX}.${conversationId}`;
 
+	// Note: c.header() calls are ignored when returning a manual Response,
+	// so all headers including CORS must be set in the Response constructor
 	const headers = new Headers({
 		"Content-Type": "text/event-stream",
 		"Cache-Control": "no-cache",
-		Connection: "keep-alive",
+		"Connection": "keep-alive",
+		"Access-Control-Allow-Origin": "*",
 	});
 
 	let tokenSub: Subscription | undefined;

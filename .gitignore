@@ -45,3 +45,6 @@ Thumbs.db
 .nyc_output/
 .sass-cache/
 .crush/
+
+# Beads issue tracker (local only)
+.beads/

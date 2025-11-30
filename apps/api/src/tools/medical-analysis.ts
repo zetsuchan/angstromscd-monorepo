@@ -85,6 +85,26 @@ export class MedicalAnalysisOrchestrator {
 		onProgress: (progress: string) => void,
 		onError: (error: string) => void,
 	): Promise<MedicalAnalysisResult> {
+		// VOE risk streaming is not currently supported - reject early with clear error
+		if (input.analysisType === "voe_risk") {
+			onError("Streaming VOE risk analysis is not currently supported");
+			return {
+				analysisType: "voe_risk",
+				results: { rawOutput: "" },
+				visualizations: [],
+				summary: "VOE risk streaming is not supported",
+				recommendations: [
+					"Use the non-streaming /medical/analyze endpoint for VOE risk analysis",
+				],
+				success: false,
+				output: "",
+				error: "Streaming VOE risk analysis is not currently supported",
+				files: [],
+				executionTime: 0,
+				sandboxId: undefined,
+			};
+		}
+
 		const analysisCode = this.generateAnalysisCode(input);
 
 		const executionInput: CodeExecutionInput = {
@@ -128,9 +148,20 @@ export class MedicalAnalysisOrchestrator {
 	}
 
 	/**
+	 * Safely encode data for embedding in Python code
+	 * Uses JSON.stringify to prevent code injection via triple quotes
+	 */
+	private safeDataEmbed(data: string | undefined): string {
+		return JSON.stringify(data || "");
+	}
+
+	/**
 	 * Generate analysis code based on the type of analysis requested
 	 */
 	private generateAnalysisCode(input: MedicalAnalysisInput): string {
+		// Safely encode the data to prevent code injection
+		const safeData = this.safeDataEmbed(input.data);
+
 		const baseImports = `
 import pandas as pd
 import numpy as np
@@ -154,7 +185,7 @@ print("Starting medical data analysis...")
 
 # Load and parse data
 try:
-    data_str = '''${input.data}'''
+    data_str = ${safeData}
     
     # Try to parse as JSON first, then CSV
     try:
@@ -198,7 +229,7 @@ except Exception as e:
 print("Creating medical data visualizations...")
 
 try:
-    data_str = '''${input.data}'''
+    data_str = ${safeData}
     
     # Parse data
     try:
@@ -256,7 +287,7 @@ from sklearn.preprocessing import StandardScaler
 print("Performing statistical analysis...")
 
 try:
-    data_str = '''${input.data}'''
+    data_str = ${safeData}
     
     # Parse data
     try:
@@ -314,7 +345,7 @@ from sklearn.preprocessing import LabelEncoder
 print("Performing ML modeling...")
 
 try:
-    data_str = '''${input.data}'''
+    data_str = ${safeData}
     
     # Parse data
     try:
@@ -391,7 +422,7 @@ except Exception as e:
 print("Generating medical analysis report...")
 
 try:
-    data_str = '''${input.data || ""}'''
+    data_str = ${safeData}
     
     # Parse data
     try:

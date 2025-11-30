@@ -2,12 +2,26 @@ import {
 	AuthenticationError,
 	DatabaseError,
 	ValidationError,
+	type ValidationErrorDetail,
 	errorToApiError,
 	isAppError,
 } from "@angstromscd/shared-types";
 import type { ApiResponse, DbUser } from "@angstromscd/shared-types";
 import { Hono } from "hono";
 import { z } from "zod";
+
+// Helper to convert Zod flatten() output to ValidationErrorDetail[]
+const zodToValidationErrors = (
+	flatErrors: z.typeToFlattenedError<any>,
+): ValidationErrorDetail[] => {
+	return [
+		...Object.entries(flatErrors.fieldErrors || {}).flatMap(
+			([field, messages]) =>
+				(messages || []).map((message) => ({ field, message })),
+		),
+		...flatErrors.formErrors.map((message) => ({ field: "_form", message })),
+	];
+};
 import { supabase } from "../lib/db";
 import { EnhancedChatService } from "../services/enhanced-chat-service";
 import { OutboxService } from "../services/outbox-service";
@@ -62,7 +76,11 @@ router.get("/health/db", async (c) => {
 			.select("id")
 			.limit(1);
 		if (error) {
-			throw new DatabaseError("health check", error);
+			throw new DatabaseError(
+				"Failed to check database health",
+				undefined,
+				error,
+			);
 		}
 		return c.json(createApiResponse({ status: "ok", database: "connected" }));
 	} catch (error) {
@@ -85,7 +103,10 @@ router.post("/auth/signup", async (c) => {
 		const parsed = authSchema.safeParse(body);
 
 		if (!parsed.success) {
-			throw new ValidationError("Invalid signup data", parsed.error.flatten());
+			throw new ValidationError(
+				"Invalid signup data",
+				zodToValidationErrors(parsed.error.flatten()),
+			);
 		}
 
 		const { data, error } = await supabase.auth.signUp({
@@ -141,7 +162,10 @@ router.post("/auth/login", async (c) => {
 		const parsed = authSchema.safeParse(body);
 
 		if (!parsed.success) {
-			throw new ValidationError("Invalid login data", parsed.error.flatten());
+			throw new ValidationError(
+				"Invalid login data",
+				zodToValidationErrors(parsed.error.flatten()),
+			);
 		}
 
 		const { data, error } = await supabase.auth.signInWithPassword({
@@ -197,7 +221,10 @@ router.post("/api/messages", async (c) => {
 		const parsed = messageSchema.safeParse(body);
 
 		if (!parsed.success) {
-			throw new ValidationError("Invalid message data", parsed.error.flatten());
+			throw new ValidationError(
+				"Invalid message data",
+				zodToValidationErrors(parsed.error.flatten()),
+			);
 		}
 
 		const {
@@ -262,11 +289,15 @@ router.get("/api/messages", async (c) => {
 
 		// Validate parameters
 		if (Number.isNaN(limit) || limit < 1 || limit > 100) {
-			throw new ValidationError("Limit must be a number between 1 and 100");
+			throw new ValidationError("Limit must be a number between 1 and 100", [
+				{ field: "limit", message: "Must be a number between 1 and 100" },
+			]);
 		}
 
 		if (Number.isNaN(offset) || offset < 0) {
-			throw new ValidationError("Offset must be a non-negative number");
+			throw new ValidationError("Offset must be a non-negative number", [
+				{ field: "offset", message: "Must be a non-negative number" },
+			]);
 		}
 
 		let query = supabase
@@ -282,7 +313,7 @@ router.get("/api/messages", async (c) => {
 			.range(offset, offset + limit - 1);
 
 		if (error) {
-			throw new DatabaseError("list messages", error);
+			throw new DatabaseError("Failed to list messages", undefined, error);
 		}
 
 		const response = createApiResponse({
@@ -316,7 +347,10 @@ router.post("/api/chat", async (c) => {
 		const parsed = chatRequestSchema.safeParse(body);
 
 		if (!parsed.success) {
-			throw new ValidationError("Invalid chat request", parsed.error.flatten());
+			throw new ValidationError(
+				"Invalid chat request",
+				zodToValidationErrors(parsed.error.flatten()),
+			);
 		}
 
 		const { message, model } = parsed.data;

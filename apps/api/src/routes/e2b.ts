@@ -73,12 +73,6 @@ e2bRouter.post("/execute/stream", async (c) => {
 			);
 		}
 
-		// Set up SSE headers
-		c.header("Content-Type", "text/event-stream");
-		c.header("Cache-Control", "no-cache");
-		c.header("Connection", "keep-alive");
-		c.header("Access-Control-Allow-Origin", "*");
-
 		const executor = getCodeExecutor();
 
 		// Create a readable stream for SSE
@@ -109,11 +103,14 @@ e2bRouter.post("/execute/stream", async (c) => {
 			},
 		});
 
+		// Note: c.header() calls are ignored when returning a manual Response,
+		// so all headers must be set in the Response constructor
 		return new Response(stream, {
 			headers: {
 				"Content-Type": "text/event-stream",
 				"Cache-Control": "no-cache",
 				Connection: "keep-alive",
+				"Access-Control-Allow-Origin": "*",
 			},
 		});
 	} catch (error) {
@@ -174,12 +171,6 @@ e2bRouter.post("/medical/analyze/stream", async (c) => {
 			);
 		}
 
-		// Set up SSE headers
-		c.header("Content-Type", "text/event-stream");
-		c.header("Cache-Control", "no-cache");
-		c.header("Connection", "keep-alive");
-		c.header("Access-Control-Allow-Origin", "*");
-
 		const orchestrator = getMedicalAnalysisOrchestrator();
 
 		// Create a readable stream for SSE
@@ -210,11 +201,14 @@ e2bRouter.post("/medical/analyze/stream", async (c) => {
 			},
 		});
 
+		// Note: c.header() calls are ignored when returning a manual Response,
+		// so all headers must be set in the Response constructor
 		return new Response(stream, {
 			headers: {
 				"Content-Type": "text/event-stream",
 				"Cache-Control": "no-cache",
 				Connection: "keep-alive",
+				"Access-Control-Allow-Origin": "*",
 			},
 		});
 	} catch (error) {
