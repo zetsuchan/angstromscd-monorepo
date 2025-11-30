@@ -143,6 +143,19 @@ function getProviderTimeout(provider: string) {
 	return DEFAULT_CHAT_TIMEOUT_MS;
 }
 
+/**
+ * Validates that a required API key is present
+ * @throws Error if the API key is missing
+ */
+function validateApiKey(provider: string, key: string | undefined): string {
+	if (!key) {
+		throw new Error(
+			`Missing API key for provider: ${provider}. Please set the required environment variable.`,
+		);
+	}
+	return key;
+}
+
 function createClientRegistry(
 	modelProvider: string,
 	modelName: string,
@@ -182,10 +195,10 @@ function createClientRegistry(
 		case "openrouter":
 			cr.addLlmClient("DynamicClient", "openai", {
 				model: actualModelName,
-				api_key: process.env.OPENROUTER_API_KEY,
+				api_key: validateApiKey("openrouter", process.env.OPENROUTER_API_KEY),
 				base_url: "https://openrouter.ai/api/v1",
 				headers: {
-					"HTTP-Referer": "http://localhost:5173",
+					"HTTP-Referer": process.env.APP_URL || "http://localhost:5173",
 					"X-Title": "AngstromSCD",
 				},
 			});
@@ -205,13 +218,13 @@ function createClientRegistry(
 		case "openai":
 			cr.addLlmClient("DynamicClient", "openai", {
 				model: actualModelName,
-				api_key: process.env.OPENAI_API_KEY || "your_openai_key",
+				api_key: validateApiKey("openai", process.env.OPENAI_API_KEY),
 			});
 			break;
 		case "anthropic":
 			cr.addLlmClient("DynamicClient", "anthropic", {
 				model: actualModelName,
-				api_key: process.env.ANTHROPIC_API_KEY || "your_anthropic_key",
+				api_key: validateApiKey("anthropic", process.env.ANTHROPIC_API_KEY),
 			});
 			break;
 		case "apple":
@@ -224,10 +237,10 @@ function createClientRegistry(
 			// Default to OpenRouter
 			cr.addLlmClient("DynamicClient", "openai", {
 				model: actualModelName,
-				api_key: process.env.OPENROUTER_API_KEY,
+				api_key: validateApiKey("openrouter", process.env.OPENROUTER_API_KEY),
 				base_url: "https://openrouter.ai/api/v1",
 				headers: {
-					"HTTP-Referer": "http://localhost:5173",
+					"HTTP-Referer": process.env.APP_URL || "http://localhost:5173",
 					"X-Title": "AngstromSCD",
 				},
 			});

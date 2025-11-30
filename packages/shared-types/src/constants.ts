@@ -3,51 +3,110 @@
  */
 
 /**
+ * Model display metadata interface
+ */
+export interface ModelDisplayInfo {
+	displayName: string;
+	description?: string;
+}
+
+/**
  * Model provider configuration with const assertion
+ * Display metadata is co-located with model IDs to ensure consistency
  */
 export const MODEL_PROVIDERS = {
 	openai: {
 		name: "OpenAI",
-		models: ["gpt-4o", "gpt-4o-mini"] as const,
+		models: {
+			"gpt-4o": { displayName: "GPT-4o" },
+			"gpt-4o-mini": { displayName: "GPT-4o Mini" },
+		} as const,
 		endpoint: "https://api.openai.com/v1",
 	},
 	anthropic: {
 		name: "Anthropic",
-		models: [
-			"claude-opus-4-5-20251101",
-			"claude-sonnet-4-5-20250929",
-			"claude-haiku-4-5-20251001",
-		] as const,
+		models: {
+			"claude-opus-4-5-20251101": {
+				displayName: "Claude 4.5 Opus",
+				description: "Most capable, supports effort parameter",
+			},
+			"claude-sonnet-4-5-20250929": {
+				displayName: "Claude 4.5 Sonnet",
+				description: "Best coding performance",
+			},
+			"claude-haiku-4-5-20251001": {
+				displayName: "Claude 4.5 Haiku",
+				description: "Fast and cost-effective",
+			},
+		} as const,
 		endpoint: "https://api.anthropic.com/v1",
 	},
 	openrouter: {
 		name: "OpenRouter",
-		models: [
-			"gemini-3-pro",
-			"claude-sonnet-4.5",
-			"minimax-m2",
-			"glm-4.6",
-			"gpt-5",
-			"gpt-oss-120b",
-		] as const,
+		models: {
+			"gemini-3-pro": {
+				displayName: "Gemini 3 Pro Preview",
+				description: "Google Gemini 3 Pro via OpenRouter",
+			},
+			"claude-sonnet-4.5": {
+				displayName: "Claude Sonnet 4.5",
+				description: "Anthropic Claude 4.5 via OpenRouter",
+			},
+			"minimax-m2": {
+				displayName: "MiniMax M2",
+				description: "MiniMax M2 via OpenRouter",
+			},
+			"glm-4.6": {
+				displayName: "GLM 4.6",
+				description: "Z-AI GLM 4.6 via OpenRouter",
+			},
+			"gpt-5": {
+				displayName: "GPT-5",
+				description: "OpenAI GPT-5 via OpenRouter",
+			},
+			"gpt-oss-120b": {
+				displayName: "GPT OSS 120B",
+				description: "Open-source GPT 120B via OpenRouter",
+			},
+		} as const,
 		endpoint: "https://openrouter.ai/api/v1",
 	},
 	lmstudio: {
 		name: "LM Studio",
-		models: ["lmstudio-local"] as const,
+		models: {
+			"lmstudio-local": {
+				displayName: "LM Studio Model",
+				description: "Currently loaded model in LM Studio",
+			},
+		} as const,
 		endpoint: "http://localhost:1234/v1",
 	},
 	ollama: {
 		name: "Ollama",
-		models: ["qwen2.5:0.5b", "llama3.2:3b", "mixtral:8x7b"] as const,
+		models: {
+			"qwen2.5:0.5b": { displayName: "Qwen 2.5 0.5B" },
+			"llama3.2:3b": { displayName: "Llama 3.2 3B" },
+			"mixtral:8x7b": { displayName: "Mixtral 8x7B" },
+		} as const,
 		endpoint: "http://localhost:11434",
 	},
 	apple: {
 		name: "Apple Foundation",
-		models: ["foundation"] as const,
+		models: {
+			foundation: { displayName: "Apple Foundation 3B" },
+		} as const,
 		endpoint: "http://localhost:3004",
 	},
 } as const;
+
+/**
+ * Helper to get model IDs array from a provider (for backward compatibility)
+ */
+export const getProviderModelIds = <T extends ModelProvider>(
+	provider: T,
+): (keyof (typeof MODEL_PROVIDERS)[T]["models"])[] => {
+	return Object.keys(MODEL_PROVIDERS[provider].models) as (keyof (typeof MODEL_PROVIDERS)[T]["models"])[];
+};
 
 // Extract types from const assertion
 export type ModelProvider = keyof typeof MODEL_PROVIDERS;

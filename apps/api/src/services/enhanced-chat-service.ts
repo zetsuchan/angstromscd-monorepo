@@ -52,10 +52,10 @@ export class EnhancedChatService {
 
 		// Check if this is an OpenRouter, LM Studio, or other cloud model
 		// Model lists are centralized in @angstromscd/shared-types
-		const openRouterModels = MODEL_PROVIDERS.openrouter.models as readonly string[];
-		const lmStudioModels = MODEL_PROVIDERS.lmstudio.models as readonly string[];
-		const openAIModels = MODEL_PROVIDERS.openai.models as readonly string[];
-		const anthropicModels = MODEL_PROVIDERS.anthropic.models as readonly string[];
+		const openRouterModels = Object.keys(MODEL_PROVIDERS.openrouter.models);
+		const lmStudioModels = Object.keys(MODEL_PROVIDERS.lmstudio.models);
+		const openAIModels = Object.keys(MODEL_PROVIDERS.openai.models);
+		const anthropicModels = Object.keys(MODEL_PROVIDERS.anthropic.models);
 
 		const isOpenRouterModel = openRouterModels.includes(selectedModel);
 		const isLMStudioModel = lmStudioModels.includes(selectedModel);

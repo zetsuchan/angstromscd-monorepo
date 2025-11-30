@@ -11,30 +11,6 @@ export interface AIModel {
 	description?: string;
 }
 
-// Display metadata for models (IDs come from centralized MODEL_PROVIDERS)
-const modelDisplayInfo: Record<string, { name: string; description?: string }> = {
-	// OpenAI
-	"gpt-4o": { name: "GPT-4o" },
-	"gpt-4o-mini": { name: "GPT-4o Mini" },
-	// Anthropic (Claude 4.5)
-	"claude-opus-4-5-20251101": { name: "Claude 4.5 Opus", description: "Most capable, supports effort parameter" },
-	"claude-sonnet-4-5-20250929": { name: "Claude 4.5 Sonnet", description: "Best coding performance" },
-	"claude-haiku-4-5-20251001": { name: "Claude 4.5 Haiku", description: "Fast and cost-effective" },
-	// OpenRouter
-	"gemini-3-pro": { name: "Gemini 3 Pro Preview", description: "Google Gemini 3 Pro via OpenRouter" },
-	"claude-sonnet-4.5": { name: "Claude Sonnet 4.5", description: "Anthropic Claude 4.5 via OpenRouter" },
-	"minimax-m2": { name: "MiniMax M2", description: "MiniMax M2 via OpenRouter" },
-	"glm-4.6": { name: "GLM 4.6", description: "Z-AI GLM 4.6 via OpenRouter" },
-	"gpt-5": { name: "GPT-5", description: "OpenAI GPT-5 via OpenRouter" },
-	"gpt-oss-120b": { name: "GPT OSS 120B", description: "Open-source GPT 120B via OpenRouter" },
-	// Ollama
-	"llama3.2:3b": { name: "Llama 3.2 3B" },
-	"qwen2.5:0.5b": { name: "Qwen 2.5 0.5B" },
-	"mixtral:8x7b": { name: "Mixtral 8x7B" },
-	// LM Studio
-	"lmstudio-local": { name: "LM Studio Model", description: "Currently loaded model in LM Studio" },
-};
-
 // Provider type mapping
 const providerTypeMap: Record<string, "cloud" | "local"> = {
 	openai: "cloud",
@@ -45,17 +21,22 @@ const providerTypeMap: Record<string, "cloud" | "local"> = {
 	apple: "local",
 };
 
-// Generate models array from centralized MODEL_PROVIDERS
-const models: AIModel[] = (Object.entries(MODEL_PROVIDERS) as [string, { models: readonly string[] }][])
+// Generate models array from centralized MODEL_PROVIDERS (display metadata is co-located)
+const models: AIModel[] = (
+	Object.entries(MODEL_PROVIDERS) as [
+		string,
+		{ models: Record<string, { displayName: string; description?: string }> },
+	][]
+)
 	.filter(([provider]) => provider !== "apple") // Exclude Apple Foundation for now
 	.flatMap(([provider, config]) =>
-		config.models.map((modelId) => ({
+		Object.entries(config.models).map(([modelId, displayInfo]) => ({
 			id: modelId,
-			name: modelDisplayInfo[modelId]?.name || modelId,
+			name: displayInfo.displayName,
 			provider,
 			type: providerTypeMap[provider] || "cloud",
-			description: modelDisplayInfo[modelId]?.description,
-		}))
+			description: displayInfo.description,
+		})),
 	);
 
 interface ModelSelectorProps {

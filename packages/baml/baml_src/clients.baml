@@ -106,7 +106,7 @@ client<llm> OpenRouterGemini3Pro {
     api_key env.OPENROUTER_API_KEY
     base_url "https://openrouter.ai/api/v1"
     headers {
-      "HTTP-Referer" "http://localhost:5173"
+      "HTTP-Referer" env.APP_URL
       "X-Title" "AngstromSCD"
     }
   }
@@ -119,7 +119,7 @@ client<llm> OpenRouterClaudeSonnet45 {
     api_key env.OPENROUTER_API_KEY
     base_url "https://openrouter.ai/api/v1"
     headers {
-      "HTTP-Referer" "http://localhost:5173"
+      "HTTP-Referer" env.APP_URL
       "X-Title" "AngstromSCD"
     }
   }
@@ -132,7 +132,7 @@ client<llm> OpenRouterMiniMaxM2 {
     api_key env.OPENROUTER_API_KEY
     base_url "https://openrouter.ai/api/v1"
     headers {
-      "HTTP-Referer" "http://localhost:5173"
+      "HTTP-Referer" env.APP_URL
       "X-Title" "AngstromSCD"
     }
   }
@@ -145,7 +145,7 @@ client<llm> OpenRouterGLM46 {
     api_key env.OPENROUTER_API_KEY
     base_url "https://openrouter.ai/api/v1"
     headers {
-      "HTTP-Referer" "http://localhost:5173"
+      "HTTP-Referer" env.APP_URL
       "X-Title" "AngstromSCD"
     }
   }
@@ -158,7 +158,7 @@ client<llm> OpenRouterGPT5 {
     api_key env.OPENROUTER_API_KEY
     base_url "https://openrouter.ai/api/v1"
     headers {
-      "HTTP-Referer" "http://localhost:5173"
+      "HTTP-Referer" env.APP_URL
       "X-Title" "AngstromSCD"
     }
   }
@@ -171,7 +171,7 @@ client<llm> OpenRouterGPTOSS120B {
     api_key env.OPENROUTER_API_KEY
     base_url "https://openrouter.ai/api/v1"
     headers {
-      "HTTP-Referer" "http://localhost:5173"
+      "HTTP-Referer" env.APP_URL
       "X-Title" "AngstromSCD"
     }
   }

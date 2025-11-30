@@ -13,10 +13,12 @@ import { outboxRelayWorker } from "./workers/outbox-relay";
 const app = new Hono();
 
 const defaultOrigins = ["http://localhost:5173", "http://127.0.0.1:5173"];
-const configuredOrigins =
-	process.env.CORS_ORIGINS?.split(",")
-		.map((origin) => origin.trim())
-		.filter(Boolean) ?? defaultOrigins;
+const parsedOrigins = process.env.CORS_ORIGINS?.split(",")
+	.map((origin) => origin.trim())
+	.filter(Boolean);
+// Use parsedOrigins only if it has entries, otherwise fall back to defaults
+// (empty CORS_ORIGINS="" results in [] which is truthy, so ?? won't work)
+const configuredOrigins = parsedOrigins?.length ? parsedOrigins : defaultOrigins;
 
 // global middleware
 app.use(
