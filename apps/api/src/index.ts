@@ -30,7 +30,7 @@ app.use(
 		},
 		credentials: true,
 		allowMethods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-		allowHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+		allowHeaders: ["Content-Type", "Authorization", "X-Requested-With", "X-User-Id"],
 	}),
 );
 

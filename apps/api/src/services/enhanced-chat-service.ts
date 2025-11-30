@@ -76,14 +76,16 @@ export class EnhancedChatService {
 		if (isCloudModel) {
 			try {
 				// Call the BAML service directly
-				const bamlResponse = await fetch("http://localhost:3002/chat", {
+				const bamlUrl =
+					process.env.BAML_SERVICE_URL ?? "http://localhost:3002/chat";
+				const bamlResponse = await fetch(bamlUrl, {
 					method: "POST",
 					headers: {
 						"Content-Type": "application/json",
 					},
 					body: JSON.stringify({
 						message,
-						model,
+						model: selectedModel,
 						provider: isOpenRouterModel
 							? "openrouter"
 							: isLMStudioModel

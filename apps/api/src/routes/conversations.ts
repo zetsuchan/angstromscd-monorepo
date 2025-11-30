@@ -180,6 +180,10 @@ conversationsRouter.get("/:id", async (c) => {
 			.single();
 
 		if (convError) {
+			// Supabase PGRST116 = "no rows returned" - this is a 404, not a DB error
+			if ((convError as any).code === "PGRST116") {
+				throw new NotFoundError("Conversation", conversationId);
+			}
 			throw new DatabaseError(
 				"Failed to get conversation",
 				undefined,

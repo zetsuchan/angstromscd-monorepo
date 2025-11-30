@@ -126,7 +126,13 @@ export class VectorService {
 		return {
 			ids: [results.map((r) => r.document_id)],
 			documents: [results.map((r) => r.content)],
-			metadatas: [results.map((r) => r.metadata)],
+			metadatas: [
+				results.map((r) =>
+					typeof r.metadata === "string"
+						? JSON.parse(r.metadata)
+						: r.metadata,
+				),
+			],
 			distances: [results.map((r) => 1 - r.similarity)],
 		};
 	}

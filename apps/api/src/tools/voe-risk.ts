@@ -28,6 +28,8 @@ export class VOERiskTool {
 	}
 
 	private buildPythonScript(rawData: string): string {
+		// Use JSON.stringify to safely embed data and prevent code injection
+		const safeData = JSON.stringify(rawData);
 		return `
 import json, textwrap, base64, io, os, warnings
 warnings.filterwarnings('ignore')
@@ -37,7 +39,7 @@ import matplotlib.pyplot as plt
 from sklearn.linear_model import LogisticRegression
 
 # ---------- Load data ----------
-raw = """${rawData.replace('"', '"')}"""
+raw = json.loads(${safeData})
 try:
     data = json.loads(raw)
     df = pd.DataFrame(data)
