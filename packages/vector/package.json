@@ -6,7 +6,7 @@
 	"main": "dist/index.js",
 	"scripts": {
 		"dev": "bun run --hot src/index.ts",
-		"build": "bun build src/index.ts --target=bun --outdir=dist"
+		"build": "bun build src/index.ts --target=bun --outdir=dist --external cohere-ai --external ollama"
 	},
 	"dependencies": {
 		"@angstromscd/shared-types": "workspace:*",
