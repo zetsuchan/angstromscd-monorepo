@@ -85,17 +85,31 @@ jobs:
       - name: Build packages
         run: bun run build:packages
 
-      - name: Run E2E tests
-        run: bun run test:e2e --project=chromium
+      - name: Check Supabase credentials
+        id: check-secrets
+        run: |
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_ANON_KEY" ]; then
+            echo "skip=true" >> $GITHUB_OUTPUT
+            echo "::warning::Skipping E2E tests - Supabase secrets not configured"
+          else
+            echo "skip=false" >> $GITHUB_OUTPUT
+          fi
         env:
-          CI: true
-          # Add Supabase test credentials if available
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
 
+      - name: Run E2E tests
+        if: steps.check-secrets.outputs.skip != 'true'
+        run: bun run test:e2e --project=chromium
+        env:
+          CI: true
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+
       - name: Upload test results
         uses: actions/upload-artifact@v4
-        if: always()
+        if: always() && steps.check-secrets.outputs.skip != 'true'
         with:
           name: playwright-report
           path: playwright-report/
