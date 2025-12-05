@@ -221,7 +221,8 @@ export const apiClient = {
 		const searchParams = new URLSearchParams();
 		if (params?.threadId) searchParams.set("thread_id", params.threadId);
 		if (params?.limit) searchParams.set("limit", params.limit.toString());
-		if (params?.offset !== undefined) searchParams.set("offset", params.offset.toString());
+		if (params?.offset !== undefined)
+			searchParams.set("offset", params.offset.toString());
 
 		const query = searchParams.toString();
 		return fetchApiAuth(`/api/messages${query ? `?${query}` : ""}`);
@@ -246,7 +247,103 @@ export const apiClient = {
 			body: JSON.stringify(data),
 		});
 	},
+
+	// Conversations
+	async getConversations(params?: {
+		page?: number;
+		limit?: number;
+	}): Promise<{
+		conversations: Array<{
+			id: string;
+			user_id: string;
+			title: string;
+			created_at: string;
+			updated_at: string;
+			message_count: number;
+			last_message?: string;
+		}>;
+		total: number;
+		page: number;
+		limit: number;
+	}> {
+		const searchParams = new URLSearchParams();
+		if (params?.page) searchParams.set("page", params.page.toString());
+		if (params?.limit) searchParams.set("limit", params.limit.toString());
+		const query = searchParams.toString();
+		return fetchApiAuth(`/api/conversations${query ? `?${query}` : ""}`);
+	},
+
+	async getConversation(id: string): Promise<{
+		conversation: {
+			id: string;
+			user_id: string;
+			title: string;
+			created_at: string;
+			updated_at: string;
+		};
+		messages: Array<{
+			id: string;
+			conversation_id: string;
+			role: "user" | "assistant" | "system";
+			content: string;
+			model?: string;
+			created_at: string;
+		}>;
+	}> {
+		return fetchApiAuth(`/api/conversations/${id}`);
+	},
+
+	async createConversation(data: {
+		title: string;
+		metadata?: Record<string, unknown>;
+	}): Promise<{
+		conversation: {
+			id: string;
+			user_id: string;
+			title: string;
+			created_at: string;
+			updated_at: string;
+		};
+	}> {
+		return fetchApiAuth("/api/conversations", {
+			method: "POST",
+			body: JSON.stringify(data),
+		});
+	},
+
+	async addMessageToConversation(
+		conversationId: string,
+		data: {
+			role: "user" | "assistant" | "system";
+			content: string;
+			model?: string;
+		},
+	): Promise<{
+		message: {
+			id: string;
+			conversation_id: string;
+			role: string;
+			content: string;
+			created_at: string;
+		};
+	}> {
+		return fetchApiAuth(`/api/conversations/${conversationId}/messages`, {
+			method: "POST",
+			body: JSON.stringify(data),
+		});
+	},
+
+	async deleteConversation(id: string): Promise<{ deleted: boolean }> {
+		return fetchApiAuth(`/api/conversations/${id}`, {
+			method: "DELETE",
+		});
+	},
 };
+
+// Check if user is authenticated
+export function isAuthenticated(): boolean {
+	return !!getAuthToken();
+}
 
 // React Query hooks would go here in a real application
 // export const useHealth = () => useQuery(['health'], apiClient.health)

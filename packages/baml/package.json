@@ -1,22 +1,22 @@
 {
-  "name": "@angstromscd/baml",
-  "version": "1.0.0",
-  "type": "module",
-  "private": true,
-  "main": "dist/index.js",
-  "scripts": {
-    "dev": "bun run --hot src/index.ts",
-    "build": "bun build src/index.ts --target=bun --outdir=dist",
-    "baml:generate": "baml generate"
-  },
-  "dependencies": {
-    "@angstromscd/shared-types": "workspace:*",
-    "@boundaryml/baml": "0.201.0",
-    "hono": "^4.7.10"
-  },
-  "devDependencies": {
-    "@biomejs/biome": "^1.9.4",
-    "@types/bun": "latest",
-    "typescript": "^5.8.3"
-  }
+	"name": "@angstromscd/baml",
+	"version": "1.0.0",
+	"type": "module",
+	"private": true,
+	"main": "dist/index.js",
+	"scripts": {
+		"dev": "bun run --hot src/index.ts",
+		"build": "bun build src/index.ts --target=bun --outdir=dist",
+		"baml:generate": "baml generate"
+	},
+	"dependencies": {
+		"@angstromscd/shared-types": "workspace:*",
+		"@boundaryml/baml": "0.201.0",
+		"hono": "^4.7.10"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^1.9.4",
+		"@types/bun": "latest",
+		"typescript": "^5.8.3"
+	}
 }

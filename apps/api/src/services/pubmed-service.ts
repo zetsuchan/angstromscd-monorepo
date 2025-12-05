@@ -25,7 +25,9 @@ export async function searchPubMed(
 ): Promise<PubMedSearchResult> {
 	try {
 		// Step 1: Search for article IDs
-		const searchUrl = new URL("https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi");
+		const searchUrl = new URL(
+			"https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi",
+		);
 		searchUrl.searchParams.append("db", "pubmed");
 		searchUrl.searchParams.append("term", query);
 		searchUrl.searchParams.append("retmax", limit.toString());
@@ -41,7 +43,9 @@ export async function searchPubMed(
 
 		// Step 2: Fetch article details
 		const ids = searchData.esearchresult.idlist;
-		const summaryUrl = new URL("https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi");
+		const summaryUrl = new URL(
+			"https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi",
+		);
 		summaryUrl.searchParams.append("db", "pubmed");
 		summaryUrl.searchParams.append("id", ids.join(","));
 		summaryUrl.searchParams.append("retmode", "json");
@@ -51,7 +55,7 @@ export async function searchPubMed(
 
 		// Step 3: Parse articles
 		const articles: PubMedArticle[] = [];
-		
+
 		for (const id of ids) {
 			const article = summaryData.result?.[id];
 			if (article) {
@@ -59,7 +63,7 @@ export async function searchPubMed(
 					pmid: id,
 					title: article.title || "",
 					abstract: await fetchAbstract(id),
-					authors: article.authors?.map((a: any) => a.name) || [],
+					authors: article.authors?.map((a: { name: string }) => a.name) || [],
 					journal: article.fulljournalname || article.source || "",
 					publicationDate: article.pubdate || "",
 					doi: article.elocationid?.replace("doi: ", "") || undefined,
@@ -84,7 +88,9 @@ export async function searchPubMed(
  */
 async function fetchAbstract(pmid: string): Promise<string> {
 	try {
-		const abstractUrl = new URL("https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi");
+		const abstractUrl = new URL(
+			"https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi",
+		);
 		abstractUrl.searchParams.append("db", "pubmed");
 		abstractUrl.searchParams.append("id", pmid);
 		abstractUrl.searchParams.append("retmode", "text");
@@ -92,9 +98,11 @@ async function fetchAbstract(pmid: string): Promise<string> {
 
 		const response = await fetch(abstractUrl.toString());
 		const text = await response.text();
-		
+
 		// Extract abstract from the text response
-		const abstractMatch = text.match(/(?:Abstract|ABSTRACT)\s*\n+([\s\S]+?)(?:\n\n|PMID:|$)/);
+		const abstractMatch = text.match(
+			/(?:Abstract|ABSTRACT)\s*\n+([\s\S]+?)(?:\n\n|PMID:|$)/,
+		);
 		return abstractMatch?.[1]?.trim() || "";
 	} catch (error) {
 		console.error(`Failed to fetch abstract for PMID ${pmid}:`, error);
@@ -113,7 +121,7 @@ export function formatCitations(articles: PubMedArticle[]): string {
 			const authors = article.authors.slice(0, 3).join(", ");
 			const etAl = article.authors.length > 3 ? ", et al." : "";
 			const doi = article.doi ? ` DOI: ${article.doi}` : "";
-			
+
 			return `[${index + 1}] ${authors}${etAl} "${article.title}" ${article.journal}. ${article.publicationDate}. PMID: ${article.pmid}${doi}`;
 		})
 		.join("\n\n");
@@ -151,5 +159,5 @@ export function shouldSearchPubMed(query: string): boolean {
 	];
 
 	const queryLower = query.toLowerCase();
-	return researchKeywords.some(keyword => queryLower.includes(keyword));
+	return researchKeywords.some((keyword) => queryLower.includes(keyword));
 }

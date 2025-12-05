@@ -6,8 +6,17 @@ import type { ChatMode, MessageTone } from "../../types";
 import ModelSelector from "./ModelSelector";
 
 const Composer: React.FC = () => {
-	const { addMessage, chatMode, setChatMode, messageTone, setMessageTone, selectedModel, setSelectedModel, isLoading, setIsLoading } =
-		useChat();
+	const {
+		addMessage,
+		chatMode,
+		setChatMode,
+		messageTone,
+		setMessageTone,
+		selectedModel,
+		setSelectedModel,
+		isLoading,
+		setIsLoading,
+	} = useChat();
 	const [input, setInput] = useState("");
 	const [isModeDropdownOpen, setIsModeDropdownOpen] = useState(false);
 	const [isToneDropdownOpen, setIsToneDropdownOpen] = useState(false);
@@ -40,24 +49,34 @@ const Composer: React.FC = () => {
 				}
 
 				const data = await response.json();
-				
+
 				if (data.success) {
 					addMessage(data.data.reply, "ai", {
 						visualizations: data.data.visualizations,
 						executionCode: data.data.executionCode,
-						citations: data.data.citations ? data.data.pubmedArticles?.map((article: any, index: number) => ({
-							id: article.pmid || `cite-${index}`,
-							reference: `${index + 1}`,
-							snippet: article.title,
-							source: `${article.journal} (${article.publicationDate})`
-						})) : undefined
+						citations: data.data.citations
+							? data.data.pubmedArticles?.map(
+									(article: any, index: number) => ({
+										id: article.pmid || `cite-${index}`,
+										reference: `${index + 1}`,
+										snippet: article.title,
+										source: `${article.journal} (${article.publicationDate})`,
+									}),
+								)
+							: undefined,
 					});
 				} else {
-					addMessage("Sorry, I encountered an error processing your request.", "ai");
+					addMessage(
+						"Sorry, I encountered an error processing your request.",
+						"ai",
+					);
 				}
 			} catch (error) {
 				console.error("Chat API error:", error);
-				addMessage("Sorry, I'm having trouble connecting to the chat service. Please try again.", "ai");
+				addMessage(
+					"Sorry, I'm having trouble connecting to the chat service. Please try again.",
+					"ai",
+				);
 			} finally {
 				setIsLoading(false);
 			}
@@ -78,7 +97,7 @@ const Composer: React.FC = () => {
 		<div className="border-t border-white/20 glass-subtle p-4 flex-shrink-0">
 			<form onSubmit={handleSubmit} className="flex items-center">
 				<div className="flex space-x-2 mr-3">
-					<ModelSelector 
+					<ModelSelector
 						selectedModel={selectedModel}
 						onModelSelect={setSelectedModel}
 					/>
@@ -148,7 +167,9 @@ const Composer: React.FC = () => {
 				<input
 					type="text"
 					className="flex-1 glass-subtle border border-white/20 rounded-l-md px-4 py-2 text-white/90 placeholder-white/50 glass-focus disabled:opacity-50 disabled:cursor-not-allowed"
-					placeholder={isLoading ? "Waiting for response..." : "Ask MedLab Chat..."}
+					placeholder={
+						isLoading ? "Waiting for response..." : "Ask MedLab Chat..."
+					}
 					value={input}
 					onChange={(e) => setInput(e.target.value)}
 					disabled={isLoading}

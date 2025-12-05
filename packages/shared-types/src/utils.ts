@@ -255,7 +255,7 @@ export async function retry<T>(
 			onError?.(error, attempt);
 
 			if (attempt < maxAttempts) {
-				const waitTime = delay * Math.pow(backoffFactor, attempt - 1);
+				const waitTime = delay * backoffFactor ** (attempt - 1);
 				await sleep(waitTime);
 			}
 		}

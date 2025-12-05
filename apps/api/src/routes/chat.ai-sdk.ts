@@ -5,13 +5,20 @@
  */
 
 import { streamText } from "ai";
-import { Hono } from "hono";
-import { z } from "zod";
 import { Effect, Stream } from "effect";
+import { type Context, Hono } from "hono";
+import { z } from "zod";
+import {
+	type ModelId,
+	aiRegistry,
+	getDefaultModel,
+	getLanguageModel,
+	isModelSupported,
+	listAvailableModels,
+} from "../ai/provider-registry";
 import { useAISDKFeature, useEffectForRoute } from "../config/features";
-import { aiRegistry, getLanguageModel, isModelSupported, getDefaultModel, listAvailableModels, type ModelId } from "../ai/provider-registry";
-import { searchPubMed, formatCitations } from "../services/pubmed-service";
-import { AppLive, AIService, errorToResponse } from "../effect";
+import { AIService, AppLive, errorToResponse } from "../effect";
+import { formatCitations, searchPubMed } from "../services/pubmed-service";
 
 export const chatAISDKRouter = new Hono();
 
@@ -23,7 +30,7 @@ const chatStreamSchema = z.object({
 		z.object({
 			role: z.enum(["user", "assistant", "system"]),
 			content: z.string(),
-		})
+		}),
 	),
 	modelId: z.string().optional(),
 	temperature: z.number().min(0).max(2).optional(),
@@ -33,7 +40,7 @@ const chatStreamSchema = z.object({
 /**
  * Effect.ts-based streaming handler
  */
-async function handleStreamWithEffect(c: any) {
+async function handleStreamWithEffect(c: Context) {
 	const body = await c.req.json();
 	const parsed = chatStreamSchema.safeParse(body);
 
@@ -43,7 +50,7 @@ async function handleStreamWithEffect(c: any) {
 				error: "Validation error",
 				details: parsed.error.flatten(),
 			},
-			400
+			400,
 		);
 	}
 
@@ -86,22 +93,21 @@ async function handleStreamWithEffect(c: any) {
 						const data = JSON.stringify(chunk);
 						controller.enqueue(encoder.encode(`data: ${data}\n\n`));
 					}),
-				)
-					.pipe(
-						Effect.catchAll((error) =>
-							Effect.sync(() => {
-								console.error("Stream processing error:", error);
-								const errorData = JSON.stringify({ error: "Stream error" });
-								controller.enqueue(encoder.encode(`data: ${errorData}\n\n`));
-							}),
-						),
-						Effect.ensuring(
-							Effect.sync(() => {
-								controller.close();
-							}),
-						),
-						Effect.runPromise,
-					);
+				).pipe(
+					Effect.catchAll((error) =>
+						Effect.sync(() => {
+							console.error("Stream processing error:", error);
+							const errorData = JSON.stringify({ error: "Stream error" });
+							controller.enqueue(encoder.encode(`data: ${errorData}\n\n`));
+						}),
+					),
+					Effect.ensuring(
+						Effect.sync(() => {
+							controller.close();
+						}),
+					),
+					Effect.runPromise,
+				);
 			} catch (error) {
 				console.error("ReadableStream error:", error);
 				controller.close();
@@ -129,7 +135,7 @@ chatAISDKRouter.post("/api/chat/stream", async (c) => {
 				error: "AI SDK streaming not enabled",
 				message: "Enable with AI_SDK_STREAMING=true",
 			},
-			503
+			503,
 		);
 	}
 
@@ -148,7 +154,7 @@ chatAISDKRouter.post("/api/chat/stream", async (c) => {
 					error: "Validation error",
 					details: parsed.error.flatten(),
 				},
-				400
+				400,
 			);
 		}
 
@@ -164,7 +170,7 @@ chatAISDKRouter.post("/api/chat/stream", async (c) => {
 					message: `Model ${selectedModelId} is not supported`,
 					availableModels: listAvailableModels(),
 				},
-				400
+				400,
 			);
 		}
 
@@ -179,7 +185,9 @@ chatAISDKRouter.post("/api/chat/stream", async (c) => {
 						parameters: z.object({
 							query: z
 								.string()
-								.describe("Medical search query with specific terms and conditions"),
+								.describe(
+									"Medical search query with specific terms and conditions",
+								),
 							limit: z
 								.number()
 								.min(1)
@@ -217,7 +225,7 @@ chatAISDKRouter.post("/api/chat/stream", async (c) => {
 				error: "Internal server error",
 				message: error instanceof Error ? error.message : "Unknown error",
 			},
-			500
+			500,
 		);
 	}
 });

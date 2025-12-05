@@ -47,9 +47,9 @@ function MedicalChat(query: string, model: string, context: string?) -> MedicalC
 
 // Ollama-compatible version for local models
 function MedicalChatOllama(query: string, model: string, context: string?) -> MedicalChatResponse {
-  client OllamaMeditronLatest
+  client LocalOllama
   prompt #"
-    You are Meditron, a medical AI assistant specializing in Sickle Cell Disease (SCD).
+    You are a medical AI assistant specializing in Sickle Cell Disease (SCD).
     
     User Query: {{ query }}
     Context: {{ context }}
@@ -81,13 +81,13 @@ function ProcessMedicalQuery(query: string, model: string) -> MedicalChatRespons
   client CustomGPT4o
   prompt #"
     Route this medical query to the appropriate handler based on the model.
-    
+
     Query: {{ query }}
     Model: {{ model }}
-    
-    If model is "meditron:latest" or starts with "llama", "qwen", or "mixtral", use Ollama.
+
+    If model starts with "llama", "qwen", "mixtral", "yi:", "deepseek", or "gpt-oss", use Ollama (local).
     Otherwise use cloud models (GPT-4, Claude).
-    
+
     Process the query with appropriate medical expertise.
   "#
 }
@@ -105,7 +105,7 @@ test medical_chat_literature {
   functions [MedicalChat]
   args {
     query "What are the latest treatments for pediatric SCD patients?"
-    model "meditron:latest"
+    model "llama3.2:3b"
   }
 }
 
@@ -113,6 +113,6 @@ test medical_chat_general {
   functions [MedicalChatOllama]
   args {
     query "Explain hydroxyurea dosing for SCD"
-    model "meditron:latest"
+    model "llama3.2:3b"
   }
 }

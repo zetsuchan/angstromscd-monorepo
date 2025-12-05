@@ -26,7 +26,7 @@ import type {
 export function isValidDateString(value: unknown): value is string {
 	if (typeof value !== "string") return false;
 	const date = new Date(value);
-	return !isNaN(date.getTime());
+	return !Number.isNaN(date.getTime());
 }
 
 /**
@@ -339,7 +339,8 @@ export function isValidHemoglobinLevel(value: unknown, unit = "g/dL"): boolean {
 	// Normal ranges vary by age and gender, but for SCD patients:
 	if (unit === "g/dL") {
 		return value >= 4 && value <= 18; // Wider range for SCD patients
-	} else if (unit === "g/L") {
+	}
+	if (unit === "g/L") {
 		return value >= 40 && value <= 180;
 	}
 

@@ -1,13 +1,14 @@
-import { Canvas } from '@react-three/fiber';
-import { Suspense, useEffect, useState } from 'react';
-import { GlassOrbs } from './GlassOrbs';
-import { WebGLErrorBoundary, CSSGlassFallback } from './WebGLErrorBoundary';
+import { Canvas } from "@react-three/fiber";
+import { Suspense, useEffect, useState } from "react";
+import { GlassOrbs } from "./GlassOrbs";
+import { CSSGlassFallback, WebGLErrorBoundary } from "./WebGLErrorBoundary";
 
 // Check for WebGL support
 function checkWebGLSupport(): boolean {
 	try {
-		const canvas = document.createElement('canvas');
-		const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+		const canvas = document.createElement("canvas");
+		const gl =
+			canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
 		return !!gl;
 	} catch (e) {
 		return false;
@@ -40,11 +41,11 @@ export default function GlassBackground() {
 					gl={{
 						alpha: true,
 						antialias: true,
-						powerPreference: 'high-performance',
+						powerPreference: "high-performance",
 						stencil: false,
-						depth: true
+						depth: true,
 					}}
-					style={{ background: 'transparent' }}
+					style={{ background: "transparent" }}
 					frameloop="always"
 				>
 					<Suspense fallback={null}>

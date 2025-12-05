@@ -1,9 +1,38 @@
 {
 	"$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
 	"organizeImports": { "enabled": true },
-	"linter": { "enabled": true },
+	"linter": {
+		"enabled": true,
+		"rules": {
+			"suspicious": {
+				"noExplicitAny": "warn",
+				"noArrayIndexKey": "warn"
+			},
+			"a11y": {
+				"useButtonType": "warn"
+			},
+			"complexity": {
+				"noStaticOnlyClass": "warn"
+			},
+			"style": {
+				"noNonNullAssertion": "warn"
+			},
+			"security": {
+				"noDangerouslySetInnerHtml": "warn"
+			},
+			"correctness": {
+				"useExhaustiveDependencies": "warn"
+			}
+		}
+	},
 	"formatter": { "enabled": true },
 	"files": {
 		"ignore": ["**/node_modules/**", "**/dist/**", "**/build/**"]
+	},
+	"json": {
+		"parser": {
+			"allowComments": true,
+			"allowTrailingCommas": true
+		}
 	}
 }

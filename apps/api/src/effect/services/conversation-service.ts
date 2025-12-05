@@ -2,13 +2,13 @@
  * Conversation Service - Effect-based CRUD operations
  */
 
-import { Context, Effect, Layer } from "effect";
 import type {
 	Conversation,
 	ConversationMessage,
 	ConversationSummary,
 } from "@angstromscd/shared-types";
-import { DatabaseError, NotFoundError, ValidationError } from "../errors";
+import { Context, Effect, Layer } from "effect";
+import { type DatabaseError, NotFoundError, ValidationError } from "../errors";
 import { DatabaseService } from "./database-service";
 import { LoggerService } from "./logger-service";
 
@@ -63,7 +63,10 @@ export class ConversationService extends Context.Tag("ConversationService")<
 				pubmedArticles?: unknown[];
 				metadata?: Record<string, unknown>;
 			},
-		) => Effect.Effect<ConversationMessage, DatabaseError | NotFoundError | ValidationError>;
+		) => Effect.Effect<
+			ConversationMessage,
+			DatabaseError | NotFoundError | ValidationError
+		>;
 
 		readonly delete: (
 			conversationId: string,
@@ -154,7 +157,10 @@ export const ConversationServiceLive = Layer.effect(
 						)
 						.pipe(
 							Effect.catchAll((error) => {
-								if (error._tag === "DatabaseError" && error.cause === "No data returned") {
+								if (
+									error._tag === "DatabaseError" &&
+									error.cause === "No data returned"
+								) {
 									return Effect.fail(
 										new NotFoundError({
 											resource: "conversation",
@@ -208,18 +214,23 @@ export const ConversationServiceLive = Layer.effect(
 						);
 					}
 
-					yield* Effect.log("Creating conversation", { userId, title: data.title });
+					yield* Effect.log("Creating conversation", {
+						userId,
+						title: data.title,
+					});
 
-					const conversation = yield* db.query<Conversation>("conversations", (client) =>
-						client
-							.from("conversations")
-							.insert({
-								user_id: userId,
-								title: data.title,
-								metadata: data.metadata || {},
-							})
-							.select()
-							.single(),
+					const conversation = yield* db.query<Conversation>(
+						"conversations",
+						(client) =>
+							client
+								.from("conversations")
+								.insert({
+									user_id: userId,
+									title: data.title,
+									metadata: data.metadata || {},
+								})
+								.select()
+								.single(),
 					);
 
 					return conversation;
@@ -271,7 +282,10 @@ export const ConversationServiceLive = Layer.effect(
 						)
 						.pipe(
 							Effect.catchAll((error) => {
-								if (error._tag === "DatabaseError" && error.cause === "No data returned") {
+								if (
+									error._tag === "DatabaseError" &&
+									error.cause === "No data returned"
+								) {
 									return Effect.fail(
 										new NotFoundError({
 											resource: "conversation",
@@ -314,7 +328,10 @@ export const ConversationServiceLive = Layer.effect(
 			 */
 			delete: (conversationId: string, userId: string) =>
 				Effect.gen(function* () {
-					yield* Effect.log("Deleting conversation", { conversationId, userId });
+					yield* Effect.log("Deleting conversation", {
+						conversationId,
+						userId,
+					});
 
 					yield* db.query<{ success: boolean }>("conversations", (client) =>
 						client
@@ -323,7 +340,9 @@ export const ConversationServiceLive = Layer.effect(
 							.eq("id", conversationId)
 							.eq("user_id", userId)
 							.then((result) => ({
-								data: result.error ? null : ({ success: true } as { success: boolean }),
+								data: result.error
+									? null
+									: ({ success: true } as { success: boolean }),
 								error: result.error,
 							})),
 					);

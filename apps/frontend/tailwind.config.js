@@ -4,8 +4,28 @@ export default {
 	theme: {
 		extend: {
 			fontFamily: {
-				'mono': ['DepartureMono', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', 'monospace'],
-				'departure': ['DepartureMono', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', 'monospace'],
+				mono: [
+					"DepartureMono",
+					"ui-monospace",
+					"SFMono-Regular",
+					"Menlo",
+					"Monaco",
+					"Consolas",
+					"Liberation Mono",
+					"Courier New",
+					"monospace",
+				],
+				departure: [
+					"DepartureMono",
+					"ui-monospace",
+					"SFMono-Regular",
+					"Menlo",
+					"Monaco",
+					"Consolas",
+					"Liberation Mono",
+					"Courier New",
+					"monospace",
+				],
 			},
 		},
 	},

@@ -35,7 +35,11 @@ export default defineSchema({
 	 */
 	chat_messages: defineTable({
 		conversation_id: v.string(), // References Supabase conversations.id
-		role: v.union(v.literal("user"), v.literal("assistant"), v.literal("system")),
+		role: v.union(
+			v.literal("user"),
+			v.literal("assistant"),
+			v.literal("system"),
+		),
 		content: v.string(),
 		model: v.optional(v.string()),
 		created_at: v.number(),
@@ -56,11 +60,7 @@ export default defineSchema({
 		workspace_id: v.string(),
 		user_id: v.string(),
 		user_name: v.string(),
-		status: v.union(
-			v.literal("active"),
-			v.literal("idle"),
-			v.literal("away"),
-		),
+		status: v.union(v.literal("active"), v.literal("idle"), v.literal("away")),
 		current_view: v.optional(v.string()), // e.g., "paper:abc123", "conversation:xyz789"
 		last_seen: v.number(),
 	})

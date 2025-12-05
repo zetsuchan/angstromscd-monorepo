@@ -49,15 +49,18 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({ message }) => {
 					{message.visualizations && message.visualizations.length > 0 && (
 						<div className="mt-4 space-y-3">
 							{message.visualizations.map((viz, index) => (
-								<div key={index} className="rounded-lg overflow-hidden glass-subtle border border-white/20">
-									{viz.format === 'png' ? (
-										<img 
+								<div
+									key={index}
+									className="rounded-lg overflow-hidden glass-subtle border border-white/20"
+								>
+									{viz.format === "png" ? (
+										<img
 											src={`data:image/png;base64,${viz.data}`}
 											alt={`Visualization ${index + 1}`}
 											className="w-full h-auto"
 										/>
-									) : viz.format === 'svg' ? (
-										<div 
+									) : viz.format === "svg" ? (
+										<div
 											dangerouslySetInnerHTML={{ __html: atob(viz.data) }}
 											className="w-full"
 										/>

@@ -1,5 +1,5 @@
-import { getCodeExecutor } from "../services/code-executor"
-import type { CodeExecutionInput, ExecutionResult } from "../types/e2b"
+import { getCodeExecutor } from "../services/code-executor";
+import type { CodeExecutionInput, ExecutionResult } from "../types/e2b";
 
 /**
  * Vaso-Occlusive Event (VOE) Risk analysis tool.
@@ -10,31 +10,25 @@ import type { CodeExecutionInput, ExecutionResult } from "../types/e2b"
  *  4. Plots SHAP-style feature importance bar chart.
  */
 export class VOERiskTool {
-  private codeExecutor = getCodeExecutor()
+	private codeExecutor = getCodeExecutor();
 
-  async run(
-    patientData: string, // CSV or JSON string with columns age, hemoglobin, wbc, previous_voe, hydroxyurea
-  ): Promise<ExecutionResult> {
-    const pythonCode = this.buildPythonScript(patientData)
+	async run(
+		patientData: string, // CSV or JSON string with columns age, hemoglobin, wbc, previous_voe, hydroxyurea
+	): Promise<ExecutionResult> {
+		const pythonCode = this.buildPythonScript(patientData);
 
-    const input: CodeExecutionInput = {
-      code: pythonCode,
-      language: "python",
-      timeout: 60,
-      packages: [
-        "pandas",
-        "numpy",
-        "scikit-learn",
-        "matplotlib",
-        "seaborn",
-      ],
-    }
+		const input: CodeExecutionInput = {
+			code: pythonCode,
+			language: "python",
+			timeout: 60,
+			packages: ["pandas", "numpy", "scikit-learn", "matplotlib", "seaborn"],
+		};
 
-    return this.codeExecutor.executeCode(input)
-  }
+		return this.codeExecutor.executeCode(input);
+	}
 
-  private buildPythonScript(rawData: string): string {
-    return `
+	private buildPythonScript(rawData: string): string {
+		return `
 import json, textwrap, base64, io, os, warnings
 warnings.filterwarnings('ignore')
 import pandas as pd, numpy as np, matplotlib
@@ -43,7 +37,7 @@ import matplotlib.pyplot as plt
 from sklearn.linear_model import LogisticRegression
 
 # ---------- Load data ----------
-raw = """${rawData.replace('"', '\"')}"""
+raw = """${rawData.replace('"', '"')}"""
 try:
     data = json.loads(raw)
     df = pd.DataFrame(data)
@@ -82,6 +76,6 @@ plt.tight_layout()
 png_buf = io.BytesIO()
 plt.savefig(png_buf, format='png')
 print("::savefile::voe_feature_importance.png::" + base64.b64encode(png_buf.getvalue()).decode())
-`
-  }
+`;
+	}
 }
