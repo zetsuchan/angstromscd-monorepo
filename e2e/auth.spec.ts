@@ -1,4 +1,4 @@
-import { test, expect, type Page } from "@playwright/test";
+import { type Page, expect, test } from "@playwright/test";
 
 const API_URL = "http://localhost:3001";
 
@@ -111,7 +111,9 @@ test.describe("Authentication Flow", () => {
 			expect(data.success).toBe(false);
 		});
 
-		test("authenticated request to protected endpoint succeeds", async ({ request }) => {
+		test("authenticated request to protected endpoint succeeds", async ({
+			request,
+		}) => {
 			// Create user and get token
 			const email = generateTestEmail();
 			const signupRes = await request.post(`${API_URL}/auth/signup`, {

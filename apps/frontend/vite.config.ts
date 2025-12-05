@@ -12,8 +12,8 @@ export default defineConfig({
 		port: 5173,
 		strictPort: true, // Fail if port is already in use
 		proxy: {
-			'/api': {
-				target: 'http://localhost:3001',
+			"/api": {
+				target: "http://localhost:3001",
 				changeOrigin: true,
 			},
 		},

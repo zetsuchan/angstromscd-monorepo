@@ -4,27 +4,35 @@
  * Tests for NotFoundError detection and error handling
  */
 
-import { describe, it, expect } from "bun:test";
-import { Effect, Layer, Logger, LogLevel } from "effect";
-import { ConversationService, ConversationServiceLive } from "./conversation-service";
+import { describe, expect, it } from "bun:test";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import { Effect, Layer, LogLevel, Logger } from "effect";
+import { DatabaseError, NotFoundError } from "../errors";
+import { ConfigService, ConfigServiceTest } from "./config-service";
+import {
+	ConversationService,
+	ConversationServiceLive,
+} from "./conversation-service";
 import { DatabaseService } from "./database-service";
 import { LoggerService, LoggerServiceTest } from "./logger-service";
-import { ConfigService, ConfigServiceTest } from "./config-service";
-import { DatabaseError, NotFoundError } from "../errors";
-import type { SupabaseClient } from "@supabase/supabase-js";
 
 /**
  * Mock Database Service that simulates "not found" scenarios
  */
 const DatabaseNotFoundMock = Layer.succeed(DatabaseService, {
 	client: null as unknown as SupabaseClient,
-	query: <T>(_table: string, _operation: (client: SupabaseClient) => Promise<{ data: T | null; error: unknown }>) =>
+	query: <T>(
+		_table: string,
+		_operation: (
+			client: SupabaseClient,
+		) => Promise<{ data: T | null; error: unknown }>,
+	) =>
 		Effect.fail(
 			new DatabaseError({
 				operation: "query",
 				table: _table,
 				cause: "No data returned",
-			})
+			}),
 		),
 });
 
@@ -33,13 +41,18 @@ const DatabaseNotFoundMock = Layer.succeed(DatabaseService, {
  */
 const DatabaseErrorMock = Layer.succeed(DatabaseService, {
 	client: null as unknown as SupabaseClient,
-	query: <T>(_table: string, _operation: (client: SupabaseClient) => Promise<{ data: T | null; error: unknown }>) =>
+	query: <T>(
+		_table: string,
+		_operation: (
+			client: SupabaseClient,
+		) => Promise<{ data: T | null; error: unknown }>,
+	) =>
 		Effect.fail(
 			new DatabaseError({
 				operation: "query",
 				table: _table,
 				cause: { code: "SOME_DB_ERROR", message: "Database connection failed" },
-			})
+			}),
 		),
 });
 
@@ -52,24 +65,28 @@ const SilentLoggerLayer = Logger.minimumLogLevel(LogLevel.None);
  * Test layer with NotFound mock - composes ConversationServiceLive with mocked dependencies
  */
 const AppNotFoundTest = ConversationServiceLive.pipe(
-	Layer.provide(Layer.mergeAll(
-		ConfigServiceTest,
-		LoggerServiceTest,
-		DatabaseNotFoundMock,
-		SilentLoggerLayer
-	))
+	Layer.provide(
+		Layer.mergeAll(
+			ConfigServiceTest,
+			LoggerServiceTest,
+			DatabaseNotFoundMock,
+			SilentLoggerLayer,
+		),
+	),
 );
 
 /**
  * Test layer with DatabaseError mock - composes ConversationServiceLive with mocked dependencies
  */
 const AppDatabaseErrorTest = ConversationServiceLive.pipe(
-	Layer.provide(Layer.mergeAll(
-		ConfigServiceTest,
-		LoggerServiceTest,
-		DatabaseErrorMock,
-		SilentLoggerLayer
-	))
+	Layer.provide(
+		Layer.mergeAll(
+			ConfigServiceTest,
+			LoggerServiceTest,
+			DatabaseErrorMock,
+			SilentLoggerLayer,
+		),
+	),
 );
 
 describe("ConversationService", () => {
@@ -111,10 +128,14 @@ describe("ConversationService", () => {
 		it("should return NotFoundError when conversation doesn't exist", async () => {
 			const program = Effect.gen(function* () {
 				const conversationService = yield* ConversationService;
-				return yield* conversationService.addMessage("non-existent-id", "user-123", {
-					role: "user",
-					content: "Hello",
-				});
+				return yield* conversationService.addMessage(
+					"non-existent-id",
+					"user-123",
+					{
+						role: "user",
+						content: "Hello",
+					},
+				);
 			}).pipe(Effect.provide(AppNotFoundTest));
 
 			const result = await Effect.runPromise(Effect.either(program));
@@ -134,10 +155,14 @@ describe("ConversationService", () => {
 			// because the user_id doesn't match
 			const program = Effect.gen(function* () {
 				const conversationService = yield* ConversationService;
-				return yield* conversationService.addMessage("conversation-123", "wrong-user", {
-					role: "user",
-					content: "Hello",
-				});
+				return yield* conversationService.addMessage(
+					"conversation-123",
+					"wrong-user",
+					{
+						role: "user",
+						content: "Hello",
+					},
+				);
 			}).pipe(Effect.provide(AppNotFoundTest));
 
 			const result = await Effect.runPromise(Effect.either(program));
@@ -174,10 +199,14 @@ describe("ConversationService", () => {
 		it("should return ValidationError when content is empty", async () => {
 			const program = Effect.gen(function* () {
 				const conversationService = yield* ConversationService;
-				return yield* conversationService.addMessage("conversation-123", "user-123", {
-					role: "user",
-					content: "", // Empty content
-				});
+				return yield* conversationService.addMessage(
+					"conversation-123",
+					"user-123",
+					{
+						role: "user",
+						content: "", // Empty content
+					},
+				);
 			}).pipe(Effect.provide(AppNotFoundTest));
 
 			const result = await Effect.runPromise(Effect.either(program));

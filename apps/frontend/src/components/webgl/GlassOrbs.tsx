@@ -1,6 +1,6 @@
-import { useFrame } from '@react-three/fiber';
-import { useRef } from 'react';
-import * as THREE from 'three';
+import { useFrame } from "@react-three/fiber";
+import { useRef } from "react";
+import * as THREE from "three";
 
 // Glass refraction shader with caustics and chromatic aberration
 const glassVertexShader = `
@@ -135,7 +135,13 @@ interface GlassOrbProps {
 	animationOffset: number;
 }
 
-function GlassOrb({ position, scale, color, animationSpeed, animationOffset }: GlassOrbProps) {
+function GlassOrb({
+	position,
+	scale,
+	color,
+	animationSpeed,
+	animationOffset,
+}: GlassOrbProps) {
 	const meshRef = useRef<THREE.Mesh>(null);
 	const materialRef = useRef<THREE.ShaderMaterial>(null);
 
@@ -167,7 +173,7 @@ function GlassOrb({ position, scale, color, animationSpeed, animationOffset }: G
 		color: { value: color },
 		opacity: { value: 0.25 },
 		refractiveIndex: { value: 1.5 },
-		chromaticAberration: { value: 0.02 }
+		chromaticAberration: { value: 0.02 },
 	};
 
 	return (
@@ -193,38 +199,38 @@ export function GlassOrbs() {
 		{
 			position: [-2.5, 1.5, 0],
 			scale: [1.4, 1.9, 1.4],
-			color: new THREE.Color('#4FC3F7'),
+			color: new THREE.Color("#4FC3F7"),
 			animationSpeed: 0.4,
-			animationOffset: 0
+			animationOffset: 0,
 		},
 		{
 			position: [2.8, 0, -0.5],
 			scale: [1.1, 1.6, 1.1],
-			color: new THREE.Color('#81C784'),
+			color: new THREE.Color("#81C784"),
 			animationSpeed: 0.33,
-			animationOffset: 5
+			animationOffset: 5,
 		},
 		{
 			position: [-2.0, -1.5, 0.3],
 			scale: [0.9, 1.3, 0.9],
-			color: new THREE.Color('#64B5F6'),
+			color: new THREE.Color("#64B5F6"),
 			animationSpeed: 0.45,
-			animationOffset: 10
+			animationOffset: 10,
 		},
 		{
 			position: [0.5, 1.0, 0.2],
 			scale: [0.8, 1.1, 0.8],
-			color: new THREE.Color('#F48FB1'),
+			color: new THREE.Color("#F48FB1"),
 			animationSpeed: 0.36,
-			animationOffset: 15
+			animationOffset: 15,
 		},
 		{
 			position: [2.2, -1.2, -0.2],
 			scale: [0.7, 0.9, 0.7],
-			color: new THREE.Color('#4DD0E1'),
+			color: new THREE.Color("#4DD0E1"),
 			animationSpeed: 0.29,
-			animationOffset: 20
-		}
+			animationOffset: 20,
+		},
 	];
 
 	return (

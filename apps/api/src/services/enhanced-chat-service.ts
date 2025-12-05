@@ -1,8 +1,12 @@
-import { searchPubMed, formatCitations, shouldSearchPubMed } from "./pubmed-service";
-import { VisualizationDetector } from "./visualization-detector";
-import { getCodeExecutor } from "./code-executor";
 import { b } from "@angstromscd/baml/baml_client";
 import type { ToolType } from "@angstromscd/baml/baml_client/types";
+import { getCodeExecutor } from "./code-executor";
+import {
+	formatCitations,
+	searchPubMed,
+	shouldSearchPubMed,
+} from "./pubmed-service";
+import { VisualizationDetector } from "./visualization-detector";
 
 interface EnhancedChatMessage {
 	role: "user" | "assistant" | "system";
@@ -17,7 +21,7 @@ interface EnhancedChatResponse {
 	visualizations?: Array<{
 		type: string;
 		data: string; // base64 encoded image or HTML
-		format: 'png' | 'html' | 'svg';
+		format: "png" | "html" | "svg";
 	}>;
 	executionCode?: string;
 }
@@ -27,7 +31,7 @@ interface EnhancedChatResponse {
  */
 export class EnhancedChatService {
 	private ollamaBaseUrl: string;
-	private defaultModel: string = "llama3.2:3b";
+	private defaultModel = "llama3.2:3b";
 	private visualizationDetector: VisualizationDetector;
 
 	constructor(ollamaBaseUrl = "http://localhost:11434") {
@@ -38,39 +42,56 @@ export class EnhancedChatService {
 	/**
 	 * Process a chat message with medical context and PubMed integration
 	 */
-	async processMessage(message: string, model?: string): Promise<EnhancedChatResponse> {
+	async processMessage(
+		message: string,
+		model?: string,
+	): Promise<EnhancedChatResponse> {
 		const selectedModel = model || this.defaultModel;
 		let pubmedArticles = null;
 		let citations = "";
 		let enhancedPrompt = message;
-		let visualizations: any[] = [];
+		const visualizations: any[] = [];
 		let executionCode: string | undefined;
 
 		// First, determine if we need to use any tools
 		// For now, let's use a simple pattern matching approach for visualization requests
 		const visualizationKeywords = [
-			"chart", "graph", "plot", "visualiz", "diagram", 
-			"bar chart", "line graph", "pie chart", "scatter plot",
-			"show me a chart", "create a chart", "generate a chart"
+			"chart",
+			"graph",
+			"plot",
+			"visualiz",
+			"diagram",
+			"bar chart",
+			"line graph",
+			"pie chart",
+			"scatter plot",
+			"show me a chart",
+			"create a chart",
+			"generate a chart",
 		];
-		
-		const needsVisualization = visualizationKeywords.some(keyword => 
-			message.toLowerCase().includes(keyword)
+
+		const needsVisualization = visualizationKeywords.some((keyword) =>
+			message.toLowerCase().includes(keyword),
 		);
-		
-		console.log("Checking visualization need:", { message, needsVisualization, model: selectedModel });
-		
+
+		console.log("Checking visualization need:", {
+			message,
+			needsVisualization,
+			model: selectedModel,
+		});
+
 		if (needsVisualization) {
 			console.log("Visualization request detected, generating code...");
-			
+
 			// For Ollama models, use direct approach without BAML structured parsing
-			const isOllamaModel = selectedModel.startsWith("qwen") ||
-			                     selectedModel.startsWith("llama") ||
-			                     selectedModel.startsWith("mixtral") ||
-			                     selectedModel.startsWith("yi:") ||
-			                     selectedModel.startsWith("deepseek") ||
-			                     selectedModel.startsWith("gpt-oss");
-			
+			const isOllamaModel =
+				selectedModel.startsWith("qwen") ||
+				selectedModel.startsWith("llama") ||
+				selectedModel.startsWith("mixtral") ||
+				selectedModel.startsWith("yi:") ||
+				selectedModel.startsWith("deepseek") ||
+				selectedModel.startsWith("gpt-oss");
+
 			if (isOllamaModel) {
 				// Direct approach for Ollama models
 				try {
@@ -89,22 +110,38 @@ plt.show()
 
 Remember: ONLY return the code inside the code block, nothing else.`;
 
-					const codeResponse = await this.callLocalModel(codePrompt, selectedModel);
-					console.log("Ollama code generation response length:", codeResponse.length);
-					
+					const codeResponse = await this.callLocalModel(
+						codePrompt,
+						selectedModel,
+					);
+					console.log(
+						"Ollama code generation response length:",
+						codeResponse.length,
+					);
+
 					// Extract code from response (look for code blocks)
-					const codeMatch = codeResponse.match(/```python\n([\s\S]*?)\n```/) || 
-					                 codeResponse.match(/```\n([\s\S]*?)\n```/);
-					
+					const codeMatch =
+						codeResponse.match(/```python\n([\s\S]*?)\n```/) ||
+						codeResponse.match(/```\n([\s\S]*?)\n```/);
+
 					let pythonCode = codeMatch ? codeMatch[1] : codeResponse;
-					console.log("Extracted code:", pythonCode ? pythonCode.substring(0, 100) + "..." : "No code");
-					
+					console.log(
+						"Extracted code:",
+						pythonCode ? `${pythonCode.substring(0, 100)}...` : "No code",
+					);
+
 					// If no code block found or code looks invalid, generate a simple visualization ourselves
-					if (!codeMatch || !pythonCode.includes('matplotlib')) {
-						console.log("No code block found, generating fallback visualization");
-						
+					if (!codeMatch || !pythonCode.includes("matplotlib")) {
+						console.log(
+							"No code block found, generating fallback visualization",
+						);
+
 						// Generate a simple chart based on keywords
-						if (message.toLowerCase().includes("chart") || message.toLowerCase().includes("graph") || message.toLowerCase().includes("plot")) {
+						if (
+							message.toLowerCase().includes("chart") ||
+							message.toLowerCase().includes("graph") ||
+							message.toLowerCase().includes("plot")
+						) {
 							pythonCode = `
 import matplotlib.pyplot as plt
 import numpy as np
@@ -146,9 +183,9 @@ plt.show()
 							enhancedPrompt = message;
 						}
 					}
-					
+
 					// Execute code if we have it
-					if (pythonCode && pythonCode.includes('import')) {
+					if (pythonCode?.includes("import")) {
 						// Execute the extracted code
 						console.log("Executing Python code with E2B...");
 						const codeExecutor = getCodeExecutor();
@@ -157,21 +194,29 @@ plt.show()
 							code: pythonCode,
 							packages: ["matplotlib", "numpy", "pandas", "seaborn"],
 						});
-						
-						console.log("E2B execution result:", { success: result.success, hasFiles: !!result.files, filesCount: result.files?.length || 0, error: result.error });
-						
+
+						console.log("E2B execution result:", {
+							success: result.success,
+							hasFiles: !!result.files,
+							filesCount: result.files?.length || 0,
+							error: result.error,
+						});
+
 						// Check if we have files even if there was an error (partial execution)
 						if (result.files && result.files.length > 0) {
 							for (const file of result.files) {
 								visualizations.push({
 									type: "chart",
 									data: file.content,
-									format: file.type.includes("png") ? "png" : 
-									       file.type.includes("svg") ? "svg" : "html"
+									format: file.type.includes("png")
+										? "png"
+										: file.type.includes("svg")
+											? "svg"
+											: "html",
 								});
 							}
 							executionCode = pythonCode;
-							
+
 							if (result.success) {
 								enhancedPrompt = `I've created the visualization you requested. The chart has been generated successfully showing ${message.toLowerCase()}.`;
 							} else {
@@ -179,7 +224,8 @@ plt.show()
 							}
 						} else if (result.error) {
 							console.error("Code execution error:", result.error);
-							enhancedPrompt = `I attempted to create the visualization but encountered an error. Let me provide the information in text format instead.`;
+							enhancedPrompt =
+								"I attempted to create the visualization but encountered an error. Let me provide the information in text format instead.";
 						}
 					}
 				} catch (error) {
@@ -190,7 +236,7 @@ plt.show()
 				// Use BAML for GPT/Claude models
 				try {
 					const vizRequest = await b.GenerateVisualizationCode(message, null);
-					
+
 					// Execute the code
 					const codeExecutor = getCodeExecutor();
 					const result = await codeExecutor.executeCode({
@@ -198,23 +244,27 @@ plt.show()
 						code: vizRequest.code,
 						packages: vizRequest.packages || [],
 					});
-					
+
 					if (result.success && result.files) {
 						for (const file of result.files) {
 							visualizations.push({
 								type: vizRequest.expected_output || "chart",
 								data: file.content,
-								format: file.type.includes("png") ? "png" : 
-								       file.type.includes("svg") ? "svg" : "html"
+								format: file.type.includes("png")
+									? "png"
+									: file.type.includes("svg")
+										? "svg"
+										: "html",
 							});
 						}
 						executionCode = vizRequest.code;
 					}
-					
+
 					if (result.output) {
 						enhancedPrompt = `I've created the visualization you requested. Here's what the analysis shows:\n\n${result.output}`;
 					} else {
-						enhancedPrompt = "I've created the visualization you requested. The chart has been generated successfully.";
+						enhancedPrompt =
+							"I've created the visualization you requested. The chart has been generated successfully.";
 					}
 				} catch (error) {
 					console.error("Error generating visualization:", error);
@@ -222,37 +272,42 @@ plt.show()
 				}
 			}
 		}
-		
+
 		// BAML tool detection for advanced capabilities
 		try {
 			// Use the appropriate tool detection based on model
-			const isOllamaModel = selectedModel.startsWith("qwen") ||
-			                     selectedModel.startsWith("llama") ||
-			                     selectedModel.startsWith("mixtral") ||
-			                     selectedModel.startsWith("yi:") ||
-			                     selectedModel.startsWith("deepseek") ||
-			                     selectedModel.startsWith("gpt-oss");
-			
-			console.log(`Using BAML tool detection for model: ${selectedModel}, isOllama: ${isOllamaModel}`);
-			
-			const toolAnalysis = isOllamaModel 
+			const isOllamaModel =
+				selectedModel.startsWith("qwen") ||
+				selectedModel.startsWith("llama") ||
+				selectedModel.startsWith("mixtral") ||
+				selectedModel.startsWith("yi:") ||
+				selectedModel.startsWith("deepseek") ||
+				selectedModel.startsWith("gpt-oss");
+
+			console.log(
+				`Using BAML tool detection for model: ${selectedModel}, isOllama: ${isOllamaModel}`,
+			);
+
+			const toolAnalysis = isOllamaModel
 				? await b.DetermineToolUsageOllama(message, null)
 				: await b.DetermineToolUsage(message, null);
-			
+
 			console.log("BAML tool analysis result:", {
 				requires_tools: toolAnalysis.requires_tools,
 				tool_calls: toolAnalysis.tool_calls.length,
-				message_preview: toolAnalysis.message?.substring(0, 100)
+				message_preview: toolAnalysis.message?.substring(0, 100),
 			});
-			
+
 			if (toolAnalysis.requires_tools && toolAnalysis.tool_calls.length > 0) {
 				for (const toolCall of toolAnalysis.tool_calls) {
-					console.log(`Processing tool call: ${toolCall.tool}, reasoning: ${toolCall.reasoning}`);
-					
-					if (toolCall.tool === "E2B_CODE_INTERPRETER" as ToolType) {
+					console.log(
+						`Processing tool call: ${toolCall.tool}, reasoning: ${toolCall.reasoning}`,
+					);
+
+					if (toolCall.tool === ("E2B_CODE_INTERPRETER" as ToolType)) {
 						// Parse the arguments
 						const args = JSON.parse(toolCall.arguments);
-						
+
 						// Execute the code
 						const codeExecutor = getCodeExecutor();
 						const result = await codeExecutor.executeCode({
@@ -260,30 +315,33 @@ plt.show()
 							code: args.code,
 							packages: args.packages || [],
 						});
-						
+
 						if (result.success && result.files) {
 							for (const file of result.files) {
 								visualizations.push({
 									type: args.expected_output || "chart",
 									data: file.content,
-									format: file.type.includes("png") ? "png" : 
-									       file.type.includes("svg") ? "svg" : "html"
+									format: file.type.includes("png")
+										? "png"
+										: file.type.includes("svg")
+											? "svg"
+											: "html",
 								});
 							}
 							executionCode = args.code;
 						}
-						
+
 						if (result.output) {
 							enhancedPrompt += `\n\nExecution Result:\n${result.output}`;
 						}
-					} else if (toolCall.tool === "PUBMED_SEARCH" as ToolType) {
+					} else if (toolCall.tool === ("PUBMED_SEARCH" as ToolType)) {
 						// Mark that PubMed search should be performed
 						// The actual search is handled below to maintain compatibility
 						console.log("BAML detected need for PubMed search");
 					}
 				}
 			}
-			
+
 			// Use the tool analysis message as part of the response
 			if (toolAnalysis.message) {
 				enhancedPrompt = toolAnalysis.message;
@@ -296,19 +354,22 @@ plt.show()
 		// Check if we should search PubMed
 		if (shouldSearchPubMed(message)) {
 			console.log("Searching PubMed for relevant literature...");
-			
+
 			try {
 				// Extract medical terms for better search
 				const searchQuery = this.extractMedicalSearchTerms(message);
 				console.log("PubMed search query:", searchQuery);
 				const searchResults = await searchPubMed(searchQuery, 5);
-				
+
 				if (searchResults.articles.length > 0) {
 					pubmedArticles = searchResults.articles;
 					citations = formatCitations(searchResults.articles);
-					
+
 					// Enhance the prompt with PubMed context
-					enhancedPrompt = this.buildEnhancedPrompt(message, searchResults.articles);
+					enhancedPrompt = this.buildEnhancedPrompt(
+						message,
+						searchResults.articles,
+					);
 				}
 			} catch (error) {
 				console.error("PubMed search failed:", error);
@@ -320,53 +381,64 @@ plt.show()
 
 		// If we already have a response from tool analysis, use that instead of calling the model again
 		let finalReply: string;
-		
-		if (visualizations.length > 0 && enhancedPrompt.includes("Execution Result:")) {
+
+		if (
+			visualizations.length > 0 &&
+			enhancedPrompt.includes("Execution Result:")
+		) {
 			// We already have results from E2B execution, use the enhanced prompt as the reply
 			finalReply = enhancedPrompt;
 		} else {
 			// Use BAML MedicalChat for comprehensive medical responses
 			try {
 				console.log("Calling BAML MedicalChat with model:", selectedModel);
-				
+
 				// Determine if we should use Ollama or cloud version
-				const isOllamaModel = selectedModel.startsWith("qwen") ||
-				                     selectedModel.startsWith("llama") ||
-				                     selectedModel.startsWith("mixtral") ||
-				                     selectedModel.startsWith("yi:") ||
-				                     selectedModel.startsWith("deepseek") ||
-				                     selectedModel.startsWith("gpt-oss");
-				
+				const isOllamaModel =
+					selectedModel.startsWith("qwen") ||
+					selectedModel.startsWith("llama") ||
+					selectedModel.startsWith("mixtral") ||
+					selectedModel.startsWith("yi:") ||
+					selectedModel.startsWith("deepseek") ||
+					selectedModel.startsWith("gpt-oss");
+
 				// Call the appropriate BAML function
 				const medicalResponse = isOllamaModel
 					? await b.MedicalChatOllama(enhancedPrompt, selectedModel, null)
 					: await b.MedicalChat(enhancedPrompt, selectedModel, null);
-				
+
 				console.log("BAML MedicalChat response:", {
 					has_message: !!medicalResponse.message,
 					requires_tools: medicalResponse.requires_tools,
-					tool_calls: medicalResponse.tool_calls?.length || 0
+					tool_calls: medicalResponse.tool_calls?.length || 0,
 				});
-				
+
 				// Use the BAML response
 				finalReply = medicalResponse.message;
-				
+
 				// Add medical context if available
 				if (medicalResponse.medical_context) {
 					const context = medicalResponse.medical_context;
-					if (context.key_considerations && context.key_considerations.length > 0) {
-						finalReply += "\n\n**Key Considerations:**\n" + 
-						             context.key_considerations.map(c => `- ${c}`).join("\n");
+					if (
+						context.key_considerations &&
+						context.key_considerations.length > 0
+					) {
+						finalReply += `\n\n**Key Considerations:**\n${context.key_considerations.map((c) => `- ${c}`).join("\n")}`;
 					}
 				}
-				
+
 				// Add suggestions if available
-				if (medicalResponse.suggestions && medicalResponse.suggestions.length > 0) {
-					finalReply += "\n\n**You might also want to know:**\n" + 
-					             medicalResponse.suggestions.map(s => `- ${s}`).join("\n");
+				if (
+					medicalResponse.suggestions &&
+					medicalResponse.suggestions.length > 0
+				) {
+					finalReply += `\n\n**You might also want to know:**\n${medicalResponse.suggestions.map((s) => `- ${s}`).join("\n")}`;
 				}
 			} catch (error) {
-				console.error("BAML MedicalChat failed, falling back to direct call:", error);
+				console.error(
+					"BAML MedicalChat failed, falling back to direct call:",
+					error,
+				);
 				// Fallback to direct model call if BAML fails
 				const reply = await this.callLocalModel(enhancedPrompt, selectedModel);
 				finalReply = reply;
@@ -375,7 +447,7 @@ plt.show()
 
 		// If we have citations, append them to the reply
 		if (citations) {
-			finalReply += "\n\n## References\n" + citations;
+			finalReply += `\n\n## References\n${citations}`;
 		}
 
 		return {
@@ -409,8 +481,8 @@ plt.show()
 
 		// Check if message contains SCD terms
 		const messageLower = message.toLowerCase();
-		const relevantTerms = scdTerms.filter(term => 
-			messageLower.includes(term.toLowerCase())
+		const relevantTerms = scdTerms.filter((term) =>
+			messageLower.includes(term.toLowerCase()),
 		);
 
 		// If no specific SCD terms, assume generic SCD query
@@ -420,35 +492,58 @@ plt.show()
 		}
 
 		// Build the query
-		let query = relevantTerms.map(term => `"${term}"`).join(" OR ");
-		
+		let query = relevantTerms.map((term) => `"${term}"`).join(" OR ");
+
 		// Add treatment/research context if mentioned
-		if (messageLower.includes("treatment") || messageLower.includes("therapy")) {
+		if (
+			messageLower.includes("treatment") ||
+			messageLower.includes("therapy")
+		) {
 			query = `(${query}) AND (treatment OR therapy OR management)`;
 		}
-		if (messageLower.includes("voe") || messageLower.includes("vaso-occlusive") || messageLower.includes("crisis")) {
+		if (
+			messageLower.includes("voe") ||
+			messageLower.includes("vaso-occlusive") ||
+			messageLower.includes("crisis")
+		) {
 			query = `(${query}) AND ("vaso-occlusive" OR VOE OR crisis OR "pain management")`;
 		}
-		if (messageLower.includes("research") || messageLower.includes("latest") || messageLower.includes("recent")) {
+		if (
+			messageLower.includes("research") ||
+			messageLower.includes("latest") ||
+			messageLower.includes("recent")
+		) {
 			query = `(${query}) AND (recent OR latest OR "clinical trial" OR research)`;
 		}
-		if (messageLower.includes("prevention") || messageLower.includes("prophylaxis")) {
+		if (
+			messageLower.includes("prevention") ||
+			messageLower.includes("prophylaxis")
+		) {
 			query = `(${query}) AND (prevention OR prophylaxis)`;
 		}
-		if (messageLower.includes("pediatric") || messageLower.includes("children")) {
+		if (
+			messageLower.includes("pediatric") ||
+			messageLower.includes("children")
+		) {
 			query = `(${query}) AND (pediatric OR children OR adolescent)`;
 		}
-		
+
 		return query;
 	}
 
 	/**
 	 * Build an enhanced prompt with PubMed context
 	 */
-	private buildEnhancedPrompt(originalMessage: string, articles: any[]): string {
-		const context = articles.map((article, index) => 
-			`Study ${index + 1}: ${article.title}\nKey findings: ${article.abstract.slice(0, 200)}...`
-		).join("\n\n");
+	private buildEnhancedPrompt(
+		originalMessage: string,
+		articles: any[],
+	): string {
+		const context = articles
+			.map(
+				(article, index) =>
+					`Study ${index + 1}: ${article.title}\nKey findings: ${article.abstract.slice(0, 200)}...`,
+			)
+			.join("\n\n");
 
 		return `You are a medical AI assistant with access to recent research. Based on the following recent studies:
 
@@ -474,7 +569,8 @@ Please provide a comprehensive answer that incorporates insights from these stud
 					messages: [
 						{
 							role: "system",
-							content: "You are a medical AI assistant specializing in Sickle Cell Disease (SCD) and related hematological conditions. Provide evidence-based medical information and cite relevant research when available. Always remind users to consult with healthcare providers for personal medical decisions.",
+							content:
+								"You are a medical AI assistant specializing in Sickle Cell Disease (SCD) and related hematological conditions. Provide evidence-based medical information and cite relevant research when available. Always remind users to consult with healthcare providers for personal medical decisions.",
 						},
 						{
 							role: "user",

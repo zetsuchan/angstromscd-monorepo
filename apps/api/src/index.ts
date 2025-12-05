@@ -6,11 +6,11 @@ import { cors } from "hono/cors";
 // Load environment variables
 config();
 
+import { logFeatureFlags } from "./config/features";
 import { shutdownNats } from "./lib/messaging/nats-client";
+import { authMiddleware } from "./middleware";
 import { router } from "./routes/index";
 import { outboxRelayWorker } from "./workers/outbox-relay";
-import { logFeatureFlags } from "./config/features";
-import { authMiddleware } from "./middleware";
 
 const app = new Hono();
 

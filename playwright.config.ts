@@ -12,10 +12,7 @@ export default defineConfig({
 	// Limit workers to avoid Supabase rate limits on user creation
 	// Use 1 worker locally to prevent rate limiting, CI already uses 1
 	workers: 1,
-	reporter: [
-		["html", { open: "never" }],
-		["list"],
-	],
+	reporter: [["html", { open: "never" }], ["list"]],
 	use: {
 		baseURL: "http://localhost:5173",
 		trace: "on-first-retry",

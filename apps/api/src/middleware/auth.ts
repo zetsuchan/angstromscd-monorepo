@@ -1,9 +1,9 @@
-import type { Context, Next } from "hono";
-import { createClient } from "@supabase/supabase-js";
 import { AuthenticationError } from "@angstromscd/shared-types";
+import { createClient } from "@supabase/supabase-js";
+import type { Context, Next } from "hono";
 
-const supabaseUrl = process.env.SUPABASE_URL!;
-const supabaseAnonKey = process.env.SUPABASE_ANON_KEY!;
+const supabaseUrl = process.env.SUPABASE_URL ?? "";
+const supabaseAnonKey = process.env.SUPABASE_ANON_KEY ?? "";
 
 export interface AuthUser {
 	id: string;
@@ -67,7 +67,7 @@ export async function authMiddleware(c: Context, next: Next) {
 					message: "Missing Authorization header",
 				},
 			},
-			401
+			401,
 		);
 	}
 
@@ -80,7 +80,7 @@ export async function authMiddleware(c: Context, next: Next) {
 					message: "Invalid Authorization header format. Use: Bearer <token>",
 				},
 			},
-			401
+			401,
 		);
 	}
 
@@ -96,7 +96,10 @@ export async function authMiddleware(c: Context, next: Next) {
 			},
 		});
 
-		const { data: { user }, error } = await supabase.auth.getUser();
+		const {
+			data: { user },
+			error,
+		} = await supabase.auth.getUser();
 
 		if (error || !user) {
 			return c.json(
@@ -107,14 +110,14 @@ export async function authMiddleware(c: Context, next: Next) {
 						message: error?.message || "Invalid or expired token",
 					},
 				},
-				401
+				401,
 			);
 		}
 
 		// Attach user to context for use in route handlers
 		c.set("user", {
 			id: user.id,
-			email: user.email!,
+			email: user.email ?? "",
 			role: user.user_metadata?.role || "viewer",
 		});
 
@@ -129,7 +132,7 @@ export async function authMiddleware(c: Context, next: Next) {
 					message: "Authentication failed",
 				},
 			},
-			401
+			401,
 		);
 	}
 }

@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
 const API_URL = "http://localhost:3001";
 
@@ -15,15 +15,21 @@ async function createAuthenticatedUser(request: any) {
 	// Debug: log the full response if signup failed
 	if (!signupRes.ok() || !signupData.success) {
 		console.log("Signup response:", JSON.stringify(signupData, null, 2));
-		throw new Error(`Signup failed: ${signupData.error?.message || "Unknown error"}`);
+		throw new Error(
+			`Signup failed: ${signupData.error?.message || "Unknown error"}`,
+		);
 	}
 
 	const token = signupData.data?.session?.token;
 
 	if (!token) {
-		console.log("Signup succeeded but no session token - email confirmation may be required");
+		console.log(
+			"Signup succeeded but no session token - email confirmation may be required",
+		);
 		console.log("Signup data:", JSON.stringify(signupData.data, null, 2));
-		throw new Error("No auth token - Supabase may require email confirmation. Disable in Supabase Auth settings for testing.");
+		throw new Error(
+			"No auth token - Supabase may require email confirmation. Disable in Supabase Auth settings for testing.",
+		);
 	}
 
 	return { email, token };
@@ -31,7 +37,9 @@ async function createAuthenticatedUser(request: any) {
 
 test.describe("Conversation CRUD Operations", () => {
 	test.describe("API Endpoints", () => {
-		test("list conversations returns empty array for new user", async ({ request }) => {
+		test("list conversations returns empty array for new user", async ({
+			request,
+		}) => {
 			const { token } = await createAuthenticatedUser(request);
 
 			const response = await request.get(`${API_URL}/api/conversations`, {
@@ -89,9 +97,12 @@ test.describe("Conversation CRUD Operations", () => {
 			const conversationId = createData.data.conversation.id;
 
 			// Get conversation
-			const response = await request.get(`${API_URL}/api/conversations/${conversationId}`, {
-				headers: { Authorization: `Bearer ${token}` },
-			});
+			const response = await request.get(
+				`${API_URL}/api/conversations/${conversationId}`,
+				{
+					headers: { Authorization: `Bearer ${token}` },
+				},
+			);
 
 			expect(response.ok()).toBe(true);
 			const data = await response.json();
@@ -120,7 +131,7 @@ test.describe("Conversation CRUD Operations", () => {
 						role: "user",
 						content: "Hello, this is a test message",
 					},
-				}
+				},
 			);
 
 			expect(response.ok()).toBe(true);
@@ -151,7 +162,7 @@ test.describe("Conversation CRUD Operations", () => {
 						content: "I am an AI assistant response",
 						model: "gpt-4o-mini",
 					},
-				}
+				},
 			);
 
 			expect(response.ok()).toBe(true);
@@ -176,7 +187,7 @@ test.describe("Conversation CRUD Operations", () => {
 				`${API_URL}/api/conversations/${conversationId}`,
 				{
 					headers: { Authorization: `Bearer ${token}` },
-				}
+				},
 			);
 
 			expect(response.ok()).toBe(true);
@@ -189,7 +200,7 @@ test.describe("Conversation CRUD Operations", () => {
 				`${API_URL}/api/conversations/${conversationId}`,
 				{
 					headers: { Authorization: `Bearer ${token}` },
-				}
+				},
 			);
 			expect(getRes.ok()).toBe(false);
 		});
@@ -212,7 +223,7 @@ test.describe("Conversation CRUD Operations", () => {
 				`${API_URL}/api/conversations/${conversationId}`,
 				{
 					headers: { Authorization: `Bearer ${user2.token}` },
-				}
+				},
 			);
 
 			// Should fail - either 404 or 403
@@ -235,7 +246,7 @@ test.describe("Conversation CRUD Operations", () => {
 				`${API_URL}/api/conversations?page=1&limit=2`,
 				{
 					headers: { Authorization: `Bearer ${token}` },
-				}
+				},
 			);
 
 			expect(response.ok()).toBe(true);

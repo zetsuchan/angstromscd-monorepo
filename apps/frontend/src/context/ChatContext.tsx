@@ -67,14 +67,17 @@ const ChatContext = createContext<ChatContextType | undefined>(undefined);
 export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
 	children,
 }) => {
-	const [authenticated, setAuthenticated] = useState<boolean>(isAuthenticated());
+	const [authenticated, setAuthenticated] = useState<boolean>(
+		isAuthenticated(),
+	);
 	const [threads, setThreads] = useState<Thread[]>([]);
 	const [currentWorkspace, setWorkspace] = useState<Workspace>(workspaces[0]);
 	const [workspaceList] = useState<Workspace[]>(workspaces);
 	const [alerts, setAlerts] = useState<Alert[]>(recentAlerts);
 	const [chatMode, setChatMode] = useState<ChatMode>("Research");
 	const [messageTone, setMessageTone] = useState<MessageTone>("Default");
-	const [selectedModel, setSelectedModel] = useState<string>("openai:gpt-4o-mini");
+	const [selectedModel, setSelectedModel] =
+		useState<string>("openai:gpt-4o-mini");
 	const [isLoading, setIsLoading] = useState<boolean>(false);
 	const gatewayRef = useRef<RealtimeGatewayClient | null>(null);
 	const tokenStreamRef = useRef<TokenStreamClient | null>(null);
@@ -95,12 +98,14 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
 		setAuthenticated(true);
 		try {
 			const response = await apiClient.getConversations({ limit: 50 });
-			const fetchedThreads: Thread[] = response.conversations.map((conv, index) => ({
-				id: conv.id,
-				name: conv.title,
-				isActive: index === 0, // Make first thread active
-				messages: [], // Messages loaded when thread is selected
-			}));
+			const fetchedThreads: Thread[] = response.conversations.map(
+				(conv, index) => ({
+					id: conv.id,
+					name: conv.title,
+					isActive: index === 0, // Make first thread active
+					messages: [], // Messages loaded when thread is selected
+				}),
+			);
 
 			if (fetchedThreads.length === 0) {
 				// No conversations yet - start with empty state
@@ -135,8 +140,8 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
 
 			setThreads((prev) =>
 				prev.map((thread) =>
-					thread.id === threadId ? { ...thread, messages } : thread
-				)
+					thread.id === threadId ? { ...thread, messages } : thread,
+				),
 			);
 		} catch (error) {
 			console.error("Failed to load thread messages:", error);
@@ -300,22 +305,25 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
 		};
 	}, [currentThread?.id, currentWorkspace.name]);
 
-	const setCurrentThread = useCallback(async (threadId: string) => {
-		setThreads((prevThreads) =>
-			prevThreads.map((thread) => ({
-				...thread,
-				isActive: thread.id === threadId,
-			})),
-		);
+	const setCurrentThread = useCallback(
+		async (threadId: string) => {
+			setThreads((prevThreads) =>
+				prevThreads.map((thread) => ({
+					...thread,
+					isActive: thread.id === threadId,
+				})),
+			);
 
-		// Load messages if authenticated and not already loaded
-		if (isAuthenticated()) {
-			const thread = threads.find((t) => t.id === threadId);
-			if (thread && thread.messages.length === 0) {
-				await loadThreadMessages(threadId);
+			// Load messages if authenticated and not already loaded
+			if (isAuthenticated()) {
+				const thread = threads.find((t) => t.id === threadId);
+				if (thread && thread.messages.length === 0) {
+					await loadThreadMessages(threadId);
+				}
 			}
-		}
-	}, [threads, loadThreadMessages]);
+		},
+		[threads, loadThreadMessages],
+	);
 
 	const setCurrentWorkspace = (workspace: Workspace) => {
 		setWorkspace(workspace);
@@ -352,11 +360,14 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
 		// Persist to API if authenticated
 		if (isAuthenticated()) {
 			try {
-				const response = await apiClient.addMessageToConversation(currentThread.id, {
-					role: sender === "ai" ? "assistant" : "user",
-					content,
-					model: additionalData?.model,
-				});
+				const response = await apiClient.addMessageToConversation(
+					currentThread.id,
+					{
+						role: sender === "ai" ? "assistant" : "user",
+						content,
+						model: additionalData?.model,
+					},
+				);
 
 				// Update with real ID from server
 				setThreads((prevThreads) =>
@@ -367,7 +378,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
 								messages: thread.messages.map((msg) =>
 									msg.id === newMessage.id
 										? { ...msg, id: response.message.id }
-										: msg
+										: msg,
 								),
 							};
 						}

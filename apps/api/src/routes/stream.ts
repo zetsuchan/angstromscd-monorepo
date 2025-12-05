@@ -91,7 +91,10 @@ async function handleStreamEffect(conversationId: string) {
 					formatSSE(
 						"error",
 						JSON.stringify({
-							message: error._tag === "NatsError" ? "Subscription failure" : "Stream error",
+							message:
+								error._tag === "NatsError"
+									? "Subscription failure"
+									: "Stream error",
 						}),
 					),
 				);
@@ -111,28 +114,27 @@ async function handleStreamEffect(conversationId: string) {
 					Effect.sync(() => {
 						controller.enqueue(encoder.encode(chunk));
 					}),
-				)
-					.pipe(
-						Effect.catchAll((error) =>
-							Effect.sync(() => {
-								console.error("Stream processing error:", error);
-								controller.enqueue(
-									encoder.encode(
-										formatSSE(
-											"error",
-											JSON.stringify({ message: "Stream processing failure" }),
-										),
+				).pipe(
+					Effect.catchAll((error) =>
+						Effect.sync(() => {
+							console.error("Stream processing error:", error);
+							controller.enqueue(
+								encoder.encode(
+									formatSSE(
+										"error",
+										JSON.stringify({ message: "Stream processing failure" }),
 									),
-								);
-							}),
-						),
-						Effect.ensuring(
-							Effect.sync(() => {
-								controller.close();
-							}),
-						),
-						Effect.runPromise,
-					);
+								),
+							);
+						}),
+					),
+					Effect.ensuring(
+						Effect.sync(() => {
+							controller.close();
+						}),
+					),
+					Effect.runPromise,
+				);
 			} catch (error) {
 				console.error("ReadableStream start error:", error);
 				controller.close();

@@ -1,8 +1,4 @@
-import {
-	type Alert,
-	type Thread,
-	type Workspace,
-} from "../types";
+import type { Alert, Thread, Workspace } from "../types";
 
 export const workspaces: Workspace[] = [
 	{ id: "1", name: "Global", type: "Global" },

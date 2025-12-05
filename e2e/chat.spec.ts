@@ -1,4 +1,4 @@
-import { test, expect } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
 const API_URL = "http://localhost:3001";
 const FRONTEND_URL = "http://localhost:5173";
@@ -16,14 +16,20 @@ async function createAuthenticatedUser(request: any) {
 	// Debug: log the full response if signup failed
 	if (!signupRes.ok() || !signupData.success) {
 		console.log("Signup response:", JSON.stringify(signupData, null, 2));
-		throw new Error(`Signup failed: ${signupData.error?.message || "Unknown error"}`);
+		throw new Error(
+			`Signup failed: ${signupData.error?.message || "Unknown error"}`,
+		);
 	}
 
 	const token = signupData.data?.session?.token;
 
 	if (!token) {
-		console.log("Signup succeeded but no session token - email confirmation may be required");
-		throw new Error("No auth token - Supabase may require email confirmation. Disable in Supabase Auth settings for testing.");
+		console.log(
+			"Signup succeeded but no session token - email confirmation may be required",
+		);
+		throw new Error(
+			"No auth token - Supabase may require email confirmation. Disable in Supabase Auth settings for testing.",
+		);
 	}
 
 	return { email, password, token };
@@ -39,7 +45,9 @@ test.describe("Chat Flow", () => {
 			expect(data.success).toBe(true);
 		});
 
-		test("chat models endpoint returns available models", async ({ request }) => {
+		test("chat models endpoint returns available models", async ({
+			request,
+		}) => {
 			const response = await request.get(`${API_URL}/api/chat/models`);
 			expect(response.ok()).toBe(true);
 
@@ -67,7 +75,10 @@ test.describe("Chat Flow", () => {
 			} else {
 				// Accept failure if AI service is not configured
 				const data = await response.json();
-				console.log("Chat endpoint failed (expected if no API key):", data.error?.message);
+				console.log(
+					"Chat endpoint failed (expected if no API key):",
+					data.error?.message,
+				);
 			}
 		});
 	});
@@ -85,7 +96,9 @@ test.describe("Chat Flow", () => {
 			await expect(page.locator("header")).toBeVisible();
 
 			// Check for chat input/composer
-			const composer = page.locator('input[placeholder*="Ask"], textarea[placeholder*="Ask"]');
+			const composer = page.locator(
+				'input[placeholder*="Ask"], textarea[placeholder*="Ask"]',
+			);
 			await expect(composer).toBeVisible();
 		});
 
@@ -93,7 +106,9 @@ test.describe("Chat Flow", () => {
 			await page.goto(FRONTEND_URL);
 
 			// Find and interact with the chat input
-			const input = page.locator('input[placeholder*="Ask"], textarea[placeholder*="Ask"]');
+			const input = page.locator(
+				'input[placeholder*="Ask"], textarea[placeholder*="Ask"]',
+			);
 			await input.fill("Test message");
 
 			await expect(input).toHaveValue("Test message");
@@ -104,7 +119,11 @@ test.describe("Chat Flow", () => {
 
 			// Check for sidebar or navigation area - the exact element depends on UI implementation
 			// Look for common sidebar patterns
-			const sidebar = page.locator('aside, nav, [class*="sidebar"], [class*="nav"], [role="navigation"]').first();
+			const sidebar = page
+				.locator(
+					'aside, nav, [class*="sidebar"], [class*="nav"], [role="navigation"]',
+				)
+				.first();
 
 			// This test is optional - sidebar might not exist in all UI states
 			const isVisible = await sidebar.isVisible().catch(() => false);
@@ -131,9 +150,11 @@ test.describe("Chat Flow", () => {
 			await page.goto(FRONTEND_URL);
 
 			// Look for a "new conversation" or "+" button
-			const newConvButton = page.locator(
-				'button:has-text("New"), button:has-text("+"), [aria-label*="new"]'
-			).first();
+			const newConvButton = page
+				.locator(
+					'button:has-text("New"), button:has-text("+"), [aria-label*="new"]',
+				)
+				.first();
 
 			if (await newConvButton.isVisible()) {
 				await newConvButton.click();
@@ -160,7 +181,7 @@ test.describe("Chat Flow", () => {
 				(e) =>
 					e.includes("WebGL") &&
 					!e.includes("context lost") &&
-					!e.includes("fallback")
+					!e.includes("fallback"),
 			);
 
 			expect(criticalErrors.length).toBe(0);
@@ -176,14 +197,18 @@ test.describe("Chat Flow", () => {
 			await expect(page.locator("body")).toBeVisible();
 
 			// 2. Find the chat input
-			const input = page.locator('input[placeholder*="Ask"], textarea[placeholder*="Ask"]');
+			const input = page.locator(
+				'input[placeholder*="Ask"], textarea[placeholder*="Ask"]',
+			);
 
 			if (await input.isVisible()) {
 				// 3. Type a message
 				await input.fill("What is sickle cell disease?");
 
 				// 4. Find and click send button
-				const sendButton = page.locator('button[type="submit"], button:has-text("Send")').first();
+				const sendButton = page
+					.locator('button[type="submit"], button:has-text("Send")')
+					.first();
 
 				if (await sendButton.isVisible()) {
 					await sendButton.click();

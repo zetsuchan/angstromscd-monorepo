@@ -82,7 +82,9 @@ export class OutboxService {
 		if (error) {
 			// Gracefully handle ALL errors - outbox is optional and shouldn't crash the app
 			// Log the error for debugging but return empty array
-			console.warn(`Outbox polling skipped (${error.code || "unknown"}): ${error.message || "Unknown error"}`);
+			console.warn(
+				`Outbox polling skipped (${error.code || "unknown"}): ${error.message || "Unknown error"}`,
+			);
 			return [];
 		}
 

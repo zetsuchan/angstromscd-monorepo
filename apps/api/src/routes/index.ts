@@ -11,10 +11,10 @@ import { z } from "zod";
 import { supabase, supabaseAdmin } from "../lib/db";
 import { EnhancedChatService } from "../services/enhanced-chat-service";
 import { OutboxService } from "../services/outbox-service";
+import { chatAISDKRouter } from "./chat.ai-sdk";
 import { conversationsRouter } from "./conversations";
 import queueRoutes from "./queue";
 import { streamRouter } from "./stream";
-import { chatAISDKRouter } from "./chat.ai-sdk";
 
 export const router = new Hono();
 
@@ -95,15 +95,20 @@ router.post("/auth/signup", async (c) => {
 
 		let userId: string;
 		let userEmail: string;
-		let session: { access_token: string; refresh_token: string; expires_at?: number } | null = null;
+		let session: {
+			access_token: string;
+			refresh_token: string;
+			expires_at?: number;
+		} | null = null;
 
 		if (isAdminAvailable) {
 			// Create user with admin API - auto-confirms email
-			const { data: adminData, error: adminError } = await supabaseAdmin.auth.admin.createUser({
-				email: parsed.data.email,
-				password: parsed.data.password,
-				email_confirm: true,
-			});
+			const { data: adminData, error: adminError } =
+				await supabaseAdmin.auth.admin.createUser({
+					email: parsed.data.email,
+					password: parsed.data.password,
+					email_confirm: true,
+				});
 
 			if (adminError) {
 				throw new AuthenticationError(adminError.message);
@@ -114,13 +119,14 @@ router.post("/auth/signup", async (c) => {
 			}
 
 			userId = adminData.user.id;
-			userEmail = adminData.user.email!;
+			userEmail = adminData.user.email ?? "";
 
 			// Sign in to get session token
-			const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-				email: parsed.data.email,
-				password: parsed.data.password,
-			});
+			const { data: signInData, error: signInError } =
+				await supabase.auth.signInWithPassword({
+					email: parsed.data.email,
+					password: parsed.data.password,
+				});
 
 			if (!signInError && signInData.session) {
 				session = signInData.session;
@@ -141,7 +147,7 @@ router.post("/auth/signup", async (c) => {
 			}
 
 			userId = data.user.id;
-			userEmail = data.user.email!;
+			userEmail = data.user.email ?? "";
 			session = data.session;
 		}
 
@@ -155,7 +161,9 @@ router.post("/auth/signup", async (c) => {
 		};
 
 		// Use admin client to bypass RLS for profile creation
-		const { error: profileError } = await supabaseAdmin.from("users").insert(dbUser);
+		const { error: profileError } = await supabaseAdmin
+			.from("users")
+			.insert(dbUser);
 		if (profileError) {
 			console.error("Failed to create user profile:", profileError);
 			// Don't fail signup if profile creation fails - user can still authenticate
@@ -170,7 +178,7 @@ router.post("/auth/signup", async (c) => {
 			session: session
 				? {
 						token: session.access_token,
-						expiresAt: new Date(session.expires_at! * 1000),
+						expiresAt: new Date((session.expires_at ?? 0) * 1000),
 						refreshToken: session.refresh_token,
 					}
 				: undefined,
@@ -210,12 +218,12 @@ router.post("/auth/login", async (c) => {
 		const response = createApiResponse({
 			user: {
 				id: data.user.id,
-				email: data.user.email!,
+				email: data.user.email ?? "",
 				role: "viewer" as const, // Would fetch from DB in production
 			},
 			session: {
 				token: data.session.access_token,
-				expiresAt: new Date(data.session.expires_at! * 1000),
+				expiresAt: new Date((data.session.expires_at ?? 0) * 1000),
 				refreshToken: data.session.refresh_token,
 			},
 		});
