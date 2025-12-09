@@ -1,22 +1,27 @@
 {
-  "name": "@angstromscd/vector",
-  "version": "1.0.0",
-  "type": "module",
-  "private": true,
-  "main": "dist/index.js",
-  "scripts": {
-    "dev": "bun run --hot src/index.ts",
-    "build": "bun build src/index.ts --target=bun --outdir=dist"
-  },
-  "dependencies": {
-    "@angstromscd/shared-types": "workspace:*",
-    "@hono/node-server": "^1.15.0",
-    "@qdrant/js-client-rest": "^1.13.0",
-    "hono": "^4.7.10"
-  },
-  "devDependencies": {
-    "@biomejs/biome": "^1.9.4",
-    "@types/bun": "latest",
-    "typescript": "^5.8.3"
-  }
+	"name": "@angstromscd/vector",
+	"version": "1.0.0",
+	"type": "module",
+	"private": true,
+	"main": "dist/index.js",
+	"scripts": {
+		"dev": "bun run --hot src/index.ts",
+		"build": "bun build src/index.ts --target=bun --outdir=dist --external cohere-ai --external ollama"
+	},
+	"dependencies": {
+		"@angstromscd/shared-types": "workspace:*",
+		"@hono/node-server": "^1.15.0",
+		"@qdrant/js-client-rest": "^1.13.0",
+		"chromadb": "^1.9.2",
+		"hono": "^4.7.10",
+		"openai": "^4.77.0",
+		"pg": "^8.13.1",
+		"semver": "^7.7.3"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^1.9.4",
+		"@types/bun": "latest",
+		"@types/pg": "^8.11.10",
+		"typescript": "^5.8.3"
+	}
 }

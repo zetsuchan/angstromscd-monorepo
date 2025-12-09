@@ -6,15 +6,17 @@ import { cors } from "hono/cors";
 // Load environment variables
 config();
 
+import { logFeatureFlags } from "./config/features";
 import { shutdownNats } from "./lib/messaging/nats-client";
+import { authMiddleware } from "./middleware";
 import { router } from "./routes/index";
 import { outboxRelayWorker } from "./workers/outbox-relay";
-import { logFeatureFlags } from "./config/features";
 
 const app = new Hono();
 
 // global middleware
 app.use("/*", cors());
+app.use("/*", authMiddleware);
 
 // root route
 app.get("/", (c) => c.json({ message: "AngstromSCD API" }));

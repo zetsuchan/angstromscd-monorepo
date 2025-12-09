@@ -94,9 +94,8 @@ export async function handleApiResponse<T>(
 ): Promise<T> {
 	if (response.success) {
 		return response.data;
-	} else {
-		throw ErrorUtils.fromUnknown(response.error);
 	}
+	throw ErrorUtils.fromUnknown(response.error);
 }
 
 /**

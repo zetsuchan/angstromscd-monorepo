@@ -158,12 +158,7 @@ export class DatabaseError extends AppError {
 /**
  * Medical data validation error
  */
-export class MedicalDataError extends ValidationError {
-	constructor(message: string, validationErrors: ValidationErrorDetail[]) {
-		super(message, validationErrors);
-		// Override code in parent constructor call
-	}
-}
+export class MedicalDataError extends ValidationError {}
 
 /**
  * FHIR compliance error

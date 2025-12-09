@@ -80,11 +80,12 @@ export class OutboxService {
 			.limit(limit);
 
 		if (error) {
-			throw new DatabaseError(
-				"Failed to fetch pending outbox entries",
-				OUTBOX_TABLE,
-				error,
+			// Gracefully handle ALL errors - outbox is optional and shouldn't crash the app
+			// Log the error for debugging but return empty array
+			console.warn(
+				`Outbox polling skipped (${error.code || "unknown"}): ${error.message || "Unknown error"}`,
 			);
+			return [];
 		}
 
 		return (data ?? []) as MessageOutboxEntry[];

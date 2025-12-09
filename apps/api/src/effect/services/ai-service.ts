@@ -4,18 +4,18 @@
  * Provides type-safe streaming chat with error handling
  */
 
+import { type CoreMessage, streamText } from "ai";
 import { Context, Effect, Layer, Stream } from "effect";
-import { streamText, type CoreMessage } from "ai";
 import { z } from "zod";
-import { AIServiceError, ValidationError } from "../errors";
-import { LoggerService } from "./logger-service";
 import {
+	type ModelId,
+	getDefaultModel,
 	getLanguageModel,
 	isModelSupported,
-	getDefaultModel,
-	type ModelId,
 } from "../../ai/provider-registry";
-import { searchPubMed, formatCitations } from "../../services/pubmed-service";
+import { formatCitations, searchPubMed } from "../../services/pubmed-service";
+import { AIServiceError, ValidationError } from "../errors";
+import { LoggerService } from "./logger-service";
 
 /**
  * Chat request configuration
@@ -46,9 +46,14 @@ export class AIService extends Context.Tag("AIService")<
 	{
 		readonly streamChat: (
 			request: ChatRequest,
-		) => Effect.Effect<Stream.Stream<TextChunk, AIServiceError>, AIServiceError | ValidationError>;
+		) => Effect.Effect<
+			Stream.Stream<TextChunk, AIServiceError>,
+			AIServiceError | ValidationError
+		>;
 
-		readonly validateModel: (modelId: string) => Effect.Effect<ModelId, ValidationError>;
+		readonly validateModel: (
+			modelId: string,
+		) => Effect.Effect<ModelId, ValidationError>;
 
 		readonly getDefaultModelId: () => Effect.Effect<ModelId, never>;
 	}
@@ -91,7 +96,8 @@ export const AIServiceLive = Layer.effect(
 			 */
 			streamChat: (request: ChatRequest) =>
 				Effect.gen(function* () {
-					const { messages, modelId, temperature, maxTokens, enableTools } = request;
+					const { messages, modelId, temperature, maxTokens, enableTools } =
+						request;
 
 					// Validate messages
 					if (!messages || messages.length === 0) {
@@ -129,7 +135,9 @@ export const AIServiceLive = Layer.effect(
 									parameters: z.object({
 										query: z
 											.string()
-											.describe("Medical search query with specific terms and conditions"),
+											.describe(
+												"Medical search query with specific terms and conditions",
+											),
 										limit: z
 											.number()
 											.min(1)
@@ -137,7 +145,10 @@ export const AIServiceLive = Layer.effect(
 											.optional()
 											.describe("Maximum number of articles to return"),
 									}),
-									execute: async ({ query, limit }: { query: string; limit?: number }) => {
+									execute: async ({
+										query,
+										limit,
+									}: { query: string; limit?: number }) => {
 										const result = await searchPubMed(query, limit ?? 5);
 										return {
 											count: result.count,

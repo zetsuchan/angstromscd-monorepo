@@ -68,7 +68,7 @@ async function main() {
 
 	for (const provider of providers) {
 		const config = VectorProviderFactory.getProviderFromEnv();
-		config.provider = provider as any;
+		config.provider = provider as VectorProviderConfig["provider"];
 		await testProvider(config);
 	}
 }

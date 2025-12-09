@@ -1,119 +1,137 @@
-import { getCodeExecutor } from "../services/code-executor"
-import { VOERiskTool } from "./voe-risk"
-import type { 
-  MedicalAnalysisInput, 
-  MedicalAnalysisResult,
-  CodeExecutionInput 
-} from "../types/e2b"
+import { getCodeExecutor } from "../services/code-executor";
+import type {
+	CodeExecutionInput,
+	MedicalAnalysisInput,
+	MedicalAnalysisResult,
+} from "../types/e2b";
+import { VOERiskTool } from "./voe-risk";
 
 export class MedicalAnalysisOrchestrator {
-  private codeExecutor = getCodeExecutor()
+	private codeExecutor = getCodeExecutor();
 
-  /**
-   * Perform medical data analysis
-   */
-  async performAnalysis(input: MedicalAnalysisInput): Promise<MedicalAnalysisResult> {
-    // Delegate to VOE risk tool if requested
-    if (input.analysisType === "voe_risk") {
-      const voeTool = new VOERiskTool()
-      const execRes = await voeTool.run(input.data)
-      return {
-        analysisType: "voe_risk",
-        results: { rawOutput: execRes.output },
-        visualizations: execRes.files?.filter((f: any) => f.name.endsWith('.png')).map((f: any) => ({
-          name: f.name,
-          type: f.type,
-          data: f.content,
-        })),
-        summary: "VOE risk analysis completed",
-        recommendations: [],
-        success: execRes.success,
-        output: execRes.output,
-        error: execRes.error,
-        files: execRes.files,
-        executionTime: execRes.executionTime,
-        sandboxId: execRes.sandboxId,
-      }
-    }
-    const analysisCode = this.generateAnalysisCode(input)
-    
-    const executionInput: CodeExecutionInput = {
-      code: analysisCode,
-      language: (input.language as "python" | "javascript" | "typescript" | "bash") || "python",
-      files: input.files,
-      packages: this.getRequiredPackages(input.analysisType),
-      timeout: input.timeout,
-    }
+	/**
+	 * Perform medical data analysis
+	 */
+	async performAnalysis(
+		input: MedicalAnalysisInput,
+	): Promise<MedicalAnalysisResult> {
+		// Delegate to VOE risk tool if requested
+		if (input.analysisType === "voe_risk") {
+			const voeTool = new VOERiskTool();
+			const execRes = await voeTool.run(input.data);
+			return {
+				analysisType: "voe_risk",
+				results: { rawOutput: execRes.output },
+				visualizations: execRes.files
+					?.filter((f: any) => f.name.endsWith(".png"))
+					.map((f: any) => ({
+						name: f.name,
+						type: f.type,
+						data: f.content,
+					})),
+				summary: "VOE risk analysis completed",
+				recommendations: [],
+				success: execRes.success,
+				output: execRes.output,
+				error: execRes.error,
+				files: execRes.files,
+				executionTime: execRes.executionTime,
+				sandboxId: execRes.sandboxId,
+			};
+		}
+		const analysisCode = this.generateAnalysisCode(input);
 
-    const result = await this.codeExecutor.executeCode(executionInput)
-    
-    return {
-      analysisType: input.analysisType,
-      results: this.parseAnalysisResults(result.output, input.analysisType),
-      visualizations: result.files?.filter((f: any) => f.type.startsWith('image/')).map((f: any) => ({
-        name: f.name,
-        type: f.type,
-        data: f.content,
-      })),
-      summary: this.generateSummary(result.output, input.analysisType),
-      recommendations: this.generateRecommendations(result.output, input.analysisType),
-      success: result.success,
-      output: result.output,
-      error: result.error,
-      files: result.files,
-      executionTime: result.executionTime,
-      sandboxId: result.sandboxId,
-    }
-  }
+		const executionInput: CodeExecutionInput = {
+			code: analysisCode,
+			language:
+				(input.language as "python" | "javascript" | "typescript" | "bash") ||
+				"python",
+			files: input.files,
+			packages: this.getRequiredPackages(input.analysisType),
+			timeout: input.timeout,
+		};
 
-  /**
-   * Perform streaming medical analysis for long-running operations
-   */
-  async performAnalysisStream(
-    input: MedicalAnalysisInput,
-    onProgress: (progress: string) => void,
-    onError: (error: string) => void
-  ): Promise<MedicalAnalysisResult> {
-    const analysisCode = this.generateAnalysisCode(input)
-    
-    const executionInput: CodeExecutionInput = {
-      code: analysisCode,
-      language: (input.language as "python" | "javascript" | "typescript" | "bash") || "python",
-      files: input.files,
-      packages: this.getRequiredPackages(input.analysisType),
-      timeout: input.timeout,
-    }
+		const result = await this.codeExecutor.executeCode(executionInput);
 
-    const result = await this.codeExecutor.executeCodeStream(
-      executionInput,
-      onProgress,
-      onError
-    )
-    
-    return {
-      analysisType: input.analysisType,
-      results: this.parseAnalysisResults(result.output, input.analysisType),
-      visualizations: result.files?.filter((f: any) => f.type.startsWith('image/')).map((f: any) => ({
-        name: f.name,
-        type: f.type,
-        data: f.content,
-      })),
-      summary: this.generateSummary(result.output, input.analysisType),
-      recommendations: this.generateRecommendations(result.output, input.analysisType),
-      success: result.success,
-      output: result.output,
-      error: result.error,
-      files: result.files,
-      executionTime: result.executionTime,
-      sandboxId: result.sandboxId,
-    }
-  }
+		return {
+			analysisType: input.analysisType,
+			results: this.parseAnalysisResults(result.output, input.analysisType),
+			visualizations: result.files
+				?.filter((f: any) => f.type.startsWith("image/"))
+				.map((f: any) => ({
+					name: f.name,
+					type: f.type,
+					data: f.content,
+				})),
+			summary: this.generateSummary(result.output, input.analysisType),
+			recommendations: this.generateRecommendations(
+				result.output,
+				input.analysisType,
+			),
+			success: result.success,
+			output: result.output,
+			error: result.error,
+			files: result.files,
+			executionTime: result.executionTime,
+			sandboxId: result.sandboxId,
+		};
+	}
 
-  /**
-   * Generate analysis code based on the type of analysis requested
-   */
-  private generateAnalysisCode(input: MedicalAnalysisInput): string {
-    const baseImports = `
+	/**
+	 * Perform streaming medical analysis for long-running operations
+	 */
+	async performAnalysisStream(
+		input: MedicalAnalysisInput,
+		onProgress: (progress: string) => void,
+		onError: (error: string) => void,
+	): Promise<MedicalAnalysisResult> {
+		const analysisCode = this.generateAnalysisCode(input);
+
+		const executionInput: CodeExecutionInput = {
+			code: analysisCode,
+			language:
+				(input.language as "python" | "javascript" | "typescript" | "bash") ||
+				"python",
+			files: input.files,
+			packages: this.getRequiredPackages(input.analysisType),
+			timeout: input.timeout,
+		};
+
+		const result = await this.codeExecutor.executeCodeStream(
+			executionInput,
+			onProgress,
+			onError,
+		);
+
+		return {
+			analysisType: input.analysisType,
+			results: this.parseAnalysisResults(result.output, input.analysisType),
+			visualizations: result.files
+				?.filter((f: any) => f.type.startsWith("image/"))
+				.map((f: any) => ({
+					name: f.name,
+					type: f.type,
+					data: f.content,
+				})),
+			summary: this.generateSummary(result.output, input.analysisType),
+			recommendations: this.generateRecommendations(
+				result.output,
+				input.analysisType,
+			),
+			success: result.success,
+			output: result.output,
+			error: result.error,
+			files: result.files,
+			executionTime: result.executionTime,
+			sandboxId: result.sandboxId,
+		};
+	}
+
+	/**
+	 * Generate analysis code based on the type of analysis requested
+	 */
+	private generateAnalysisCode(input: MedicalAnalysisInput): string {
+		const baseImports = `
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -126,11 +144,11 @@ warnings.filterwarnings('ignore')
 # Set up plotting
 plt.style.use('default')
 sns.set_palette("husl")
-`
+`;
 
-    switch (input.analysisType) {
-      case "data_analysis":
-        return `${baseImports}
+		switch (input.analysisType) {
+			case "data_analysis":
+				return `${baseImports}
 # Medical Data Analysis
 print("Starting medical data analysis...")
 
@@ -172,10 +190,10 @@ try:
 except Exception as e:
     print(f"Error in data analysis: {str(e)}")
     results = {"error": str(e)}
-`
+`;
 
-      case "visualization":
-        return `${baseImports}
+			case "visualization":
+				return `${baseImports}
 # Medical Data Visualization
 print("Creating medical data visualizations...")
 
@@ -227,10 +245,10 @@ try:
     
 except Exception as e:
     print(f"Error in visualization: {str(e)}")
-`
+`;
 
-      case "statistical_analysis":
-        return `${baseImports}
+			case "statistical_analysis":
+				return `${baseImports}
 from scipy import stats
 from sklearn.preprocessing import StandardScaler
 
@@ -283,10 +301,10 @@ try:
     
 except Exception as e:
     print(f"Error in statistical analysis: {str(e)}")
-`
+`;
 
-      case "ml_modeling":
-        return `${baseImports}
+			case "ml_modeling":
+				return `${baseImports}
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
 from sklearn.metrics import classification_report, mean_squared_error, r2_score
@@ -365,15 +383,15 @@ try:
     
 except Exception as e:
     print(f"Error in ML modeling: {str(e)}")
-`
+`;
 
-      case "report_generation":
-        return `${baseImports}
+			case "report_generation":
+				return `${baseImports}
 # Medical Report Generation
 print("Generating medical analysis report...")
 
 try:
-    data_str = '''${input.data || ''}'''
+    data_str = '''${input.data || ""}'''
     
     # Parse data
     try:
@@ -426,115 +444,122 @@ try:
     
 except Exception as e:
     print(f"Error in report generation: {str(e)}")
-`
+`;
 
-      default:
-        return `${baseImports}
+			default:
+				return `${baseImports}
 print("Unknown analysis type: ${input.analysisType}")
 print("Available types: data_analysis, visualization, statistical_analysis, ml_modeling, report_generation")
-`
-    }
-  }
+`;
+		}
+	}
 
-  /**
-   * Get required packages for each analysis type
-   */
-  private getRequiredPackages(analysisType: string): string[] {
-    const basePackages = ["pandas", "numpy", "matplotlib", "seaborn"]
-    
-    switch (analysisType) {
-      case "statistical_analysis":
-        return [...basePackages, "scipy"]
-      case "ml_modeling":
-        return [...basePackages, "scikit-learn"]
-      case "visualization":
-        return [...basePackages, "plotly"]
-      default:
-        return basePackages
-    }
-  }
+	/**
+	 * Get required packages for each analysis type
+	 */
+	private getRequiredPackages(analysisType: string): string[] {
+		const basePackages = ["pandas", "numpy", "matplotlib", "seaborn"];
 
-  /**
-   * Parse analysis results from output
-   */
-  private parseAnalysisResults(output: string, analysisType: string): Record<string, any> {
-    try {
-      // Look for JSON in the output
-      const jsonMatch = output.match(/\{[\s\S]*\}/g)
-      if (jsonMatch && jsonMatch.length > 0) {
-        const lastMatch = jsonMatch[jsonMatch.length - 1]
-        if (lastMatch) {
-          return JSON.parse(lastMatch)
-        }
-      }
-    } catch (error) {
-      // If JSON parsing fails, return structured output
-    }
-    
-    return {
-      analysisType,
-      rawOutput: output,
-      timestamp: new Date().toISOString(),
-    }
-  }
+		switch (analysisType) {
+			case "statistical_analysis":
+				return [...basePackages, "scipy"];
+			case "ml_modeling":
+				return [...basePackages, "scikit-learn"];
+			case "visualization":
+				return [...basePackages, "plotly"];
+			default:
+				return basePackages;
+		}
+	}
 
-  /**
-   * Generate human-readable summary
-   */
-  private generateSummary(output: string, analysisType: string): string {
-    const lines = output.split('\n').filter(line => line.trim())
-    const importantLines = lines.filter(line => 
-      line.includes('successfully') || 
-      line.includes('completed') ||
-      line.includes('Results:') ||
-      line.includes('Error:')
-    )
-    
-    if (importantLines.length > 0) {
-      return `${analysisType} completed. Key findings: ${importantLines.join('. ')}`
-    }
-    
-    return `${analysisType} analysis was performed on the provided medical data.`
-  }
+	/**
+	 * Parse analysis results from output
+	 */
+	private parseAnalysisResults(
+		output: string,
+		analysisType: string,
+	): Record<string, any> {
+		try {
+			// Look for JSON in the output
+			const jsonMatch = output.match(/\{[\s\S]*\}/g);
+			if (jsonMatch && jsonMatch.length > 0) {
+				const lastMatch = jsonMatch[jsonMatch.length - 1];
+				if (lastMatch) {
+					return JSON.parse(lastMatch);
+				}
+			}
+		} catch (error) {
+			// If JSON parsing fails, return structured output
+		}
 
-  /**
-   * Generate medical recommendations based on analysis
-   */
-  private generateRecommendations(output: string, analysisType: string): string[] {
-    const recommendations: string[] = []
-    
-    if (output.includes('error') || output.includes('Error')) {
-      recommendations.push("Review data quality and format")
-      recommendations.push("Ensure all required fields are present")
-    } else {
-      switch (analysisType) {
-        case "data_analysis":
-          recommendations.push("Consider additional data validation")
-          recommendations.push("Monitor key metrics regularly")
-          break
-        case "statistical_analysis":
-          recommendations.push("Review statistical significance of findings")
-          recommendations.push("Consider larger sample size if needed")
-          break
-        case "ml_modeling":
-          recommendations.push("Validate model performance on new data")
-          recommendations.push("Consider feature engineering improvements")
-          break
-        default:
-          recommendations.push("Continue monitoring and analysis")
-      }
-    }
-    
-    return recommendations
-  }
+		return {
+			analysisType,
+			rawOutput: output,
+			timestamp: new Date().toISOString(),
+		};
+	}
+
+	/**
+	 * Generate human-readable summary
+	 */
+	private generateSummary(output: string, analysisType: string): string {
+		const lines = output.split("\n").filter((line) => line.trim());
+		const importantLines = lines.filter(
+			(line) =>
+				line.includes("successfully") ||
+				line.includes("completed") ||
+				line.includes("Results:") ||
+				line.includes("Error:"),
+		);
+
+		if (importantLines.length > 0) {
+			return `${analysisType} completed. Key findings: ${importantLines.join(". ")}`;
+		}
+
+		return `${analysisType} analysis was performed on the provided medical data.`;
+	}
+
+	/**
+	 * Generate medical recommendations based on analysis
+	 */
+	private generateRecommendations(
+		output: string,
+		analysisType: string,
+	): string[] {
+		const recommendations: string[] = [];
+
+		if (output.includes("error") || output.includes("Error")) {
+			recommendations.push("Review data quality and format");
+			recommendations.push("Ensure all required fields are present");
+		} else {
+			switch (analysisType) {
+				case "data_analysis":
+					recommendations.push("Consider additional data validation");
+					recommendations.push("Monitor key metrics regularly");
+					break;
+				case "statistical_analysis":
+					recommendations.push("Review statistical significance of findings");
+					recommendations.push("Consider larger sample size if needed");
+					break;
+				case "ml_modeling":
+					recommendations.push("Validate model performance on new data");
+					recommendations.push("Consider feature engineering improvements");
+					break;
+				default:
+					recommendations.push("Continue monitoring and analysis");
+			}
+		}
+
+		return recommendations;
+	}
 }
 
 // Singleton instance
-let medicalAnalysisInstance: MedicalAnalysisOrchestrator | null = null
+let medicalAnalysisInstance: MedicalAnalysisOrchestrator | null = null;
 
 export function getMedicalAnalysisOrchestrator(): MedicalAnalysisOrchestrator {
-  if (!medicalAnalysisInstance) {
-    medicalAnalysisInstance = new MedicalAnalysisOrchestrator()
-  }
-  return medicalAnalysisInstance
-} 
+	if (!medicalAnalysisInstance) {
+		medicalAnalysisInstance = new MedicalAnalysisOrchestrator();
+	}
+	return medicalAnalysisInstance;
+}

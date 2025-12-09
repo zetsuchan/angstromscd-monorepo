@@ -5,7 +5,7 @@
  */
 
 import { v } from "convex/values";
-import { query, mutation } from "./_generated/server";
+import { mutation, query } from "./_generated/server";
 
 /**
  * List notes for a paper
@@ -86,7 +86,7 @@ export const update = mutation({
 			v.object({
 				tags: v.optional(v.array(v.string())),
 				highlighted_text: v.optional(v.string()),
-			})
+			}),
 		),
 	},
 	handler: async (ctx, args) => {

@@ -1,16 +1,16 @@
 {
-  "compilerOptions": {
-    "target": "ES2021",
-    "lib": ["ES2021"],
-    "module": "commonjs",
-    "moduleResolution": "node",
-    "strict": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true,
-    "isolatedModules": true
-  },
-  "include": ["."],
-  "exclude": ["node_modules", "_generated"]
+	"compilerOptions": {
+		"target": "ES2021",
+		"lib": ["ES2021"],
+		"module": "commonjs",
+		"moduleResolution": "node",
+		"strict": true,
+		"esModuleInterop": true,
+		"skipLibCheck": true,
+		"forceConsistentCasingInFileNames": true,
+		"resolveJsonModule": true,
+		"isolatedModules": true
+	},
+	"include": ["."],
+	"exclude": ["node_modules", "_generated"]
 }
