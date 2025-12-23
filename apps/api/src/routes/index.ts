@@ -13,6 +13,7 @@ import { EnhancedChatService } from "../services/enhanced-chat-service";
 import { OutboxService } from "../services/outbox-service";
 import { chatAISDKRouter } from "./chat.ai-sdk";
 import { conversationsRouter } from "./conversations";
+import { priorAuthRouter } from "./prior-auth";
 import queueRoutes from "./queue";
 import { streamRouter } from "./stream";
 
@@ -418,6 +419,9 @@ router.get("/api/chat/health", async (c) => {
 
 // Mount conversations router
 router.route("/api/conversations", conversationsRouter);
+
+// Mount prior auth router
+router.route("/api/prior-auth", priorAuthRouter);
 
 // Mount queue routes
 router.route("/api/queue", queueRoutes);

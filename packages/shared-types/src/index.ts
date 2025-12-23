@@ -36,3 +36,6 @@ export * from "./conversation";
 
 // Realtime protocol types
 export * from "./realtime";
+
+// Prior Authorization types
+export * from "./prior-auth";
