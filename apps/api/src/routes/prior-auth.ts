@@ -2,6 +2,7 @@ import {
 	type ApiResponse,
 	type CreatePAClinicalData,
 	type CreatePARequestData,
+	DatabaseError,
 	type GenerateJustificationRequest,
 	type GenerateJustificationResponse,
 	type PAClinicalData,
@@ -13,7 +14,6 @@ import {
 	type PriorAuthRequest,
 	type SCDDrug,
 	type UpdatePARequestData,
-	DatabaseError,
 	ValidationError,
 	errorToApiError,
 	isAppError,
@@ -196,7 +196,16 @@ priorAuthRouter.get("/drugs/:drugId/requirements/:payerId", async (c) => {
 		}
 
 		const paRequirements = payer.pa_requirements as {
-			drugs?: Record<string, { documentation_required?: string[]; step_therapy?: string[]; required?: boolean; quantity_limits?: string; renewal_frequency?: string }>;
+			drugs?: Record<
+				string,
+				{
+					documentation_required?: string[];
+					step_therapy?: string[];
+					required?: boolean;
+					quantity_limits?: string;
+					renewal_frequency?: string;
+				}
+			>;
 		};
 		const drugRequirements = paRequirements?.drugs?.[drugId] || {
 			required: false,
@@ -277,7 +286,10 @@ priorAuthRouter.post("/", async (c) => {
 		const parsed = createPARequestSchema.safeParse(body);
 
 		if (!parsed.success) {
-			throw new ValidationError("Invalid PA request data", parsed.error.flatten());
+			throw new ValidationError(
+				"Invalid PA request data",
+				parsed.error.flatten(),
+			);
 		}
 
 		// Verify drug exists
@@ -467,7 +479,10 @@ priorAuthRouter.post("/:id/clinical-data", async (c) => {
 		const parsed = clinicalDataSchema.safeParse(body);
 
 		if (!parsed.success) {
-			throw new ValidationError("Invalid clinical data", parsed.error.flatten());
+			throw new ValidationError(
+				"Invalid clinical data",
+				parsed.error.flatten(),
+			);
 		}
 
 		// Verify PA request ownership
@@ -520,7 +535,9 @@ priorAuthRouter.post("/:id/clinical-data", async (c) => {
 			result = data;
 		}
 
-		return c.json(createApiResponse({ clinical_data: result as PAClinicalData }));
+		return c.json(
+			createApiResponse({ clinical_data: result as PAClinicalData }),
+		);
 	} catch (error) {
 		const response = createErrorResponse(error);
 		const statusCode = isAppError(error) ? error.statusCode : 500;
@@ -585,7 +602,14 @@ priorAuthRouter.post("/:id/generate-justification", async (c) => {
 
 		const clinicalData = parsed.data.clinical_data;
 		const paRequirements = payer.pa_requirements as {
-			drugs?: Record<string, { documentation_required?: string[]; step_therapy?: string[]; required?: boolean }>;
+			drugs?: Record<
+				string,
+				{
+					documentation_required?: string[];
+					step_therapy?: string[];
+					required?: boolean;
+				}
+			>;
 		};
 		const drugRequirements = paRequirements?.drugs?.[request.drug_id] || {};
 
@@ -622,8 +646,7 @@ priorAuthRouter.post("/:id/generate-justification", async (c) => {
 			.from("prior_auth_requests")
 			.update({
 				clinical_justification: result.justification,
-				status:
-					request.status === "draft" ? "pending_info" : request.status,
+				status: request.status === "draft" ? "pending_info" : request.status,
 			})
 			.eq("id", requestId);
 
@@ -651,4 +674,3 @@ priorAuthRouter.post("/:id/generate-justification", async (c) => {
 		return c.json(response, statusCode);
 	}
 });
-

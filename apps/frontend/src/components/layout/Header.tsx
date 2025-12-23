@@ -1,11 +1,21 @@
-import { ChevronDown, Grid3X3, Search, Settings, Upload } from "lucide-react";
+import {
+	ChevronDown,
+	FileCheck,
+	Grid3X3,
+	MessageSquare,
+	Search,
+	Settings,
+	Upload,
+} from "lucide-react";
 import type React from "react";
 import { useState } from "react";
+import { useNavigation } from "../../App";
 import { useChat } from "../../context/ChatContext";
 import type { Workspace } from "../../types";
 
 const Header: React.FC = () => {
 	const { currentWorkspace, setCurrentWorkspace, workspaces } = useChat();
+	const { currentView, setCurrentView } = useNavigation();
 	const [isWorkspaceDropdownOpen, setIsWorkspaceDropdownOpen] = useState(false);
 
 	const handleWorkspaceChange = (workspace: Workspace) => {
@@ -54,6 +64,34 @@ const Header: React.FC = () => {
 			</div>
 
 			<div className="flex items-center space-x-3">
+				{/* View Toggle */}
+				<div className="flex items-center rounded-lg glass-subtle p-0.5">
+					<button
+						onClick={() => setCurrentView("chat")}
+						className={`flex items-center space-x-1 px-3 py-1.5 rounded-md transition-all ${
+							currentView === "chat"
+								? "medical-primary text-blue-300"
+								: "text-white/70 hover:text-white/90 hover:glass-hover"
+						}`}
+					>
+						<MessageSquare size={18} />
+						<span className="text-sm">Chat</span>
+					</button>
+					<button
+						onClick={() => setCurrentView("prior-auth")}
+						className={`flex items-center space-x-1 px-3 py-1.5 rounded-md transition-all ${
+							currentView === "prior-auth"
+								? "medical-primary text-blue-300"
+								: "text-white/70 hover:text-white/90 hover:glass-hover"
+						}`}
+					>
+						<FileCheck size={18} />
+						<span className="text-sm">Prior Auth</span>
+					</button>
+				</div>
+
+				<div className="w-px h-6 bg-white/20" />
+
 				<button className="flex items-center space-x-1 text-white/80 hover:text-blue-300 glass-subtle hover:glass-hover glass-focus px-3 py-1.5 rounded-md transition-all">
 					<Search size={18} />
 					<span className="text-sm">New Search</span>

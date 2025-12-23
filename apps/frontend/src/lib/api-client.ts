@@ -6,8 +6,20 @@ import type {
 	ChatMessage,
 	ChatRequest,
 	Citation,
+	CreatePAClinicalData,
+	CreatePARequestData,
+	GenerateJustificationResponse,
 	LiteratureSearchRequest,
+	PAClinicalData,
+	PADetailResponse,
+	PADrugsResponse,
+	PAListResponse,
+	PAPayersResponse,
 	PaginatedResponse,
+	Payer,
+	PriorAuthRequest,
+	SCDDrug,
+	UpdatePARequestData,
 } from "@angstromscd/shared-types";
 import {
 	isApiErrorResponse,
@@ -337,6 +349,88 @@ export const apiClient = {
 		return fetchApiAuth(`/api/conversations/${id}`, {
 			method: "DELETE",
 		});
+	},
+
+	// Prior Authorization
+	async getPARequests(params?: {
+		page?: number;
+		limit?: number;
+		status?: string;
+		drug_id?: string;
+	}): Promise<PAListResponse> {
+		const searchParams = new URLSearchParams();
+		if (params?.page) searchParams.set("page", params.page.toString());
+		if (params?.limit) searchParams.set("limit", params.limit.toString());
+		if (params?.status) searchParams.set("status", params.status);
+		if (params?.drug_id) searchParams.set("drug_id", params.drug_id);
+		const query = searchParams.toString();
+		return fetchApiAuth(`/api/prior-auth${query ? `?${query}` : ""}`);
+	},
+
+	async createPARequest(
+		data: CreatePARequestData,
+	): Promise<{ request: PriorAuthRequest }> {
+		return fetchApiAuth("/api/prior-auth", {
+			method: "POST",
+			body: JSON.stringify(data),
+		});
+	},
+
+	async getPARequest(id: string): Promise<PADetailResponse> {
+		return fetchApiAuth(`/api/prior-auth/${id}`);
+	},
+
+	async updatePARequest(
+		id: string,
+		data: UpdatePARequestData,
+	): Promise<{ request: PriorAuthRequest }> {
+		return fetchApiAuth(`/api/prior-auth/${id}`, {
+			method: "PUT",
+			body: JSON.stringify(data),
+		});
+	},
+
+	async deletePARequest(id: string): Promise<{ deleted: boolean }> {
+		return fetchApiAuth(`/api/prior-auth/${id}`, {
+			method: "DELETE",
+		});
+	},
+
+	async addPAClinicalData(
+		paId: string,
+		data: CreatePAClinicalData,
+	): Promise<{ clinical_data: PAClinicalData }> {
+		return fetchApiAuth(`/api/prior-auth/${paId}/clinical-data`, {
+			method: "POST",
+			body: JSON.stringify(data),
+		});
+	},
+
+	async generatePAJustification(
+		paId: string,
+		clinicalData: CreatePAClinicalData,
+	): Promise<GenerateJustificationResponse> {
+		return fetchApiAuth(`/api/prior-auth/${paId}/generate-justification`, {
+			method: "POST",
+			body: JSON.stringify({ clinical_data: clinicalData }),
+		});
+	},
+
+	async getSCDDrugs(): Promise<PADrugsResponse> {
+		return fetchApiAuth("/api/prior-auth/drugs");
+	},
+
+	async getPayers(): Promise<PAPayersResponse> {
+		return fetchApiAuth("/api/prior-auth/payers");
+	},
+
+	async getDrugRequirements(
+		drugId: string,
+		payerId: string,
+	): Promise<{ drug: SCDDrug; payer: Payer; requirements: unknown }> {
+		return fetchApiAuth(
+			`/api/prior-auth/drugs/${drugId}/requirements/${payerId}`,
+		);
 	},
 };
 

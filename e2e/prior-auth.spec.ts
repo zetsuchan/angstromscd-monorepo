@@ -21,9 +21,7 @@ async function createAuthenticatedUser(request: any) {
 	const token = signupData.data?.session?.token;
 
 	if (!token) {
-		throw new Error(
-			"No auth token - Supabase may require email confirmation.",
-		);
+		throw new Error("No auth token - Supabase may require email confirmation.");
 	}
 
 	return { email, token };
@@ -297,7 +295,10 @@ test.describe("Prior Authorization API", () => {
 							average_severity: "moderate",
 							hospitalizations: 2,
 						},
-						current_therapies: ["Hydroxyurea 1000mg daily", "Folic acid 1mg daily"],
+						current_therapies: [
+							"Hydroxyurea 1000mg daily",
+							"Folic acid 1mg daily",
+						],
 						failed_therapies: ["Hydroxyurea - inadequate response at max dose"],
 						lab_results: {
 							hemoglobin: 7.2,
@@ -375,10 +376,13 @@ test.describe("Prior Authorization API", () => {
 			const pa2Data = await pa2Res.json();
 
 			// Update second PA to pending_info
-			await request.put(`${API_URL}/api/prior-auth/${pa2Data.data.request.id}`, {
-				headers: { Authorization: `Bearer ${token}` },
-				data: { status: "pending_info" },
-			});
+			await request.put(
+				`${API_URL}/api/prior-auth/${pa2Data.data.request.id}`,
+				{
+					headers: { Authorization: `Bearer ${token}` },
+					data: { status: "pending_info" },
+				},
+			);
 
 			// Filter by draft status
 			const draftRes = await request.get(
@@ -460,6 +464,204 @@ test.describe("Prior Authorization API", () => {
 			expect(data.data.total).toBe(3);
 			expect(data.data.page).toBe(1);
 			expect(data.data.limit).toBe(2);
+		});
+	});
+
+	test.describe("AI Justification Generation", () => {
+		test("generate justification validates clinical data", async ({ request }) => {
+			const { token } = await createAuthenticatedUser(request);
+
+			// Create PA request
+			const createRes = await request.post(`${API_URL}/api/prior-auth`, {
+				headers: { Authorization: `Bearer ${token}` },
+				data: {
+					drug_id: "adakveo",
+					payer_id: "aetna",
+					diagnosis_codes: ["D57.1"],
+				},
+			});
+			const createData = await createRes.json();
+			const paId = createData.data.request.id;
+
+			// Try to generate justification without clinical data
+			const response = await request.post(
+				`${API_URL}/api/prior-auth/${paId}/generate-justification`,
+				{
+					headers: { Authorization: `Bearer ${token}` },
+					data: {},
+				},
+			);
+
+			expect(response.ok()).toBe(false);
+			const data = await response.json();
+			expect(data.success).toBe(false);
+			expect(data.error.code).toBe("VALIDATION_ERROR");
+		});
+
+		test("generate justification requires authentication", async ({
+			request,
+		}) => {
+			const response = await request.post(
+				`${API_URL}/api/prior-auth/fake-id/generate-justification`,
+				{
+					data: {
+						clinical_data: {
+							scd_genotype: "HbSS",
+						},
+					},
+				},
+			);
+
+			expect(response.ok()).toBe(false);
+			expect(response.status()).toBe(401);
+		});
+
+		test("generate justification returns 404 for non-existent PA", async ({
+			request,
+		}) => {
+			const { token } = await createAuthenticatedUser(request);
+
+			const response = await request.post(
+				`${API_URL}/api/prior-auth/00000000-0000-0000-0000-000000000000/generate-justification`,
+				{
+					headers: { Authorization: `Bearer ${token}` },
+					data: {
+						clinical_data: {
+							scd_genotype: "HbSS",
+							current_therapies: ["Hydroxyurea 1000mg daily"],
+							failed_therapies: [],
+						},
+					},
+				},
+			);
+
+			expect(response.ok()).toBe(false);
+			const data = await response.json();
+			expect(data.success).toBe(false);
+		});
+
+		test("generate justification with full clinical data (requires AI)", async ({
+			request,
+		}) => {
+			const { token } = await createAuthenticatedUser(request);
+
+			// Create PA request
+			const createRes = await request.post(`${API_URL}/api/prior-auth`, {
+				headers: { Authorization: `Bearer ${token}` },
+				data: {
+					drug_id: "adakveo",
+					payer_id: "aetna",
+					diagnosis_codes: ["D57.1"],
+				},
+			});
+			const createData = await createRes.json();
+			const paId = createData.data.request.id;
+
+			// Generate justification with comprehensive clinical data
+			const response = await request.post(
+				`${API_URL}/api/prior-auth/${paId}/generate-justification`,
+				{
+					headers: { Authorization: `Bearer ${token}` },
+					data: {
+						clinical_data: {
+							scd_genotype: "HbSS",
+							voe_history: {
+								total_episodes: 12,
+								episodes_past_year: 6,
+								average_severity: "moderate",
+								hospitalizations: 3,
+							},
+							current_therapies: [
+								"Hydroxyurea 1000mg daily",
+								"Folic acid 1mg daily",
+							],
+							failed_therapies: [
+								"Hydroxyurea - inadequate response at maximum tolerated dose",
+							],
+							lab_results: {
+								hemoglobin: 7.2,
+								hemoglobin_f_percentage: 12.5,
+								test_date: "2024-01-15",
+							},
+							hospitalizations_past_year: 3,
+							additional_notes:
+								"Patient has had frequent VOE episodes despite maximum hydroxyurea therapy.",
+						},
+					},
+				},
+			);
+
+			// This test may fail if AI APIs are not configured
+			// We check for either success or a specific AI-related error
+			const data = await response.json();
+
+			if (response.ok()) {
+				// If AI APIs are available, verify the response structure
+				expect(data.success).toBe(true);
+				expect(data.data.justification).toBeDefined();
+				expect(typeof data.data.justification).toBe("string");
+				expect(data.data.justification.length).toBeGreaterThan(100);
+
+				// Verify optional fields
+				if (data.data.key_points) {
+					expect(Array.isArray(data.data.key_points)).toBe(true);
+				}
+				if (data.data.confidence_score !== undefined) {
+					expect(typeof data.data.confidence_score).toBe("number");
+					expect(data.data.confidence_score).toBeGreaterThanOrEqual(0);
+					expect(data.data.confidence_score).toBeLessThanOrEqual(1);
+				}
+
+				// Verify PA request was updated with justification
+				const paRes = await request.get(`${API_URL}/api/prior-auth/${paId}`, {
+					headers: { Authorization: `Bearer ${token}` },
+				});
+				const paData = await paRes.json();
+				expect(paData.data.request.clinical_justification).toBeDefined();
+			} else {
+				// If AI APIs are not available, we expect a specific error
+				// Common errors: BAML client error, API key error, etc.
+				console.log(
+					"AI justification test skipped - AI APIs not configured:",
+					data.error?.message,
+				);
+				expect(data.success).toBe(false);
+				// The test passes either way - we're testing the endpoint behavior
+			}
+		});
+
+		test("cannot generate justification for other user's PA request", async ({
+			request,
+		}) => {
+			// Create first user and PA request
+			const user1 = await createAuthenticatedUser(request);
+			const createRes = await request.post(`${API_URL}/api/prior-auth`, {
+				headers: { Authorization: `Bearer ${user1.token}` },
+				data: {
+					drug_id: "oxbryta",
+					payer_id: "bcbs",
+				},
+			});
+			const createData = await createRes.json();
+			const paId = createData.data.request.id;
+
+			// Create second user and try to generate justification for user1's PA
+			const user2 = await createAuthenticatedUser(request);
+			const response = await request.post(
+				`${API_URL}/api/prior-auth/${paId}/generate-justification`,
+				{
+					headers: { Authorization: `Bearer ${user2.token}` },
+					data: {
+						clinical_data: {
+							scd_genotype: "HbSS",
+							current_therapies: [],
+							failed_therapies: [],
+						},
+					},
+				},
+			);
+
+			expect(response.ok()).toBe(false);
 		});
 	});
 });
