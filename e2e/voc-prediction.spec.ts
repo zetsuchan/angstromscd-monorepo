@@ -303,10 +303,15 @@ test.describe("VOC Prediction System", () => {
 		test("symptom logger form is visible", async ({ page }) => {
 			await page.goto("http://localhost:5173");
 
+			// VOC Dashboard is shown by default - click "Log Symptoms" to open the form
+			const logSymptomsButton = page.locator('button:has-text("Log Symptoms")');
+			await expect(logSymptomsButton.first()).toBeVisible({ timeout: 10000 });
+			await logSymptomsButton.first().click();
+
 			// Should see symptom logging form
-			await expect(
-				page.locator('text="Log Today\'s Symptoms"'),
-			).toBeVisible();
+			await expect(page.locator('text="Log Today\'s Symptoms"')).toBeVisible({
+				timeout: 5000,
+			});
 
 			// Should see core metric sliders
 			await expect(page.locator('text="Pain Level"')).toBeVisible();
@@ -316,19 +321,18 @@ test.describe("VOC Prediction System", () => {
 			// Should see symptom checkboxes
 			await expect(page.locator('text="Fever"')).toBeVisible();
 			await expect(page.locator('text="Headache"')).toBeVisible();
-
-			// Should see submit button
-			await expect(page.locator('button:has-text("Log Symptoms")')).toBeVisible();
 		});
 
 		test("risk gauge displays prediction", async ({ page }) => {
 			await page.goto("http://localhost:5173");
 
-			// Should see risk indicator section
-			await expect(page.locator('text="Current Risk Level"')).toBeVisible();
+			// Should see the VOC Risk Monitor header
+			await expect(page.locator('text="VOC Risk Monitor"')).toBeVisible({
+				timeout: 10000,
+			});
 
-			// Should see one of the risk levels
-			const riskLevels = ["LOW", "MODERATE", "HIGH", "CRITICAL"];
+			// Should see one of the risk levels (lowercase in the component)
+			const riskLevels = ["low", "moderate", "high", "critical"];
 			const riskLocator = page.locator(
 				riskLevels.map((r) => `text="${r}"`).join(", "),
 			);
@@ -337,6 +341,16 @@ test.describe("VOC Prediction System", () => {
 
 		test("warning banner appears for critical symptoms", async ({ page }) => {
 			await page.goto("http://localhost:5173");
+
+			// First open the symptom logger
+			const logSymptomsButton = page.locator('button:has-text("Log Symptoms")');
+			await expect(logSymptomsButton.first()).toBeVisible({ timeout: 10000 });
+			await logSymptomsButton.first().click();
+
+			// Wait for the form to appear
+			await expect(page.locator('text="Log Today\'s Symptoms"')).toBeVisible({
+				timeout: 5000,
+			});
 
 			// Check the Fever checkbox (which has warning=true)
 			await page.click('label:has-text("Fever")');

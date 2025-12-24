@@ -21,6 +21,7 @@ const Sidebar: React.FC = () => {
 		return (
 			<div className="w-12 glass-light border-r border-white/20 flex flex-col items-center py-4 h-full">
 				<button
+					type="button"
 					onClick={() => setIsCollapsed(false)}
 					className="p-1.5 text-white/70 hover:text-white/90 rounded-full glass-subtle hover:glass-hover glass-focus mb-6 transition-all"
 				>
@@ -29,6 +30,7 @@ const Sidebar: React.FC = () => {
 
 				{threads.map((thread) => (
 					<button
+						type="button"
 						key={thread.id}
 						className={`w-8 h-8 mb-2 rounded-full flex items-center justify-center transition-all ${
 							thread.isActive
@@ -41,7 +43,10 @@ const Sidebar: React.FC = () => {
 					</button>
 				))}
 
-				<button className="w-8 h-8 mt-2 rounded-full glass-subtle text-white/80 hover:glass-hover glass-focus flex items-center justify-center transition-all">
+				<button
+					type="button"
+					className="w-8 h-8 mt-2 rounded-full glass-subtle text-white/80 hover:glass-hover glass-focus flex items-center justify-center transition-all"
+				>
 					<Plus size={16} />
 				</button>
 			</div>
@@ -53,6 +58,7 @@ const Sidebar: React.FC = () => {
 			<div className="p-4 flex items-center justify-between border-b border-white/20">
 				<h2 className="font-medium text-white/90">Threads</h2>
 				<button
+					type="button"
 					onClick={() => setIsCollapsed(true)}
 					className="p-1.5 text-white/70 hover:text-white/90 rounded-full glass-subtle hover:glass-hover glass-focus transition-all"
 				>
@@ -72,7 +78,10 @@ const Sidebar: React.FC = () => {
 				</ul>
 
 				<div className="px-4 py-2">
-					<button className="w-full flex items-center space-x-2 text-white/80 hover:text-blue-300 glass-subtle hover:glass-hover glass-focus px-3 py-2 rounded-md transition-all">
+					<button
+						type="button"
+						className="w-full flex items-center space-x-2 text-white/80 hover:text-blue-300 glass-subtle hover:glass-hover glass-focus px-3 py-2 rounded-md transition-all"
+					>
 						<Plus size={16} />
 						<span>New Thread</span>
 					</button>
@@ -87,6 +96,7 @@ const Sidebar: React.FC = () => {
 					{alerts.map((alert) => (
 						<li key={alert.id} className="mb-2">
 							<button
+								type="button"
 								className={`w-full text-left py-1 px-2 rounded transition-all ${
 									alert.isRead
 										? "text-white/50 glass-subtle"
@@ -122,6 +132,7 @@ const ThreadItem: React.FC<ThreadItemProps> = ({ thread, onClick }) => {
 	return (
 		<li>
 			<button
+				type="button"
 				className={`w-full flex items-center space-x-2 px-4 py-2 text-left transition-all ${
 					thread.isActive
 						? "medical-primary text-blue-300"

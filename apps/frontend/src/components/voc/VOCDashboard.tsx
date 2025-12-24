@@ -422,8 +422,8 @@ export function VOCDashboard({ patientId }: VOCDashboardProps) {
 								Contributing Factors
 							</h3>
 							<div className="flex flex-wrap gap-2">
-								{prediction.contributingFactors.map((factor, i) => (
-									<FactorBadge key={i} factor={factor} />
+								{prediction.contributingFactors.map((factor) => (
+									<FactorBadge key={factor.factor} factor={factor} />
 								))}
 							</div>
 						</div>
@@ -436,8 +436,8 @@ export function VOCDashboard({ patientId }: VOCDashboardProps) {
 								Recommended Actions
 							</h3>
 							<div className="space-y-2">
-								{prediction.recommendedActions.map((action, i) => (
-									<ActionItem key={i} action={action} />
+								{prediction.recommendedActions.map((action) => (
+									<ActionItem key={action} action={action} />
 								))}
 							</div>
 						</div>

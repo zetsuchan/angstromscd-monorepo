@@ -16,7 +16,7 @@ const ChatPane: React.FC = () => {
 	// Auto-scroll to bottom when new messages arrive
 	useEffect(() => {
 		messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-	}, [currentThread?.messages, isLoading]);
+	});
 
 	// Track loading time
 	useEffect(() => {
@@ -65,6 +65,7 @@ const ChatPane: React.FC = () => {
 			<div className="flex items-center justify-between px-4 py-2 glass-subtle border-b border-white/20 flex-shrink-0">
 				<h2 className="font-medium text-white/90">{currentThread.name}</h2>
 				<button
+					type="button"
 					className="flex items-center space-x-1 text-white/80 hover:text-blue-300 transition-all px-2 py-1 rounded glass-subtle hover:glass-hover glass-focus"
 					onClick={() => setIsCreatingBranch(true)}
 				>
@@ -136,12 +137,14 @@ const ChatPane: React.FC = () => {
 						/>
 						<div className="flex justify-end space-x-2">
 							<button
+								type="button"
 								className="px-4 py-2 text-white/80 hover:text-white/90 glass-subtle hover:glass-hover glass-focus rounded transition-all"
 								onClick={() => setIsCreatingBranch(false)}
 							>
 								Cancel
 							</button>
 							<button
+								type="button"
 								className="px-4 py-2 medical-primary text-blue-300 hover:glass-hover glass-focus rounded transition-all"
 								onClick={handleCreateBranch}
 							>

@@ -23,6 +23,7 @@ const Header: React.FC = () => {
 
 				<div className="relative">
 					<button
+						type="button"
 						className="flex items-center space-x-1 glass-subtle hover:glass-hover glass-focus px-3 py-1.5 rounded-md text-white/90 transition-all"
 						onClick={() => setIsWorkspaceDropdownOpen(!isWorkspaceDropdownOpen)}
 					>
@@ -36,6 +37,7 @@ const Header: React.FC = () => {
 								{workspaces.map((workspace) => (
 									<li key={workspace.id}>
 										<button
+											type="button"
 											className={`w-full text-left px-4 py-2 hover:glass-subtle transition-all rounded-md ${
 												workspace.id === currentWorkspace.id
 													? "medical-primary text-blue-300"
@@ -54,22 +56,34 @@ const Header: React.FC = () => {
 			</div>
 
 			<div className="flex items-center space-x-3">
-				<button className="flex items-center space-x-1 text-white/80 hover:text-blue-300 glass-subtle hover:glass-hover glass-focus px-3 py-1.5 rounded-md transition-all">
+				<button
+					type="button"
+					className="flex items-center space-x-1 text-white/80 hover:text-blue-300 glass-subtle hover:glass-hover glass-focus px-3 py-1.5 rounded-md transition-all"
+				>
 					<Search size={18} />
 					<span className="text-sm">New Search</span>
 				</button>
 
-				<button className="flex items-center space-x-1 text-white/80 hover:text-green-300 glass-subtle hover:glass-hover glass-focus px-3 py-1.5 rounded-md transition-all">
+				<button
+					type="button"
+					className="flex items-center space-x-1 text-white/80 hover:text-green-300 glass-subtle hover:glass-hover glass-focus px-3 py-1.5 rounded-md transition-all"
+				>
 					<Upload size={18} />
 					<span className="text-sm">Upload</span>
 				</button>
 
-				<button className="flex items-center space-x-1 text-white/80 hover:text-pink-300 glass-subtle hover:glass-hover glass-focus px-3 py-1.5 rounded-md transition-all">
+				<button
+					type="button"
+					className="flex items-center space-x-1 text-white/80 hover:text-pink-300 glass-subtle hover:glass-hover glass-focus px-3 py-1.5 rounded-md transition-all"
+				>
 					<Grid3X3 size={18} />
 					<span className="text-sm">Claims Matrix</span>
 				</button>
 
-				<button className="p-1.5 text-white/70 hover:text-white/90 rounded-full glass-subtle hover:glass-hover glass-focus transition-all">
+				<button
+					type="button"
+					className="p-1.5 text-white/70 hover:text-white/90 rounded-full glass-subtle hover:glass-hover glass-focus transition-all"
+				>
 					<Settings size={20} />
 				</button>
 			</div>

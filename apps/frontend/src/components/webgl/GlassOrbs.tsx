@@ -128,6 +128,7 @@ const glassFragmentShader = `
 `;
 
 interface GlassOrbProps {
+	id: string;
 	position: [number, number, number];
 	scale: [number, number, number];
 	color: THREE.Color;
@@ -136,6 +137,7 @@ interface GlassOrbProps {
 }
 
 function GlassOrb({
+	id: _id,
 	position,
 	scale,
 	color,
@@ -197,6 +199,7 @@ export function GlassOrbs() {
 	// Define orb configurations matching the original CSS layout
 	const orbs: GlassOrbProps[] = [
 		{
+			id: "orb-cyan-1",
 			position: [-2.5, 1.5, 0],
 			scale: [1.4, 1.9, 1.4],
 			color: new THREE.Color("#4FC3F7"),
@@ -204,6 +207,7 @@ export function GlassOrbs() {
 			animationOffset: 0,
 		},
 		{
+			id: "orb-green-1",
 			position: [2.8, 0, -0.5],
 			scale: [1.1, 1.6, 1.1],
 			color: new THREE.Color("#81C784"),
@@ -211,6 +215,7 @@ export function GlassOrbs() {
 			animationOffset: 5,
 		},
 		{
+			id: "orb-blue-1",
 			position: [-2.0, -1.5, 0.3],
 			scale: [0.9, 1.3, 0.9],
 			color: new THREE.Color("#64B5F6"),
@@ -218,6 +223,7 @@ export function GlassOrbs() {
 			animationOffset: 10,
 		},
 		{
+			id: "orb-pink-1",
 			position: [0.5, 1.0, 0.2],
 			scale: [0.8, 1.1, 0.8],
 			color: new THREE.Color("#F48FB1"),
@@ -225,6 +231,7 @@ export function GlassOrbs() {
 			animationOffset: 15,
 		},
 		{
+			id: "orb-teal-1",
 			position: [2.2, -1.2, -0.2],
 			scale: [0.7, 0.9, 0.7],
 			color: new THREE.Color("#4DD0E1"),
@@ -239,8 +246,8 @@ export function GlassOrbs() {
 			<pointLight position={[10, 10, 10]} intensity={0.5} />
 			<pointLight position={[-10, -10, -10]} intensity={0.3} color="#81C784" />
 
-			{orbs.map((orbProps, index) => (
-				<GlassOrb key={index} {...orbProps} />
+			{orbs.map((orbProps) => (
+				<GlassOrb key={orbProps.id} {...orbProps} />
 			))}
 		</>
 	);
