@@ -6,7 +6,7 @@
 import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 import { z } from "zod";
-import { supabase } from "../lib/db";
+import { supabaseAdmin } from "../lib/db";
 
 const app = new Hono();
 
@@ -15,21 +15,21 @@ const app = new Hono();
 // ============================================================================
 
 const createSymptomLogSchema = z.object({
-	recordedAt: z.string().datetime().optional(),
-	painScore: z.number().min(0).max(10).optional(),
-	fatigueScore: z.number().min(0).max(10).optional(),
-	moodScore: z.number().min(0).max(10).optional(),
-	hydrationLevel: z.enum(["poor", "fair", "good", "excellent"]).optional(),
-	sleepQuality: z.number().min(0).max(10).optional(),
-	sleepHours: z.number().min(0).max(24).optional(),
-	hasFever: z.boolean().optional(),
-	hasHeadache: z.boolean().optional(),
-	hasShortnessOfBreath: z.boolean().optional(),
-	hasChestPain: z.boolean().optional(),
-	hasJointPain: z.boolean().optional(),
-	hasAbdominalPain: z.boolean().optional(),
-	notes: z.string().max(2000).optional(),
-	source: z.enum(["manual", "wearable", "api"]).optional(),
+	recordedAt: z.string().datetime().nullish(),
+	painScore: z.number().min(0).max(10).nullish(),
+	fatigueScore: z.number().min(0).max(10).nullish(),
+	moodScore: z.number().min(0).max(10).nullish(),
+	hydrationLevel: z.enum(["poor", "fair", "good", "excellent"]).nullish(),
+	sleepQuality: z.number().min(0).max(10).nullish(),
+	sleepHours: z.number().min(0).max(24).nullish(),
+	hasFever: z.boolean().nullish(),
+	hasHeadache: z.boolean().nullish(),
+	hasShortnessOfBreath: z.boolean().nullish(),
+	hasChestPain: z.boolean().nullish(),
+	hasJointPain: z.boolean().nullish(),
+	hasAbdominalPain: z.boolean().nullish(),
+	notes: z.string().max(2000).nullish(),
+	source: z.enum(["manual", "wearable", "api"]).nullish(),
 });
 
 const syncWearableSchema = z.object({
@@ -77,18 +77,38 @@ const paginationSchema = z.object({
 // SYMPTOM LOGGING ENDPOINTS
 // ============================================================================
 
+// Custom validation error hook
+const validationHook = (
+	result: { success: boolean; error?: z.ZodError; data?: unknown },
+	c: Parameters<Parameters<typeof app.post>[1]>[0],
+) => {
+	if (!result.success) {
+		const errors = result.error?.flatten();
+		return c.json(
+			{
+				error: {
+					message: "Validation failed",
+					code: "VALIDATION_ERROR",
+					details: errors,
+				},
+			},
+			400,
+		);
+	}
+};
+
 /**
  * POST /api/voc/patients/:patientId/symptoms
  * Log symptoms for a patient
  */
 app.post(
 	"/patients/:patientId/symptoms",
-	zValidator("json", createSymptomLogSchema),
+	zValidator("json", createSymptomLogSchema, validationHook),
 	async (c) => {
 		const patientId = c.req.param("patientId");
 		const body = c.req.valid("json");
 
-		const { data, error } = await supabase
+		const { data, error } = await supabaseAdmin
 			.from("symptom_logs")
 			.insert({
 				patient_id: patientId,
@@ -113,7 +133,16 @@ app.post(
 
 		if (error) {
 			console.error("Error creating symptom log:", error);
-			return c.json({ error: "Failed to create symptom log" }, 500);
+			return c.json(
+				{
+					error: {
+						message: error.message || "Failed to create symptom log",
+						code: error.code,
+						details: error.details,
+					},
+				},
+				500,
+			);
 		}
 
 		return c.json({ log: transformSymptomLog(data) }, 201);
@@ -134,7 +163,7 @@ app.get("/patients/:patientId/symptoms", async (c) => {
 	const from = (page - 1) * limit;
 	const to = from + limit - 1;
 
-	const { data, error, count } = await supabase
+	const { data, error, count } = await supabaseAdmin
 		.from("symptom_logs")
 		.select("*", { count: "exact" })
 		.eq("patient_id", patientId)
@@ -162,7 +191,7 @@ app.get("/patients/:patientId/symptoms/:id", async (c) => {
 	const patientId = c.req.param("patientId");
 	const id = c.req.param("id");
 
-	const { data, error } = await supabase
+	const { data, error } = await supabaseAdmin
 		.from("symptom_logs")
 		.select("*")
 		.eq("id", id)
@@ -184,7 +213,7 @@ app.delete("/patients/:patientId/symptoms/:id", async (c) => {
 	const patientId = c.req.param("patientId");
 	const id = c.req.param("id");
 
-	const { error } = await supabase
+	const { error } = await supabaseAdmin
 		.from("symptom_logs")
 		.delete()
 		.eq("id", id)
@@ -236,7 +265,7 @@ app.post(
 			raw_data: r.rawData,
 		}));
 
-		const { data, error } = await supabase
+		const { data, error } = await supabaseAdmin
 			.from("wearable_readings")
 			.upsert(readings, {
 				onConflict: "patient_id,recorded_at,device_type",
@@ -271,7 +300,7 @@ app.get("/patients/:patientId/wearable", async (c) => {
 	const from = (page - 1) * limit;
 	const to = from + limit - 1;
 
-	let query = supabase
+	let query = supabaseAdmin
 		.from("wearable_readings")
 		.select("*", { count: "exact" })
 		.eq("patient_id", patientId)
@@ -315,7 +344,7 @@ app.post("/patients/:patientId/predict", async (c) => {
 	const sevenDaysAgo = new Date();
 	sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
-	const { data: recentSymptoms } = await supabase
+	const { data: recentSymptoms } = await supabaseAdmin
 		.from("symptom_logs")
 		.select("*")
 		.eq("patient_id", patientId)
@@ -448,7 +477,7 @@ app.post("/patients/:patientId/predict", async (c) => {
 			: "Unable to generate prediction - please log symptoms regularly for accurate predictions.";
 
 	// Save prediction to database
-	const { data: prediction, error } = await supabase
+	const { data: prediction, error } = await supabaseAdmin
 		.from("voc_predictions")
 		.insert({
 			patient_id: patientId,
@@ -486,7 +515,7 @@ app.get("/patients/:patientId/predictions", async (c) => {
 	const from = (page - 1) * limit;
 	const to = from + limit - 1;
 
-	const { data, error, count } = await supabase
+	const { data, error, count } = await supabaseAdmin
 		.from("voc_predictions")
 		.select("*", { count: "exact" })
 		.eq("patient_id", patientId)
@@ -513,7 +542,7 @@ app.get("/patients/:patientId/predictions", async (c) => {
 app.get("/patients/:patientId/predictions/latest", async (c) => {
 	const patientId = c.req.param("patientId");
 
-	const { data, error } = await supabase
+	const { data, error } = await supabaseAdmin
 		.from("voc_predictions")
 		.select("*")
 		.eq("patient_id", patientId)
@@ -543,7 +572,7 @@ app.post(
 		const patientId = c.req.param("patientId");
 		const body = c.req.valid("json");
 
-		const { data, error } = await supabase
+		const { data, error } = await supabaseAdmin
 			.from("prediction_feedback")
 			.insert({
 				prediction_id: body.predictionId,
@@ -564,7 +593,7 @@ app.post(
 
 		// If VOC occurred, update the patient's learning profile
 		if (body.vocOccurred) {
-			await supabase.from("patient_learning_profiles").upsert(
+			await supabaseAdmin.from("patient_learning_profiles").upsert(
 				{
 					patient_id: patientId,
 					last_voc_date: body.vocOccurredAt || new Date().toISOString(),
@@ -589,7 +618,7 @@ app.post(
 app.get("/patients/:patientId/profile", async (c) => {
 	const patientId = c.req.param("patientId");
 
-	const { data, error } = await supabase
+	const { data, error } = await supabaseAdmin
 		.from("patient_learning_profiles")
 		.select("*")
 		.eq("patient_id", patientId)
@@ -630,7 +659,7 @@ app.get("/patients/:patientId/dashboard", async (c) => {
 	const [symptomsResult, predictionResult, profileResult, alertsResult] =
 		await Promise.all([
 			// Recent symptoms (last 14 days)
-			supabase
+			supabaseAdmin
 				.from("symptom_logs")
 				.select("*")
 				.eq("patient_id", patientId)
@@ -642,7 +671,7 @@ app.get("/patients/:patientId/dashboard", async (c) => {
 				.limit(50),
 
 			// Latest prediction
-			supabase
+			supabaseAdmin
 				.from("voc_predictions")
 				.select("*")
 				.eq("patient_id", patientId)
@@ -651,14 +680,14 @@ app.get("/patients/:patientId/dashboard", async (c) => {
 				.single(),
 
 			// Patient profile
-			supabase
+			supabaseAdmin
 				.from("patient_learning_profiles")
 				.select("*")
 				.eq("patient_id", patientId)
 				.single(),
 
 			// Recent alerts (last 7 days)
-			supabase
+			supabaseAdmin
 				.from("voc_alerts")
 				.select("*")
 				.eq("patient_id", patientId)

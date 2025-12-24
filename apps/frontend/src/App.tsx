@@ -15,7 +15,7 @@ function App() {
 	const [viewMode, setViewMode] = useState<ViewMode>("voc");
 
 	// TODO: Get actual patient ID from auth context
-	const patientId = "demo-patient-123";
+	const patientId = "00000000-0000-0000-0000-000000000001";
 
 	return (
 		<ChatProvider>

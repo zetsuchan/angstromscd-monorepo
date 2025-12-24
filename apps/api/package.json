@@ -21,6 +21,7 @@
 		"@effect/schema": "^0.75.5",
 		"@hono/effect-validator": "^1.2.0",
 		"@hono/node-server": "^1.14.3",
+		"@hono/zod-validator": "^0.7.6",
 		"@supabase/supabase-js": "^2.49.8",
 		"ai": "^5.0.93",
 		"convex": "^1.29.1",

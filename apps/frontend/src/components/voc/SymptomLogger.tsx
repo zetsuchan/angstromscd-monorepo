@@ -232,7 +232,9 @@ export function SymptomLogger({
 			});
 
 			if (!response.ok) {
-				throw new Error("Failed to log symptoms");
+				const errorData = await response.json().catch(() => ({}));
+				console.error("API Error:", errorData);
+				throw new Error(errorData?.error?.message || "Failed to log symptoms");
 			}
 
 			onSubmit?.(formData);

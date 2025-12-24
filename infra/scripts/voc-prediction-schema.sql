@@ -2,6 +2,43 @@
 -- Phase 1: Foundation tables for Monarch VOC prediction system
 
 -- ============================================================================
+-- PREREQUISITE TABLES (from init-db.sql)
+-- ============================================================================
+
+-- Core patient table (required for foreign keys)
+CREATE TABLE IF NOT EXISTS scd_patients (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    medical_record_number VARCHAR(50),
+    demographics JSONB,
+    clinical_history JSONB,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- VOE episodes history
+CREATE TABLE IF NOT EXISTS voe_episodes (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    patient_id UUID REFERENCES scd_patients(id) ON DELETE CASCADE,
+    episode_date TIMESTAMP,
+    severity VARCHAR(20),
+    risk_factors JSONB,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Literature citations for research
+CREATE TABLE IF NOT EXISTS literature_citations (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    pmid VARCHAR(20),
+    doi VARCHAR(100),
+    title TEXT,
+    authors TEXT[],
+    journal VARCHAR(200),
+    publication_date DATE,
+    medical_subjects TEXT[],
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- ============================================================================
 -- SYMPTOM LOGGING
 -- ============================================================================
 
@@ -42,10 +79,9 @@ CREATE TABLE IF NOT EXISTS symptom_logs (
 CREATE INDEX IF NOT EXISTS idx_symptom_logs_patient_time
     ON symptom_logs(patient_id, recorded_at DESC);
 
--- Index for recent lookups
+-- Index for recent lookups (no partial index - NOW() is not immutable)
 CREATE INDEX IF NOT EXISTS idx_symptom_logs_recent
-    ON symptom_logs(recorded_at DESC)
-    WHERE recorded_at > NOW() - INTERVAL '30 days';
+    ON symptom_logs(recorded_at DESC);
 
 -- ============================================================================
 -- WEARABLE DATA
@@ -242,8 +278,7 @@ CREATE TABLE IF NOT EXISTS voc_alerts (
 
 -- Index for recent alerts (deduplication check)
 CREATE INDEX IF NOT EXISTS idx_voc_alerts_patient_recent
-    ON voc_alerts(patient_id, created_at DESC)
-    WHERE created_at > NOW() - INTERVAL '7 days';
+    ON voc_alerts(patient_id, created_at DESC);
 
 -- ============================================================================
 -- MATERIALIZED VIEWS FOR FEATURE ENGINEERING
@@ -311,35 +346,52 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_patient_rolling_7d_pk
     ON patient_rolling_7d_features(patient_id);
 
 -- ============================================================================
--- RLS POLICIES
+-- RLS POLICIES (Supabase-specific, skip if running locally)
 -- ============================================================================
 
--- Enable RLS on all tables
-ALTER TABLE symptom_logs ENABLE ROW LEVEL SECURITY;
-ALTER TABLE wearable_readings ENABLE ROW LEVEL SECURITY;
-ALTER TABLE voc_predictions ENABLE ROW LEVEL SECURITY;
-ALTER TABLE patient_learning_profiles ENABLE ROW LEVEL SECURITY;
-ALTER TABLE prediction_feedback ENABLE ROW LEVEL SECURITY;
-ALTER TABLE voc_alerts ENABLE ROW LEVEL SECURITY;
+-- Only enable RLS if running in Supabase (auth schema exists)
+DO $$
+BEGIN
+    -- Check if auth schema exists (Supabase)
+    IF EXISTS (SELECT 1 FROM information_schema.schemata WHERE schema_name = 'auth') THEN
+        -- Enable RLS on all tables
+        ALTER TABLE symptom_logs ENABLE ROW LEVEL SECURITY;
+        ALTER TABLE wearable_readings ENABLE ROW LEVEL SECURITY;
+        ALTER TABLE voc_predictions ENABLE ROW LEVEL SECURITY;
+        ALTER TABLE patient_learning_profiles ENABLE ROW LEVEL SECURITY;
+        ALTER TABLE prediction_feedback ENABLE ROW LEVEL SECURITY;
+        ALTER TABLE voc_alerts ENABLE ROW LEVEL SECURITY;
 
--- Patients can only see their own data
-CREATE POLICY symptom_logs_patient_policy ON symptom_logs
-    FOR ALL USING (patient_id = auth.uid());
+        -- Patients can only see their own data
+        DROP POLICY IF EXISTS symptom_logs_patient_policy ON symptom_logs;
+        CREATE POLICY symptom_logs_patient_policy ON symptom_logs
+            FOR ALL USING (patient_id = auth.uid());
 
-CREATE POLICY wearable_readings_patient_policy ON wearable_readings
-    FOR ALL USING (patient_id = auth.uid());
+        DROP POLICY IF EXISTS wearable_readings_patient_policy ON wearable_readings;
+        CREATE POLICY wearable_readings_patient_policy ON wearable_readings
+            FOR ALL USING (patient_id = auth.uid());
 
-CREATE POLICY voc_predictions_patient_policy ON voc_predictions
-    FOR ALL USING (patient_id = auth.uid());
+        DROP POLICY IF EXISTS voc_predictions_patient_policy ON voc_predictions;
+        CREATE POLICY voc_predictions_patient_policy ON voc_predictions
+            FOR ALL USING (patient_id = auth.uid());
 
-CREATE POLICY patient_learning_profiles_patient_policy ON patient_learning_profiles
-    FOR ALL USING (patient_id = auth.uid());
+        DROP POLICY IF EXISTS patient_learning_profiles_patient_policy ON patient_learning_profiles;
+        CREATE POLICY patient_learning_profiles_patient_policy ON patient_learning_profiles
+            FOR ALL USING (patient_id = auth.uid());
 
-CREATE POLICY prediction_feedback_patient_policy ON prediction_feedback
-    FOR ALL USING (patient_id = auth.uid());
+        DROP POLICY IF EXISTS prediction_feedback_patient_policy ON prediction_feedback;
+        CREATE POLICY prediction_feedback_patient_policy ON prediction_feedback
+            FOR ALL USING (patient_id = auth.uid());
 
-CREATE POLICY voc_alerts_patient_policy ON voc_alerts
-    FOR ALL USING (patient_id = auth.uid());
+        DROP POLICY IF EXISTS voc_alerts_patient_policy ON voc_alerts;
+        CREATE POLICY voc_alerts_patient_policy ON voc_alerts
+            FOR ALL USING (patient_id = auth.uid());
+
+        RAISE NOTICE 'RLS policies created (Supabase detected)';
+    ELSE
+        RAISE NOTICE 'Skipping RLS policies (local PostgreSQL detected)';
+    END IF;
+END $$;
 
 -- ============================================================================
 -- TRIGGERS
@@ -359,6 +411,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS trigger_update_learning_profile ON symptom_logs;
 CREATE TRIGGER trigger_update_learning_profile
     AFTER INSERT ON symptom_logs
     FOR EACH ROW
@@ -373,6 +426,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS trigger_symptom_logs_updated_at ON symptom_logs;
 CREATE TRIGGER trigger_symptom_logs_updated_at
     BEFORE UPDATE ON symptom_logs
     FOR EACH ROW
@@ -390,3 +444,40 @@ COMMENT ON TABLE prediction_feedback IS 'Actual outcomes used to improve predict
 COMMENT ON TABLE voc_alerts IS 'Alert history for patient notifications';
 COMMENT ON MATERIALIZED VIEW patient_daily_summary IS 'Aggregated daily symptom data (refresh periodically)';
 COMMENT ON MATERIALIZED VIEW patient_rolling_7d_features IS '7-day rolling features for ML predictions';
+
+-- ============================================================================
+-- DEMO DATA
+-- ============================================================================
+
+-- Insert demo patient for testing (matches frontend hardcoded ID)
+INSERT INTO scd_patients (id, medical_record_number, demographics, clinical_history)
+VALUES (
+    '00000000-0000-0000-0000-000000000001'::UUID,
+    'MRN-DEMO-001',
+    '{"name": "Demo Patient", "age": 28, "gender": "female"}'::JSONB,
+    '{"diagnosis": "HbSS", "diagnosed_at": "2010-01-15", "complications": ["acute_chest_syndrome", "avascular_necrosis"]}'::JSONB
+)
+ON CONFLICT (id) DO NOTHING;
+
+-- Insert sample learning profile for demo patient
+INSERT INTO patient_learning_profiles (
+    patient_id,
+    baseline_voe_frequency,
+    baseline_pain_score,
+    baseline_sleep_hours,
+    model_confidence,
+    data_points_count,
+    trigger_weights,
+    prodrome_signals
+)
+VALUES (
+    '00000000-0000-0000-0000-000000000001'::UUID,
+    2.5,
+    3.2,
+    7.5,
+    0.45,
+    47,
+    '{"cold_weather": 0.82, "stress": 0.68, "dehydration": 0.55, "poor_sleep": 0.72}'::JSONB,
+    '{"fatigue_increase_48h": 0.75, "mild_pain_24h": 0.82}'::JSONB
+)
+ON CONFLICT (patient_id) DO NOTHING;

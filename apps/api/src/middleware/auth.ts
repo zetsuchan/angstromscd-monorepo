@@ -29,6 +29,7 @@ const PUBLIC_ROUTES = [
 	"/api/chat/models",
 	"/api/chat/health",
 	"/api/chat/ai-sdk/health",
+	"/api/voc/*", // VOC prediction routes (TODO: require auth in production)
 ];
 
 /**
