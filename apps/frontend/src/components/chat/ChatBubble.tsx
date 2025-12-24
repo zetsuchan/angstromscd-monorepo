@@ -1,10 +1,37 @@
+import DOMPurify from "dompurify";
 import { ChevronDown, ChevronUp, ExternalLink } from "lucide-react";
 import type React from "react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import type { Message } from "../../types";
 
 interface ChatBubbleProps {
 	message: Message;
+}
+
+/**
+ * Sanitize HTML/SVG content for safe rendering
+ */
+function sanitizeContent(base64Data: string, format: string): string {
+	const decoded = atob(base64Data);
+
+	if (format === "svg") {
+		// Allow SVG-specific tags and attributes
+		return DOMPurify.sanitize(decoded, {
+			USE_PROFILES: { svg: true, svgFilters: true },
+			ADD_TAGS: ["use", "symbol", "defs", "clipPath", "mask", "pattern"],
+			ADD_ATTR: ["xlink:href", "preserveAspectRatio", "viewBox"],
+		});
+	}
+
+	// For HTML content (e.g., iframe srcDoc), use strict sanitization
+	return DOMPurify.sanitize(decoded, {
+		ALLOWED_TAGS: [
+			"div", "span", "p", "br", "h1", "h2", "h3", "h4", "h5", "h6",
+			"ul", "ol", "li", "table", "thead", "tbody", "tr", "th", "td",
+			"img", "svg", "canvas", "style"
+		],
+		ALLOWED_ATTR: ["class", "style", "src", "alt", "width", "height", "id"],
+	});
 }
 
 const ChatBubble: React.FC<ChatBubbleProps> = ({ message }) => {
@@ -17,6 +44,15 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({ message }) => {
 			setExpandedCitation(id);
 		}
 	};
+
+	// Memoize sanitized visualizations to avoid re-sanitizing on each render
+	const sanitizedVisualizations = useMemo(() => {
+		if (!message.visualizations) return [];
+		return message.visualizations.map((viz) => ({
+			...viz,
+			sanitizedData: viz.format !== "png" ? sanitizeContent(viz.data, viz.format) : null,
+		}));
+	}, [message.visualizations]);
 
 	return (
 		<div
@@ -46,9 +82,9 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({ message }) => {
 				<div>
 					<p className="whitespace-pre-wrap">{message.content}</p>
 
-					{message.visualizations && message.visualizations.length > 0 && (
+					{sanitizedVisualizations.length > 0 && (
 						<div className="mt-4 space-y-3">
-							{message.visualizations.map((viz) => (
+							{sanitizedVisualizations.map((viz) => (
 								<div
 									key={`${viz.format}-${viz.data.slice(0, 32)}`}
 									className="rounded-lg overflow-hidden glass-subtle border border-white/20"
@@ -61,15 +97,16 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({ message }) => {
 										/>
 									) : viz.format === "svg" ? (
 										<div
-											// biome-ignore lint/security/noDangerouslySetInnerHtml: SVG content is server-generated and trusted
-											dangerouslySetInnerHTML={{ __html: atob(viz.data) }}
+											// biome-ignore lint/security/noDangerouslySetInnerHtml: Content is sanitized with DOMPurify
+											dangerouslySetInnerHTML={{ __html: viz.sanitizedData || "" }}
 											className="w-full"
 										/>
 									) : (
 										<iframe
-											srcDoc={atob(viz.data)}
+											srcDoc={viz.sanitizedData || ""}
 											className="w-full h-96 border-0"
 											title={`${viz.format} visualization`}
+											sandbox="allow-scripts"
 										/>
 									)}
 								</div>

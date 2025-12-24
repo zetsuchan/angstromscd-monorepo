@@ -30,14 +30,37 @@ export async function createVectorProvider(
 	}
 }
 
+// Valid provider types
+const VALID_PROVIDERS = ["chroma", "qdrant", "pgvector"] as const;
+type ValidProvider = (typeof VALID_PROVIDERS)[number];
+
+/**
+ * Validate and get the vector provider from environment
+ */
+function getValidatedProvider(): ValidProvider {
+	const envProvider = process.env.VECTOR_PROVIDER;
+
+	// Default to chroma if not specified
+	if (!envProvider) {
+		return "chroma";
+	}
+
+	// Validate against allowed providers
+	if (VALID_PROVIDERS.includes(envProvider as ValidProvider)) {
+		return envProvider as ValidProvider;
+	}
+
+	// Invalid provider - throw descriptive error
+	throw new Error(
+		`Invalid VECTOR_PROVIDER: "${envProvider}". Must be one of: ${VALID_PROVIDERS.join(", ")}`,
+	);
+}
+
 /**
  * Get vector provider configuration from environment variables
  */
 export function getVectorProviderFromEnv(): VectorProviderConfig {
-	const provider = (process.env.VECTOR_PROVIDER || "chroma") as
-		| "chroma"
-		| "qdrant"
-		| "pgvector";
+	const provider = getValidatedProvider();
 
 	const baseConfig: VectorProviderConfig = {
 		provider,

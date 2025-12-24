@@ -29,8 +29,6 @@ const Composer: React.FC = () => {
 			setInput("");
 			setIsLoading(true);
 
-			const startTime = Date.now();
-
 			// Call the API with the selected model
 			try {
 				const response = await fetch("/api/chat", {
@@ -56,7 +54,7 @@ const Composer: React.FC = () => {
 						executionCode: data.data.executionCode,
 						citations: data.data.citations
 							? data.data.pubmedArticles?.map(
-									(article: any, index: number) => ({
+									(article: { pmid?: string; title?: string; journal?: string; publicationDate?: string }, index: number) => ({
 										id: article.pmid || `cite-${index}`,
 										reference: `${index + 1}`,
 										snippet: article.title,

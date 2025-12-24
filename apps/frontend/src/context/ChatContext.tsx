@@ -169,7 +169,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({
 	}, [authenticated, refreshConversations]);
 
 	const handleRealtimeEnvelope = useCallback(
-		(envelope: GatewayServerEnvelope, _meta: { replay: boolean }) => {
+		(envelope: GatewayServerEnvelope) => {
 			sequenceRef.current.set(envelope.conversationId, envelope.sequence);
 
 			if (envelope.event.type === "chat.message.created") {
