@@ -36,3 +36,6 @@ export * from "./conversation";
 
 // Realtime protocol types
 export * from "./realtime";
+
+// VOC Prediction types (Monarch)
+export * from "./voc-prediction";
