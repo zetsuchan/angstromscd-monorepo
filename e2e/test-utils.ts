@@ -55,10 +55,12 @@ export async function createAuthenticatedUser(request: any) {
 	const signupData = await signupRes.json();
 
 	// Check for connection errors
-	if (signupData.error?.message?.includes("Unable to connect") ||
+	if (
+		signupData.error?.message?.includes("Unable to connect") ||
 		signupData.error?.message?.includes("typo in the url") ||
 		signupData.error?.code === "ConnectionRefused" ||
-		signupData.error?.code === "FailedToOpenSocket") {
+		signupData.error?.code === "FailedToOpenSocket"
+	) {
 		throw new Error("SUPABASE_UNAVAILABLE");
 	}
 
@@ -75,9 +77,7 @@ export async function createAuthenticatedUser(request: any) {
 		console.log(
 			"Signup succeeded but no session token - email confirmation may be required",
 		);
-		throw new Error(
-			"No auth token - Supabase may require email confirmation.",
-		);
+		throw new Error("No auth token - Supabase may require email confirmation.");
 	}
 
 	return { email, password, token };
@@ -89,16 +89,22 @@ export async function createAuthenticatedUser(request: any) {
  */
 export function testWithAuth(
 	title: string,
-	testFn: (args: { request: any; token: string; email: string }) => Promise<void>,
+	testFn: (args: {
+		request: any;
+		token: string;
+		email: string;
+	}) => Promise<void>,
 ) {
 	test(title, async ({ request }) => {
 		try {
 			const { token, email } = await createAuthenticatedUser(request);
 			await testFn({ request, token, email });
 		} catch (error: any) {
-			if (error.message === "SUPABASE_UNAVAILABLE" ||
+			if (
+				error.message === "SUPABASE_UNAVAILABLE" ||
 				error.message?.includes("Unable to connect") ||
-				error.message?.includes("typo in the url")) {
+				error.message?.includes("typo in the url")
+			) {
 				console.log(`Skipping "${title}" - Supabase not available`);
 				test.skip();
 				return;

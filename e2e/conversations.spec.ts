@@ -1,5 +1,9 @@
 import { expect, test } from "@playwright/test";
-import { API_URL, createAuthenticatedUser, isSupabaseAvailable } from "./test-utils";
+import {
+	API_URL,
+	createAuthenticatedUser,
+	isSupabaseAvailable,
+} from "./test-utils";
 
 test.describe("Conversation CRUD Operations", () => {
 	test.describe("API Endpoints", () => {

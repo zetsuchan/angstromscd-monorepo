@@ -48,19 +48,20 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({ message }) => {
 
 					{message.visualizations && message.visualizations.length > 0 && (
 						<div className="mt-4 space-y-3">
-							{message.visualizations.map((viz, index) => (
+							{message.visualizations.map((viz) => (
 								<div
-									key={index}
+									key={`${viz.format}-${viz.data.slice(0, 32)}`}
 									className="rounded-lg overflow-hidden glass-subtle border border-white/20"
 								>
 									{viz.format === "png" ? (
 										<img
 											src={`data:image/png;base64,${viz.data}`}
-											alt={`Visualization ${index + 1}`}
+											alt={`${viz.format} visualization`}
 											className="w-full h-auto"
 										/>
 									) : viz.format === "svg" ? (
 										<div
+											// biome-ignore lint/security/noDangerouslySetInnerHtml: SVG content is server-generated and trusted
 											dangerouslySetInnerHTML={{ __html: atob(viz.data) }}
 											className="w-full"
 										/>
@@ -68,7 +69,7 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({ message }) => {
 										<iframe
 											srcDoc={atob(viz.data)}
 											className="w-full h-96 border-0"
-											title={`Visualization ${index + 1}`}
+											title={`${viz.format} visualization`}
 										/>
 									)}
 								</div>
