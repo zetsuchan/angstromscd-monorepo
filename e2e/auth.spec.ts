@@ -1,9 +1,11 @@
-import { type Page, expect, test } from "@playwright/test";
+import { expect, test } from "@playwright/test";
+import {
+	API_URL,
+	createAuthenticatedUser,
+	isSupabaseAvailable,
+} from "./test-utils";
 
-const API_URL = "http://localhost:3001";
-
-// Generate unique email for each test run to avoid conflicts
-// Use a more realistic domain since Supabase may reject example.com
+// Generate unique email for each test run
 const generateTestEmail = () => `testuser${Date.now()}@testmail.dev`;
 const TEST_PASSWORD = "TestPassword123!";
 
@@ -28,6 +30,13 @@ test.describe("Authentication Flow", () => {
 		});
 
 		test("signup creates new user", async ({ request }) => {
+			const supabaseAvailable = await isSupabaseAvailable(request);
+			if (!supabaseAvailable) {
+				console.log("Skipping test - Supabase not available");
+				test.skip();
+				return;
+			}
+
 			const email = generateTestEmail();
 
 			const response = await request.post(`${API_URL}/auth/signup`, {
@@ -39,7 +48,6 @@ test.describe("Authentication Flow", () => {
 
 			const data = await response.json();
 
-			// Log actual response for debugging
 			if (!response.ok()) {
 				console.log("Signup failed:", JSON.stringify(data, null, 2));
 			}
@@ -77,6 +85,13 @@ test.describe("Authentication Flow", () => {
 		});
 
 		test("login with valid credentials returns token", async ({ request }) => {
+			const supabaseAvailable = await isSupabaseAvailable(request);
+			if (!supabaseAvailable) {
+				console.log("Skipping test - Supabase not available");
+				test.skip();
+				return;
+			}
+
 			// First create a user
 			const email = generateTestEmail();
 			await request.post(`${API_URL}/auth/signup`, {
@@ -97,6 +112,13 @@ test.describe("Authentication Flow", () => {
 		});
 
 		test("login with wrong password fails", async ({ request }) => {
+			const supabaseAvailable = await isSupabaseAvailable(request);
+			if (!supabaseAvailable) {
+				console.log("Skipping test - Supabase not available");
+				test.skip();
+				return;
+			}
+
 			const email = generateTestEmail();
 			await request.post(`${API_URL}/auth/signup`, {
 				data: { email, password: TEST_PASSWORD },
@@ -114,30 +136,34 @@ test.describe("Authentication Flow", () => {
 		test("authenticated request to protected endpoint succeeds", async ({
 			request,
 		}) => {
-			// Create user and get token
-			const email = generateTestEmail();
-			const signupRes = await request.post(`${API_URL}/auth/signup`, {
-				data: { email, password: TEST_PASSWORD },
-			});
-			const signupData = await signupRes.json();
-			const token = signupData.data.session?.token;
-
-			// Skip if no token (email confirmation might be required)
-			if (!token) {
+			const supabaseAvailable = await isSupabaseAvailable(request);
+			if (!supabaseAvailable) {
+				console.log("Skipping test - Supabase not available");
 				test.skip();
 				return;
 			}
 
-			// Access protected endpoint with token
-			const response = await request.get(`${API_URL}/api/conversations`, {
-				headers: {
-					Authorization: `Bearer ${token}`,
-				},
-			});
+			// Create user and get token
+			try {
+				const { token } = await createAuthenticatedUser(request);
 
-			expect(response.ok()).toBe(true);
-			const data = await response.json();
-			expect(data.success).toBe(true);
+				// Access protected endpoint with token
+				const response = await request.get(`${API_URL}/api/conversations`, {
+					headers: {
+						Authorization: `Bearer ${token}`,
+					},
+				});
+
+				expect(response.ok()).toBe(true);
+				const data = await response.json();
+				expect(data.success).toBe(true);
+			} catch (error: any) {
+				if (error.message === "SUPABASE_UNAVAILABLE") {
+					test.skip();
+					return;
+				}
+				throw error;
+			}
 		});
 
 		test("invalid token is rejected", async ({ request }) => {

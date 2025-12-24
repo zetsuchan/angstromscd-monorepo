@@ -212,6 +212,17 @@ ALTER TABLE users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE conversations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE conversation_messages ENABLE ROW LEVEL SECURITY;
 
+-- Drop existing policies first (for idempotent migrations)
+DROP POLICY IF EXISTS "Users can view own profile" ON users;
+DROP POLICY IF EXISTS "Users can insert own profile" ON users;
+DROP POLICY IF EXISTS "Users can update own profile" ON users;
+DROP POLICY IF EXISTS "Users can view own conversations" ON conversations;
+DROP POLICY IF EXISTS "Users can create own conversations" ON conversations;
+DROP POLICY IF EXISTS "Users can update own conversations" ON conversations;
+DROP POLICY IF EXISTS "Users can delete own conversations" ON conversations;
+DROP POLICY IF EXISTS "Users can view messages in own conversations" ON conversation_messages;
+DROP POLICY IF EXISTS "Users can add messages to own conversations" ON conversation_messages;
+
 -- Users can only see/modify their own data
 CREATE POLICY "Users can view own profile" ON users
   FOR SELECT USING (auth.uid() = id);

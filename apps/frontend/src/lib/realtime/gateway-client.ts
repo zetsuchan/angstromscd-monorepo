@@ -156,9 +156,9 @@ export class RealtimeGatewayClient {
 	}
 }
 
-function safeParse(payload: string): any {
+function safeParse(payload: string): Record<string, unknown> | undefined {
 	try {
-		return JSON.parse(payload);
+		return JSON.parse(payload) as Record<string, unknown>;
 	} catch (error) {
 		console.error("Failed to parse gateway payload", { payload, error });
 		return undefined;

@@ -267,7 +267,7 @@ export async function retry<T>(
 /**
  * Debounce function
  */
-export function debounce<T extends (...args: any[]) => any>(
+export function debounce<T extends (...args: unknown[]) => unknown>(
 	fn: T,
 	delay: number,
 ): (...args: Parameters<T>) => void {
@@ -282,7 +282,7 @@ export function debounce<T extends (...args: any[]) => any>(
 /**
  * Throttle function
  */
-export function throttle<T extends (...args: any[]) => any>(
+export function throttle<T extends (...args: unknown[]) => unknown>(
 	fn: T,
 	limit: number,
 ): (...args: Parameters<T>) => void {
@@ -302,7 +302,7 @@ export function throttle<T extends (...args: any[]) => any>(
 /**
  * Memoize function results
  */
-export function memoize<T extends (...args: any[]) => any>(
+export function memoize<T extends (...args: unknown[]) => unknown>(
 	fn: T,
 	keyFn?: (...args: Parameters<T>) => string,
 ): T {
@@ -311,11 +311,12 @@ export function memoize<T extends (...args: any[]) => any>(
 	return ((...args: Parameters<T>) => {
 		const key = keyFn ? keyFn(...args) : JSON.stringify(args);
 
-		if (cache.has(key)) {
-			return cache.get(key)!;
+		const cached = cache.get(key);
+		if (cached !== undefined) {
+			return cached;
 		}
 
-		const result = fn(...args);
+		const result = fn(...args) as ReturnType<T>;
 		cache.set(key, result);
 		return result;
 	}) as T;

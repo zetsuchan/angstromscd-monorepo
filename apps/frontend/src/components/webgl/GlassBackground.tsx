@@ -10,7 +10,7 @@ function checkWebGLSupport(): boolean {
 		const gl =
 			canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
 		return !!gl;
-	} catch (e) {
+	} catch {
 		return false;
 	}
 }
