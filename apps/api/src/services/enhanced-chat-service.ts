@@ -13,10 +13,18 @@ interface EnhancedChatMessage {
 	content: string;
 }
 
+interface PubMedArticle {
+	pmid?: string;
+	title?: string;
+	journal?: string;
+	publicationDate?: string;
+	abstract?: string;
+}
+
 interface EnhancedChatResponse {
 	reply: string;
 	citations?: string;
-	pubmedArticles?: any[];
+	pubmedArticles?: PubMedArticle[];
 	model: string;
 	visualizations?: Array<{
 		type: string;
@@ -50,7 +58,11 @@ export class EnhancedChatService {
 		let pubmedArticles = null;
 		let citations = "";
 		let enhancedPrompt = message;
-		const visualizations: any[] = [];
+		const visualizations: Array<{
+			type: string;
+			data: string;
+			format: "png" | "html" | "svg";
+		}> = [];
 		let executionCode: string | undefined;
 
 		// First, determine if we need to use any tools
@@ -536,12 +548,12 @@ plt.show()
 	 */
 	private buildEnhancedPrompt(
 		originalMessage: string,
-		articles: any[],
+		articles: PubMedArticle[],
 	): string {
 		const context = articles
 			.map(
 				(article, index) =>
-					`Study ${index + 1}: ${article.title}\nKey findings: ${article.abstract.slice(0, 200)}...`,
+					`Study ${index + 1}: ${article.title}\nKey findings: ${(article.abstract || "").slice(0, 200)}...`,
 			)
 			.join("\n\n");
 

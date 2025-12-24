@@ -43,8 +43,13 @@ export class QdrantProvider implements VectorProvider {
 					distance: "Cosine",
 				},
 			});
-		} catch (error: any) {
-			if (error.status === 409) {
+		} catch (error: unknown) {
+			if (
+				error &&
+				typeof error === "object" &&
+				"status" in error &&
+				error.status === 409
+			) {
 				// Collection already exists
 				return;
 			}
@@ -151,8 +156,13 @@ export class QdrantProvider implements VectorProvider {
 	private async ensureCollection(name: string): Promise<void> {
 		try {
 			await this.client.getCollection(name);
-		} catch (error: any) {
-			if (error.status === 404) {
+		} catch (error: unknown) {
+			if (
+				error &&
+				typeof error === "object" &&
+				"status" in error &&
+				error.status === 404
+			) {
 				await this.createCollection(name);
 			} else {
 				throw error;
@@ -169,7 +179,13 @@ export class QdrantProvider implements VectorProvider {
 		return response.data.map((item) => item.embedding);
 	}
 
-	private formatResults(results: any[]): QueryResult {
+	private formatResults(
+		results: Array<{
+			id: string;
+			payload?: Record<string, unknown>;
+			score?: number;
+		}>,
+	): QueryResult {
 		// Format to match ChromaDB's output structure
 		const ids: string[][] = [[]];
 		const documents: (string | null)[][] = [[]];

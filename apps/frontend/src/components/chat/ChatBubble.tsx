@@ -26,9 +26,29 @@ function sanitizeContent(base64Data: string, format: string): string {
 	// For HTML content (e.g., iframe srcDoc), use strict sanitization
 	return DOMPurify.sanitize(decoded, {
 		ALLOWED_TAGS: [
-			"div", "span", "p", "br", "h1", "h2", "h3", "h4", "h5", "h6",
-			"ul", "ol", "li", "table", "thead", "tbody", "tr", "th", "td",
-			"img", "svg", "canvas", "style"
+			"div",
+			"span",
+			"p",
+			"br",
+			"h1",
+			"h2",
+			"h3",
+			"h4",
+			"h5",
+			"h6",
+			"ul",
+			"ol",
+			"li",
+			"table",
+			"thead",
+			"tbody",
+			"tr",
+			"th",
+			"td",
+			"img",
+			"svg",
+			"canvas",
+			"style",
 		],
 		ALLOWED_ATTR: ["class", "style", "src", "alt", "width", "height", "id"],
 	});
@@ -50,7 +70,8 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({ message }) => {
 		if (!message.visualizations) return [];
 		return message.visualizations.map((viz) => ({
 			...viz,
-			sanitizedData: viz.format !== "png" ? sanitizeContent(viz.data, viz.format) : null,
+			sanitizedData:
+				viz.format !== "png" ? sanitizeContent(viz.data, viz.format) : null,
 		}));
 	}, [message.visualizations]);
 
@@ -98,7 +119,9 @@ const ChatBubble: React.FC<ChatBubbleProps> = ({ message }) => {
 									) : viz.format === "svg" ? (
 										<div
 											// biome-ignore lint/security/noDangerouslySetInnerHtml: Content is sanitized with DOMPurify
-											dangerouslySetInnerHTML={{ __html: viz.sanitizedData || "" }}
+											dangerouslySetInnerHTML={{
+												__html: viz.sanitizedData || "",
+											}}
 											className="w-full"
 										/>
 									) : (

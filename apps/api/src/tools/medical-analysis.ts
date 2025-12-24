@@ -6,6 +6,12 @@ import type {
 } from "../types/e2b";
 import { VOERiskTool } from "./voe-risk";
 
+interface ExecutionFile {
+	name: string;
+	type: string;
+	content: string;
+}
+
 export class MedicalAnalysisOrchestrator {
 	private codeExecutor = getCodeExecutor();
 
@@ -23,8 +29,8 @@ export class MedicalAnalysisOrchestrator {
 				analysisType: "voe_risk",
 				results: { rawOutput: execRes.output },
 				visualizations: execRes.files
-					?.filter((f: any) => f.name.endsWith(".png"))
-					.map((f: any) => ({
+					?.filter((f: ExecutionFile) => f.name.endsWith(".png"))
+					.map((f: ExecutionFile) => ({
 						name: f.name,
 						type: f.type,
 						data: f.content,
@@ -57,8 +63,8 @@ export class MedicalAnalysisOrchestrator {
 			analysisType: input.analysisType,
 			results: this.parseAnalysisResults(result.output, input.analysisType),
 			visualizations: result.files
-				?.filter((f: any) => f.type.startsWith("image/"))
-				.map((f: any) => ({
+				?.filter((f: ExecutionFile) => f.type.startsWith("image/"))
+				.map((f: ExecutionFile) => ({
 					name: f.name,
 					type: f.type,
 					data: f.content,
@@ -107,8 +113,8 @@ export class MedicalAnalysisOrchestrator {
 			analysisType: input.analysisType,
 			results: this.parseAnalysisResults(result.output, input.analysisType),
 			visualizations: result.files
-				?.filter((f: any) => f.type.startsWith("image/"))
-				.map((f: any) => ({
+				?.filter((f: ExecutionFile) => f.type.startsWith("image/"))
+				.map((f: ExecutionFile) => ({
 					name: f.name,
 					type: f.type,
 					data: f.content,
@@ -478,7 +484,7 @@ print("Available types: data_analysis, visualization, statistical_analysis, ml_m
 	private parseAnalysisResults(
 		output: string,
 		analysisType: string,
-	): Record<string, any> {
+	): Record<string, unknown> {
 		try {
 			// Look for JSON in the output
 			const jsonMatch = output.match(/\{[\s\S]*\}/g);

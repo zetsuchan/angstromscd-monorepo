@@ -130,7 +130,7 @@ export class PgVectorProvider implements VectorProvider {
 			const embeddings = await this.generateEmbeddings(options.documents);
 
 			// Prepare values for bulk insert
-			const values: any[] = [];
+			const values: (string | number)[] = [];
 			const placeholders: string[] = [];
 			let paramIndex = 1;
 
@@ -286,7 +286,14 @@ export class PgVectorProvider implements VectorProvider {
 		return response.data.map((item) => item.embedding);
 	}
 
-	private formatResults(rows: any[]): QueryResult {
+	private formatResults(
+		rows: Array<{
+			id: string;
+			content: string;
+			metadata: Record<string, unknown>;
+			distance: number;
+		}>,
+	): QueryResult {
 		const ids: string[][] = [[]];
 		const documents: (string | null)[][] = [[]];
 		const metadatas: (Record<string, unknown> | null)[][] = [[]];
