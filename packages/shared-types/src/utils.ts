@@ -316,7 +316,7 @@ export function memoize<T extends (...args: unknown[]) => unknown>(
 			return cached;
 		}
 
-		const result = fn(...args);
+		const result = fn(...args) as ReturnType<T>;
 		cache.set(key, result);
 		return result;
 	}) as T;
