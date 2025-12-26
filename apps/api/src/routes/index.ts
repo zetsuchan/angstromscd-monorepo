@@ -15,6 +15,7 @@ import { chatAISDKRouter } from "./chat.ai-sdk";
 import { conversationsRouter } from "./conversations";
 import queueRoutes from "./queue";
 import { streamRouter } from "./stream";
+import vocPredictionRoutes from "./voc-prediction";
 
 export const router = new Hono();
 
@@ -421,6 +422,9 @@ router.route("/api/conversations", conversationsRouter);
 
 // Mount queue routes
 router.route("/api/queue", queueRoutes);
+
+// Mount VOC prediction routes (Monarch)
+router.route("/api/voc", vocPredictionRoutes);
 
 // Mount AI SDK chat routes
 router.route("/", chatAISDKRouter);

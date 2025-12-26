@@ -82,6 +82,13 @@ test.describe("Chat Flow", () => {
 			// Check for main UI elements
 			await expect(page.locator("header")).toBeVisible();
 
+			// VOC Monitor is now the default tab, so switch to Research Chat first
+			const chatTabButton = page.locator('button:has-text("Research Chat")');
+			if (await chatTabButton.isVisible()) {
+				await chatTabButton.click();
+				await page.waitForTimeout(500);
+			}
+
 			// Check for chat input/composer
 			const composer = page.locator(
 				'input[placeholder*="Ask"], textarea[placeholder*="Ask"]',
@@ -91,6 +98,13 @@ test.describe("Chat Flow", () => {
 
 		test("can type in chat input", async ({ page }) => {
 			await page.goto(FRONTEND_URL);
+
+			// VOC Monitor is now the default tab, so switch to Research Chat first
+			const chatTabButton = page.locator('button:has-text("Research Chat")');
+			if (await chatTabButton.isVisible()) {
+				await chatTabButton.click();
+				await page.waitForTimeout(500);
+			}
 
 			// Find and interact with the chat input
 			const input = page.locator(
@@ -172,6 +186,13 @@ test.describe("Chat Flow", () => {
 
 			// 1. Page loads successfully
 			await expect(page.locator("body")).toBeVisible();
+
+			// VOC Monitor is now the default tab, so switch to Research Chat first
+			const chatTabButton = page.locator('button:has-text("Research Chat")');
+			if (await chatTabButton.isVisible()) {
+				await chatTabButton.click();
+				await page.waitForTimeout(500);
+			}
 
 			// 2. Find the chat input
 			const input = page.locator(

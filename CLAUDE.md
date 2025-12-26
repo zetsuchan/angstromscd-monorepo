@@ -74,10 +74,10 @@ docker-compose up -d
 
 **PostgreSQL** (Structured Data):
 - Database: `angstromscd`
-- Tables: `scd_patients`, `voe_episodes`, `literature_citations`
+- Core Tables: `scd_patients`, `voe_episodes`, `literature_citations`
+- VOC Prediction Tables: `symptom_logs`, `wearable_readings`, `voc_predictions`, `patient_learning_profiles`, `prediction_feedback`, `voc_alerts`
 - Access via Supabase client in `apps/api/src/lib/db.ts`
-
- main
+- Admin client (bypasses RLS) via `supabaseAdmin` for server-side operations
 
 ## Medical Domain Context
 
@@ -118,10 +118,23 @@ This application specifically handles:
 
 ## Testing
 
-Currently, the codebase does not have a comprehensive test suite. When implementing tests:
+### E2E Tests (Playwright)
+```bash
+bun run test:e2e          # Run all E2E tests
+bun run test:e2e:ui       # Run with Playwright UI
+```
+
+E2E test files in `e2e/`:
+- `auth.spec.ts` - Authentication flow tests
+- `chat.spec.ts` - Chat functionality tests
+- `conversations.spec.ts` - Conversation management tests
+- `voc-prediction.spec.ts` - VOC prediction system tests
+
+### Test Guidelines
 - Check package.json for available test scripts before creating new ones
 - Consider the medical domain requirements when writing test cases
 - Ensure PHI (Protected Health Information) is properly mocked in tests
+- VOC tests use demo patient ID: `00000000-0000-0000-0000-000000000001`
 
 ## API Endpoints
 
@@ -131,6 +144,19 @@ Key API routes are defined in `apps/api/src/index.ts`:
 - `/api/literature` - Medical literature search
 - `/api/patients` - Patient data management (requires authentication)
 - `/api/voe` - VOE risk assessment endpoints
+
+### VOC Prediction API (Monarch)
+Routes defined in `apps/api/src/routes/voc-prediction.ts`:
+- `POST /api/voc/patients/:id/symptoms` - Log daily symptoms
+- `GET /api/voc/patients/:id/symptoms` - Get symptom history
+- `POST /api/voc/patients/:id/wearables/sync` - Sync wearable device data
+- `POST /api/voc/patients/:id/predictions/generate` - Generate VOC risk prediction
+- `GET /api/voc/patients/:id/predictions` - Get prediction history
+- `POST /api/voc/patients/:id/feedback` - Submit prediction outcome feedback
+- `GET /api/voc/patients/:id/profile` - Get patient learning profile
+- `GET /api/voc/patients/:id/dashboard` - Get dashboard aggregate data
+
+**Note**: VOC routes are currently public (no auth) for development. Production should require authentication.
 
 ## Environment Setup
 

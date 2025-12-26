@@ -5,6 +5,67 @@ All notable changes to the AngstromSCD project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - 2025-12-24
+
+### Added
+
+#### VOC Prediction System (Monarch)
+- **Database Schema**: Complete schema for VOC prediction system (`infra/scripts/voc-prediction-schema.sql`)
+  - `symptom_logs` - Daily patient-reported symptoms (pain, fatigue, mood, sleep, hydration)
+  - `wearable_readings` - Data from Apple Watch, Fitbit, Oura, Garmin devices
+  - `voc_predictions` - AI-generated risk predictions with explanations
+  - `patient_learning_profiles` - Personalized models that improve over time
+  - `prediction_feedback` - Actual outcomes for model training
+  - `voc_alerts` - Alert history and deduplication
+  - Materialized views for 7-day rolling features (`patient_daily_summary`, `patient_rolling_7d_features`)
+
+- **API Endpoints**: 11 new endpoints for VOC prediction (`apps/api/src/routes/voc-prediction.ts`)
+  - `POST /api/voc/patients/:id/symptoms` - Log daily symptoms
+  - `GET /api/voc/patients/:id/symptoms` - Get symptom history with pagination
+  - `POST /api/voc/patients/:id/wearables/sync` - Sync wearable device data
+  - `POST /api/voc/patients/:id/predictions/generate` - Generate VOC risk prediction
+  - `GET /api/voc/patients/:id/predictions` - Get prediction history
+  - `POST /api/voc/patients/:id/feedback` - Submit prediction outcome feedback
+  - `GET /api/voc/patients/:id/profile` - Get patient learning profile
+  - `GET /api/voc/patients/:id/dashboard` - Get dashboard aggregate data
+
+- **Rule-Based V1 Prediction Model**: Initial prediction algorithm analyzing:
+  - Pain scores and trends
+  - Fever presence (weighted heavily)
+  - Chest pain (weighted heavily)
+  - Sleep quality decline
+  - Fatigue levels
+  - Returns risk score (0-1), risk level (low/moderate/high/critical), contributing factors, and recommended actions
+
+- **Frontend Components**: VOC Monitor dashboard (`apps/frontend/src/components/voc/`)
+  - `SymptomLogger.tsx` - Daily symptom logging form with sliders, checkboxes, warning banners
+  - `VOCDashboard.tsx` - Risk gauge visualization, contributing factors, recommendations, learning profile progress
+  - View toggle between VOC Monitor and Research Chat (VOC is default)
+
+- **E2E Tests**: Comprehensive Playwright tests for VOC system (`e2e/voc-prediction.spec.ts`)
+  - API endpoint tests (symptom logging, prediction generation, dashboard data)
+  - Validation tests (score ranges, enum values)
+  - Frontend UI tests (tab switching, form visibility, warning banners)
+
+- **TypeScript Types**: Full type definitions (`packages/shared-types/src/voc-prediction.ts`)
+  - SymptomLog, WearableReading, VOCPrediction, PatientLearningProfile, PredictionFeedback, VOCAlert
+
+#### Dependencies
+- `@hono/zod-validator` - Request validation for VOC API endpoints
+
+### Changed
+- **Auth Middleware**: Added `/api/voc/*` to public routes for development
+- **Frontend Default View**: VOC Monitor is now the default tab (was Research Chat)
+- **Card Styling**: Improved opacity for glass morphism cards (`bg-slate-800/70` instead of `bg-white/5`)
+
+### Technical Details
+- VOC routes use `supabaseAdmin` client to bypass RLS for server-side operations
+- Zod schemas use `.nullish()` to accept both `null` and `undefined` from frontend
+- Demo patient seeded with UUID `00000000-0000-0000-0000-000000000001`
+- RLS policies conditionally applied only when running on Supabase (skipped for local PostgreSQL)
+
+---
+
 ## [0.4.0] - 2025-09-16
 
 ### Added

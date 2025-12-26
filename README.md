@@ -32,6 +32,7 @@ This repository houses the microservices and shared packages that power **Angstr
 - 💾 **Conversation Persistence**: Full conversation history with PostgreSQL storage
 - 🔒 **Secure Code Execution**: E2B sandboxes for safe Python code execution
 - 🏥 **Medical-Specific Models**: Support for Meditron and other medical LLMs
+- 🩺 **VOC Prediction System (Monarch)**: AI-powered Vaso-Occlusive Crisis prediction with personalized learning profiles
 
 ## Repository structure
 
@@ -152,6 +153,33 @@ GET /api/conversations/:id
 
 # Add message to conversation
 POST /api/conversations/:id/messages
+```
+
+### VOC Prediction System (Monarch)
+```bash
+# Log daily symptoms
+POST /api/voc/patients/:id/symptoms
+{
+  "painScore": 5,        # 0-10 scale
+  "fatigueScore": 6,     # 0-10 scale
+  "sleepQuality": 7,     # 0-10 scale
+  "sleepHours": 7.5,
+  "hydrationLevel": "good",  # poor|fair|good|excellent
+  "hasFever": false,
+  "hasChestPain": false
+}
+
+# Generate VOC risk prediction
+POST /api/voc/patients/:id/predictions/generate
+
+# Get dashboard data (prediction + symptoms + profile)
+GET /api/voc/patients/:id/dashboard
+
+# Get patient learning profile
+GET /api/voc/patients/:id/profile
+
+# Submit prediction feedback (for model improvement)
+POST /api/voc/patients/:id/feedback
 ```
 
 ## Architecture
